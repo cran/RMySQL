@@ -39,5 +39,12 @@ In no particular order:
 
 8. Port to Max OS/X.
 
-9. Implement the new DBI.
+
+9. Should the default for fetch(rs, n = 0) should be n=-1?  The issue
+   is safety (chunking) vs. convenience for small data sets).
+   A possibility would be to set it to -1, but define an absolute threshold
+   "max.records" that would cause to stop the fetching at that value
+   and issue a warning message.
+
+11. Benchmark batch size and exec time...
 

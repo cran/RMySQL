@@ -1,3 +1,9 @@
+Version 0.5-0
+
+Made the package DBI-compliant (as of DBI 0.1-4) using version S4 style
+classes.  Simplified quite a bit the MySQLSupport.R file where most of
+the workhorse functions are.    No new functionality in this version.
+
 Version 0.4-6
 
 Ported to Windows with some very nasty porting problems beatifully

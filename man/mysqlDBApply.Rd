@@ -1,19 +1,19 @@
-\name{dbApply.MySQLResultSet}
-\alias{dbApply.MySQLResultSet}
-\title{Apply R/S functions to remote groups of DBMS rows (experimental)}
+\name{mysqlDBApply}
+\alias{mysqlDBApply}
+\title{Apply R/S-Plus functions to remote groups of DBMS rows (experimental)}
 \description{
-  Applies R/S functions to groups of remote DBMS rows without
+  Applies R/S-Plus functions to groups of remote DBMS rows without
   bringing an entire result set all at once.  The result set
   is expected to be sorted by the grouping field.
 }
 \usage{
-dbApply.MySQLResultSet(rs, INDEX, FUN, 
+mysqlDBApply(res, INDEX, FUN, 
    begin, group.begin, new.record, end,
    batchSize = 100, maxBatch = 1e5, ..., 
    simplify = FALSE)
 }
 \arguments{
-  \item{rs}{a result set (see \code{\link{dbExec}}).}
+  \item{res}{a result set (see \code{\link[DBI]{dbSendQuery}}).}
   \item{INDEX}{a character or integer specifying the field name or
                field number that defines the various groups.}
   \item{FUN}{a function to be invoked upon identifying the last
@@ -46,7 +46,8 @@ dbApply.MySQLResultSet(rs, INDEX, FUN,
   the idea is that the data from individual groups can be handled by R, but
   not all the groups at the same time.  
   
-  The implementation allows us to register R functions that get invoked
+  The MySQL implementation \code{mysqlDBApply} allows us to register R 
+  functions that get invoked
   when certain fetching events occur. These include the ``begin'' event
   (no records have been yet fetched), ``begin.group'' (the record just 
   fetched belongs to a new group), ``new record'' (every fetched record
@@ -59,22 +60,23 @@ dbApply.MySQLResultSet(rs, INDEX, FUN,
   A list with as many elements as there were groups in the
   result set.
 }
-\note{This is an experimental version.
+\note{This is an experimental version implemented only in R (there are
+plans, time permitting, to implement it in S-Plus).
 
 The terminology that we're using is closer to SQL than R.  In R
 what we're referring to ``groups'' are the individual levels of
 a factor (grouping field in our terminology).
 }
 
-\seealso{\code{\link{MySQL}}, \code{\link{dbExec}}, \code{\link{fetch}}.}
+\seealso{\code{\link{MySQL}}, \code{\link[DBI]{dbSendQuery}}, \code{\link[DBI]{fetch}}.}
 
 \examples{\dontrun{
 ## compute quanitiles for each network agent
 con <- dbConnect(MySQL(), group="vitalAnalysis")
-rs <- dbExec(con, 
+res <- dbSendQuery(con, 
              "select Agent, ip_addr, DATA from pseudo_data order by Agent")
-out <- dbApply(rs, INDEX = "Agent", 
-        FUN = function(x, grp) quantile(x$DATA, names=F))
+out <- dbApply(res, INDEX = "Agent", 
+        FUN = function(x, grp) quantile(x$DATA, names=FALSE))
 }
 }
 \keyword{programming}% at least one, from doc/KEYWORDS

@@ -12,34 +12,32 @@ isIdCurrent(obj)
 }
 \arguments{
 \item{obj}{
-any \code{dbObject} (e.g., \code{dbManager},
-\code{dbConnection}, \code{dbResultset}).
+any \code{dbObject} (e.g., \code{dbDriver},
+\code{dbConnection}, \code{dbResult}).
 }
 }
 \value{
 a logical scalar.
 }
 \details{
-\code{dbObjects} are R/S remote references to foreign objects.
+\code{dbObjects} are R/S-Plus remote references to foreign objects.
 This introduces differences to the object's semantics such as
 persistence (e.g., connections may be closed unexpectedly),
 thus this function provides a minimal verification to ensure 
 that the foreign object being referenced can be contacted.
 }
 \seealso{
-\code{\link{dbManager}}
-\code{\link{dbConnect}}
-\code{\link{dbExecStatement}}
-\code{\link{dbExec}}
-\code{\link{fetch}}
+\code{\link[DBI]{dbDriver}}
+\code{\link[DBI]{dbConnect}}
+\code{\link[DBI]{dbSendQuery}}
+\code{\link[DBI]{fetch}}
 }
 \examples{\dontrun{
-cursor <- dbExec(con, sql.statement)
+cursor <- dbSendQuery(con, sql.statement)
 isIdCurrent(cursor)
 }
 }
 \keyword{interface}
 \keyword{database}
 % docclass is function
-% Converted by Sd2Rd version 1.15.2.1.
 % vim: syntax=tex

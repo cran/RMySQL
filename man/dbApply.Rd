@@ -1,51 +1,50 @@
 \name{dbApply}
 \alias{dbApply}
-\title{Apply R/S functions to remote groups of DBMS rows (experimental)}
+\alias{dbApply.default}
+\title{Apply R/S-Plus functions to remote groups of DBMS rows (experimental)}
 \description{
-  Applies R/S functions to groups of remote DBMS rows without
+  Applies R/S-Plus functions to groups of remote DBMS rows without
   bringing an entire result set all at once.  The result set
   is expected to be sorted by the grouping field.
-  (Currently only implemented by the MySQL driver.)
 }
 \usage{
-dbApply(rs, ...)
+dbApply(res, ...)
+dbApply.default(res, ...)
 }
 \arguments{
-  \item{rs}{a result set (see \code{\link{dbExec}}).}
-  \item{...}{any additional arguments to be used by the driver code.}
+  \item{res}{a result set (see \code{\link[DBI]{dbSendQuery}}).}
+  \item{...}{any additional arguments to be passed to \code{FUN}.}
 }
 \details{
   \code{dbApply} 
-  This function is meant to handle somewhat gracefully(?) large amounts 
-  of data from the DBMS by bringing into R manageable chunks (about 
-  \code{batchSize} records at a time, but not more than \code{maxBatch}); 
+  This generic is meant to handle somewhat gracefully(?) large amounts 
+  of data from the DBMS by bringing into R manageable chunks;
   the idea is that the data from individual groups can be handled by R, but
   not all the groups at the same time.  
-  
-  For details see the driver's \code{dbApply} method, e.g., 
-  \code{dbApply.MySQLResultSet}.
 
+  Currently, only the \code{\link{MySQL}} driver implements a method 
+  (see the helper function \code{\link{mysqlDBApply}}) for this 
+  generic function.
 }
 \value{
   A list with as many elements as there were groups in the
   result set.
 }
-\note{This is an experimental version.
 
-The terminology that we're using is closer to SQL than R.  In R
-what we're referring to ``groups'' are the individual levels of
-a factor (grouping field in our terminology).
+\seealso{
+   \code{\link{MySQL}}
+   \code{\link{mysqlDBApply}}
+   \code{\link[DBI]{dbSendQuery}}
+   \code{\link[DBI]{fetch}}
 }
-
-\seealso{\code{\link{MySQL}}, \code{\link{dbExec}}, \code{\link{fetch}}.}
 
 \examples{\dontrun{
 ## compute quanitiles for each network agent
 con <- dbConnect(MySQL(), group="vitalAnalysis")
-rs <- dbExec(con, 
+rs <- dbSendQuery(con, 
              "select Agent, ip_addr, DATA from pseudo_data order by Agent")
 out <- dbApply(rs, INDEX = "Agent", 
-        FUN = function(x, grp) quantile(x$DATA, names=F))
+        FUN = function(x, grp) quantile(x$DATA, names=FALSE))
 }
 }
 \keyword{programming}% at least one, from doc/KEYWORDS

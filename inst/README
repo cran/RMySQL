@@ -1,8 +1,8 @@
 $Id$
 
-R/S Database Interface and the MySQL driver
+R/S-Plus Database Interface and the MySQL driver
 
-For details, see the Adobe PDF file "RS-MySQL.pdf" in this 
+For details, see the Adobe PDF file "DBI.pdf"" in this 
 library directory or help(MySQL).
 
 This package implements an R/S4/Splus5+ to MySQL interface according
@@ -16,24 +16,27 @@ multiple MySQL servers.
 Basic usage:
 ------------
   # initialize S/Splus as a MySQL client
-  mgr <- dbManager("MySQL")       
+  mgr <- dbDriver("MySQL")       
 
   # create a connection to a MySQL server
   con <- dbConnect(mgr, user="user", pass="pass", 
                    host="host", dbname="database")
 
   # run a query, leave results on the server
-  rs <- dbExecStatement(con, "select * from A_TABLE")
+  rs <- dbSendQuery(con, "select * from A_TABLE")
 
   # fetch up to, say, 50 records
   a.table <- fetch(rs, n = 50)
   
   # close resultSet rs and connection con 
-  close(rs);  close(con)
+  dbClearResult(rs);  dbDisconnect(con)
 
 Basic Methods:
 --------------
-  describe(dbObj)   # prints metadata for dbObj (e.g, mgr, con, rs)
-  getInfo(dbObj)    # returns a list of available metadata for dbObj
-  close(dbObj)      # closes dbObj (connection or resultSet)
-
+  summary(dbObj)   # prints metadata for dbObj (e.g, mgr, con, rs)
+  dbGetInfo(dbObj)    # returns a list of available metadata for dbObj
+  dbDisconnect(con)      # closes dbObj (connection or resultSet)
+  dbClearReasults(res)
+  dbListTables(con)
+  dbListConnections(drv)
+  dbListResults(con)

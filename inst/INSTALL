@@ -62,10 +62,10 @@ Potential configuration BUG  -- getopt.h and getopt.c
 -------------------------------------------------------------------
 So far tested on the following platforms:
 
-   Linux RedHat 6.0, 6.1, 6.2
+   Linux RedHat 6.0, 6.1, 6.2, 7.2, 7.3
      MySQL 3.23.26 and 3.23.26 (client, devel and shared libraries 
      RPM binaries) plus full 3.22.17 and 3.23.33 distributions.
-     R 1.2.0, 1.2.1, 1.2.2
+     R 1.2.0, 1.2.1, 1.2.2, 1.4.1, 1.5.0, 1.5.1, 1.6.0(beta)
    Linux SuSE 7.0 
      R 1.2.0, 1.2.1, 1.2.2
    
@@ -74,6 +74,6 @@ So far tested on the following platforms:
      R 1.2.2
 
    Solaris 8
-     R 1.2.0, 1.2.1, 1.2.2
+     R 1.2.0, 1.2.1, 1.2.2, 1.5.1
 
 

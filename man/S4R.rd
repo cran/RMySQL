@@ -1,7 +1,5 @@
 \name{S4R}
 \alias{ErrorClass}
-\alias{AS}
-\alias{NEW}
 \alias{usingR}
 
 \title{R compatibility with S version 4/Splus5+ support functions}
@@ -11,9 +9,13 @@
   there. May be obsolete in the future.
 }
 \usage{
-AS(object, classname)
-NEW(classname, ...)
 usingR(major, minor)
+}
+\example{\dontrun{
+rc <- try(fetch(res, n = -1))
+if(inherit(rc, ErrorClass))
+   stop("could not fetch the data")
+}
 }
 \keyword{internal}
 % vim:syntax=tex

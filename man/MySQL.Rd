@@ -1,12 +1,11 @@
 \name{MySQL}
 \alias{MySQL}
-\alias{MySQLManager}
 \title{
-  Instantiate a MySQL client from the current R or S session
+  Instantiate a MySQL client from the current R or S-Plus session
 }
 \description{
 This function creates and initializes a MySQL client.
-It returns an object that allows you to connect
+It returns an driver object that allows you to connect
 to one or several MySQL servers.
 }
 \usage{
@@ -21,7 +20,7 @@ MySQL(max.con = 10, fetch.default.rec = 500, force.reload = F)
   }
 \item{fetch.default.rec}{
   number of records to fetch at one time from the database.
-  (The \code{fetch} method uses this number as a default.)
+  (The \code{\link[DBI]{fetch}} method uses this number as a default.)
   }
 \item{force.reload}{
   should we reload (reinitialize) the client code?
@@ -31,16 +30,16 @@ MySQL(max.con = 10, fetch.default.rec = 500, force.reload = F)
   }
 }
 \value{
-An object \code{MySQLManager} that extends 
-\code{dbManager} and 
+An object \code{MySQLDriver} that extends 
+\code{dbDriver} and 
 \code{dbObjectId}.
 This object is required to create connections
 to one or several MySQL database engines.
 }
 \section{Side Effects}{
-The R/S client part of the database communication is initialized,
+The R/S-Plus client part of the database communication is initialized,
 but note that connecting to the database engine needs to be done through
-calls to \code{dbConnect}.
+calls to \code{\link[DBI]{dbConnect}}.
 }
 \details{
 This object is a singleton, that is, on subsequent invocations
@@ -52,8 +51,8 @@ simultaneously.
 }
 \section{User authentication}{
 The preferred method to pass authentication parameters to the
-server (e.g., user, password, host) is through the MySQL configuration
-file \file{\$HOME/.my.cnf}.
+server (e.g., user, password, host) is through the MySQL personal
+configuration file \file{\$HOME/.my.cnf} (or \file{c:/my.cnf} under Windows).
 Since specifying passwords on calls to 
 \code{dbConnect}
 is a very bad idea (and so is specifying passwords through
@@ -106,6 +105,7 @@ The \code{dbname} cannot go in the
 it under the \code{[rs-dbi]} section or one you define
 yourself.
 }
+\author{David A. James}
 \section{References}{
 See the Omega Project for Statistical Computing
 at \url{http://www.omegahat.org}
@@ -117,65 +117,60 @@ See the documentation at the MySQL Web site
 \seealso{
 On database managers:
 
-\code{\link{dbManager}}
-\code{\link{MySQL}}
-\code{\link{load}}
-\code{\link{unload}}
+\code{\link[DBI]{dbDriver}}
+\code{\link[DBI]{dbUnloadDriver}}
 
 On connections, SQL statements and resultSets:
 
-\code{\link{dbExecStatement}}
-\code{\link{dbExec}}
-\code{\link{fetch}}
-\code{\link{quickSQL}}
+\code{\link[DBI]{dbConnect}}
+\code{\link[DBI]{dbDisconnect}}
+\code{\link[DBI]{dbSendQuery}}
+\code{\link[DBI]{dbGetQuery}}
+\code{\link[DBI]{fetch}}
+\code{\link[DBI]{dbClearResult}}
 
 On transaction management:
 
-\code{\link{commit}}
-\code{\link{rollback}}
+\code{\link[DBI]{dbCommit}}
+\code{\link[DBI]{dbRollback}}
 
 On meta-data:
 
-\code{\link{describe}}
-\code{\link{getVersion}}
-\code{\link{getDatabases}}
-\code{\link{getTables}}
-\code{\link{getFields}}
-\code{\link{getCurrentDatabase}}
-\code{\link{getTableIndices}}
-\code{\link{getException}}
-\code{\link{getStatement}}
-\code{\link{hasCompleted}}
-\code{\link{getRowCount}}
-\code{\link{getAffectedRows}}
-\code{\link{getNullOk}}
-\code{\link{getInfo}}
+\code{\link{summary}}
+\code{\link[DBI]{dbGetInfo}}
+\code{\link[DBI]{dbGetDBIVersion}}
+\code{\link[DBI]{dbListTables}}
+\code{\link[DBI]{dbListConnections}}
+\code{\link[DBI]{dbListResults}}
+\code{\link[DBI]{dbColumnInfo}}
+\code{\link[DBI]{dbGetException}}
+\code{\link[DBI]{dbGetStatement}}
+\code{\link[DBI]{dbHasCompleted}}
+\code{\link[DBI]{dbGetRowCount}}
+\code{\link[DBI]{dbGetAffectedRows}}
 }
 \examples{\dontrun{
 # create a MySQL instance and create one connection.
-> m <- dbManager("MySQL")
-> m
-MySQLManager id = (7269) 
+> m <- dbDriver("MySQL")
+<MySQLDriver:(4378)>
 
 # open the connection using user, passsword, etc., as
 # specified in the "[iptraffic]" section of the 
 # configuration file \file{\$HOME/.my.cnf}
 > con <- dbConnect(m, group = "iptraffic")
-> rs <- dbExec(con, "select * from HTTP_ACCESS where IP_ADDRESS = '127.0.0.1'")
+> rs <- dbSendQuery(con, "select * from HTTP_ACCESS where IP_ADDRESS = '127.0.0.1'")
 > df <- fetch(rs, n = 50)
-> hasCompleted(rs)
+> dbHasCompleted(rs)
 [1] FALSE
 > df2 <- fetch(rs, n = -1)
-> hasCompleted(rs)
+> dbHasCompleted(rs)
 [1] TRUE
-> close(rs)
-> dim(quickSQL(con, "show tables"))
+> dbClearResult(rs)
+> dim(dbGetQuery(con, "show tables"))
 [1] 74   1
-> getTables(con)    
+> dbListTables(con)    
 }
 }
 \keyword{interface}
 \keyword{database}
-% docclass is function
-% Converted by Sd2Rd version 1.15.2.1.
 % vim: syntax=tex

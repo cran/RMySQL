@@ -1,5 +1,5 @@
 /* 
- * $Id: RS-MySQL.c,v 1.4 2002/06/25 15:34:48 dj Exp dj $
+ * $Id: RS-MySQL.c,v 1.4 2002/06/25 15:34:48 dj Exp $
  *
  *
  * Copyright (C) 1999-2002 The Omega Project for Statistical Computing.
