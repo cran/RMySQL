@@ -194,7 +194,7 @@ RS_MySQL_newConnection(Mgr_Handle *mgrHandle, s_object *con_params,
 
   my_connection = mysql_init(NULL);
 
-#if defined(MYSQL_VERSION_ID) && MYSQL_VERSION_ID > 32339
+#if defined(MYSQL_VERSION_ID) && MYSQL_VERSION_ID > 32348
   /* (BDR's fix)
    * Starting w.  MySQL 3.23.39, LOAD DATA INFILE may be disabled (although
    * the default is enabled);  since assignTable() depends on it,

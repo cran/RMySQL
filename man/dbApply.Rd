@@ -1,6 +1,5 @@
 \name{dbApply}
 \alias{dbApply}
-\alias{dbApply.default}
 \title{Apply R/S-Plus functions to remote groups of DBMS rows (experimental)}
 \description{
   Applies R/S-Plus functions to groups of remote DBMS rows without
@@ -9,7 +8,6 @@
 }
 \usage{
 dbApply(res, ...)
-dbApply.default(res, ...)
 }
 \arguments{
   \item{res}{a result set (see \code{\link[DBI]{dbSendQuery}}).}

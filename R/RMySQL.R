@@ -106,7 +106,7 @@ function(obj)
    .Call("RS_DBI_validHandle", obj, PACKAGE = .MySQLPkgName)
 }
 ##
-## $Id: MySQL.R,v 1.7 2002/09/10 21:51:50 dj Exp $
+## $Id: MySQL.R,v 1.8 2002/12/18 21:17:56 dj Exp dj $
 ##
 ## Copyright (C) 1999 The Omega Project for Statistical Computing.
 ##
@@ -128,9 +128,9 @@ function(obj)
 ## Constants
 ##
 
-.MySQLRCS <- "$Id: MySQL.R,v 1.7 2002/09/10 21:51:50 dj Exp $"
+.MySQLRCS <- "$Id: MySQL.R,v 1.8 2002/12/18 21:17:56 dj Exp dj $"
 .MySQLPkgName <- "RMySQL"      ## should we set thru package.description()?
-.MySQLVersion <- "0.5-0" #package.description(.MySQLPkgName, field = "Version")
+.MySQLVersion <- "0.5-1"       ##package.description(.MySQLPkgName, fields = "Version")
 .MySQL.NA.string <- "\\N"      ## on input, MySQL interprets \N as NULL (NA)
 
 setOldClass("data.frame")      ## to appease setMethod's signature warnings...
@@ -428,31 +428,13 @@ setMethod("isSQLKeyword",
    },
    valueClass = "character"
 )
-
-## R Bug:  I cannot setGeneric() and have the function save in 
-## package:RMySQL -- why?
+## extension to the DBI 0.1-4
 setGeneric("dbApply", def = function(res, ...) standardGeneric("dbApply"))
 setMethod("dbApply", "MySQLResult",
    def = function(res, ...)  mysqlDBApply(res, ...),
 )
-
-#"dbApply" <-
-#function(res, ...) 
-#{
-#   UseMethod("dbApply")
-#}
-
-#"dbApply.default" <- 
-#function(res, ...) 
-#{
-#   if(!is(res, "MySQLResult"))
-#      stop("object must be a MySQLResult")
-#   if(!isIdCurrent(res))
-#      stop(paste("expired", class(res)))
-#   mysqlDBApply(res, ...)
-#}
 ##
-## $Id: MySQLSupport.R,v 1.6 2002/09/10 21:51:50 dj Exp $
+## $Id: MySQLSupport.R,v 1.7 2002/12/18 21:18:27 dj Exp dj $
 ##
 ## Copyright (C) 1999 The Omega Project for Statistical Computing.
 ##
@@ -918,6 +900,11 @@ function(con, name, value, field.types, row.names = T,
       ## also, need to use converter functions (for dates, etc.)
       field.types <- sapply(value, dbDataType, dbObj = con)
    } 
+   ## Do we need to coerce any field prior to write it out?
+   for(i in seq(along = value)){
+      if(is(value[[i]], "logical"))
+         value[[i]] <- as(value[[i]], "integer")
+   }
    i <- match("row.names", names(field.types), nomatch=0)
    if(i>0) ## did we add a row.names value?  If so, it's a text field.
       field.types[i] <- dbDataType(dbObj=con, field.types$row.names)
@@ -1031,7 +1018,7 @@ function(obj, ...)
    else {
       sql.type <- switch(rs.class,
                      character = "text",
-                     logical = "tinyint",
+                     logical = "tinyint",  ## but we need to coerce to int!!
                      factor = "text",      ## up to 65535 characters
                      ordered = "text",
                      "text")

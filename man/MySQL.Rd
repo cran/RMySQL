@@ -13,7 +13,7 @@ MySQL(max.con = 10, fetch.default.rec = 500, force.reload = F)
 }
 \arguments{
 \item{max.con }{
-  maximum number of connections that we intended to have open.
+  maximum number of connections that are intended to have open at one time.
   This can be up to 100, a limit defined at compilation time.
   Strictly speaking this limit applies to MySQL \emph{servers},
   but clients can have (at least in theory) more than this.
@@ -23,7 +23,7 @@ MySQL(max.con = 10, fetch.default.rec = 500, force.reload = F)
   (The \code{\link[DBI]{fetch}} method uses this number as a default.)
   }
 \item{force.reload}{
-  should we reload (reinitialize) the client code?
+  should the client code be reloaded (reinitialize)?
   Setting this to \code{TRUE} allows you to change
   default settings.  Notice that all connections should be closed
   before re-loading.
@@ -83,7 +83,7 @@ database = iptraffic\cr
 This file should be readeable only by you. 
 Inside each section, MySQL parameters may be specified one per line
 (e.g., \code{user = opto}).  
-The R/S MySQL implementation always parses the \code{[client]}
+The R/S-Plus MySQL implementation always parses the \code{[client]}
 and \code{[rs-dbi]} sections, but you may define you own
 project-specific sections to tailor its environment; 
 if the same parameter appears more than once, the last
@@ -109,7 +109,7 @@ yourself.
 \section{References}{
 See the Omega Project for Statistical Computing
 at \url{http://www.omegahat.org}
-for more details on the R/S database interface.
+for more details on the R/S-Plus database interface.
 
 See the documentation at the MySQL Web site
 \url{http://www.mysql.com} for details.

@@ -28,11 +28,20 @@ Class \code{"dbObjectId"}, directly.
 }
 
 \seealso{
- DBI classes:
+ DBI base classes:
+
+ \code{\link[DBI]{DBIObject-class}}
+ \code{\link[DBI]{DBIDriver-class}}
+ \code{\link[DBI]{DBIConnection-class}}
+ \code{\link[DBI]{DBIResult-class}}
+
+ MySQL classes:
+
  \code{\link{MySQLObject-class}}
  \code{\link{MySQLDriver-class}}
  \code{\link{MySQLConnection-class}}
  \code{\link{MySQLResult-class}}
+
 }
 
 \examples{\dontrun{

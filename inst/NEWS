@@ -1,3 +1,15 @@
+Version 0.5-1
+
+Bug fixes only.
+
+* Fixed the bug in dbWriteTable() incorrectly exporting logicals
+  (thanks to christian.ritter@shell.com).  A general mechanism for
+  data conversion is still lacking.
+
+* Fixed a problem with issuing mysql_options() with MYSQ_OPT_LOCAL_INFILE
+  in version prior to 3.23.49, which is the one introducing this option.
+  This bug only appeared when compiling against MySQL 3.23.39 thru 3.23.48
+
 Version 0.5-0
 
 Made the package DBI-compliant (as of DBI 0.1-4) using version S4 style

@@ -1,18 +1,14 @@
-MySQL                   Instantiate a MySQL client from the current R
-                        or S-Plus session 
-MySQLConnection-class   Class MySQLConnection
-MySQLDriver-class       Class MySQLDriver
-MySQLObject-class       Class MySQLObject
-MySQLResult-class       Class MySQLResult
-S4R                     R compatibility with S version 4/Splus5+
-                        support functions
 dbApply                 Apply R/S-Plus functions to remote groups of
                         DBMS rows (experimental)
 dbObjectId-class        Class dbObjectId
-isIdCurrent             Check whether a database handle object is valid
-                        or not 
+isIdCurrent             Check whether a database handle object is
+                        valid or not
+MySQLConnection-class   Class MySQLConnection
 mysqlDBApply            Apply R/S-Plus functions to remote groups of
                         DBMS rows (experimental)
+MySQLDriver-class       Class MySQLDriver
+MySQLObject-class       Class MySQLObject
+MySQL                   Instantiate a MySQL client from the current R
+                        or S-Plus session
+MySQLResult-class       Class MySQLResult
 mysqlSupport            Support Functions
-safe.write              Write a data.frame avoiding exceeding memory
-                        limits
