@@ -1,42 +1,32 @@
-\name{dbExecStatement}
-\alias{dbExecStatement}
+\name{load}
+\alias{load}
+\alias{unload}
 \title{
-  Execute an SQL statement on a given database connection
+  Load/unload the client part of a database interface
 }
 \description{
-Submits and executes an arbitrary SQL statement on a
-specific connection.
+Initialize or free the client-side of an R/S database interface
 }
 \usage{
-dbExecStatement(con, statement, ...)
+load(mgr, ...)
+
+unload(mgr, ...)
 }
 \arguments{
-\item{con}{
-a connection object (i.e., an object that extends 
-\code{dbConnection}).
-}
-\item{statement}{
-a character vector of length 1 with the SQL statement.
+\item{mgr}{
+a \code{dbManager} object, as created
+through \code{dbManger}
 }
 \item{\dots }{
-database-specific parameters may be specified.
+any database-specific parameters.
 }
 }
 \value{
-an object that extends \code{dbResult}, in the case of
-an SQL statement that produces no output (e.g., \code{INSERT}),
-or \code{dbResultSet} in the case of a 
-\code{SELECT}-like statement.
+NULL
 }
 \section{Side Effects}{
-The statement is submitted to the server connected through
-the connection \code{con.}
-}
-\details{
-This function only submits and executes the SQL statement to
-the database engine.  It does \emph{not} extracts any
-records:  for that you need to use the function 
-\code{fetch}.
+These functions initialize and release client-part software
+of the RS-DBI implementation.
 }
 \section{References}{
 See the Omega Project for Statistical Computing
@@ -81,13 +71,12 @@ On meta-data:
 \code{\link{getInfo}}
 }
 \examples{\dontrun{
-mgr <- dbManger("MySQL")
-con <- dbConnect(mgr)
-rs <- dbExecStatement(con, "SELECT * from liv25")
-data <- fetch(rs, n = -1)
+m <- MySQL()
+...
+unload(m)
 }
 }
-\keyword{<s-keyword>RS-DBI}
+\keyword{RS-DBI}
 \keyword{MySQL}
 \keyword{databases}
 \keyword{RDBMS}

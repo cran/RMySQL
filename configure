@@ -451,7 +451,7 @@ echo > confdefs.h
 
 # A filename unique to this package, relative to the directory that
 # configure is in, which we can look for to find out if srcdir is correct.
-ac_unique_file=src/RMySQL.c
+ac_unique_file=src/RS-MySQL.c
 
 # Find the source files, if location was not specified.
 if test -z "$srcdir"; then
@@ -603,8 +603,9 @@ fi
 echo "$ac_t""$CPP" 1>&6
 
 
+
 echo $ac_n "checking for mysql_init in -lmysqlclient""... $ac_c" 1>&6
-echo "configure:608: checking for mysql_init in -lmysqlclient" >&5
+echo "configure:609: checking for mysql_init in -lmysqlclient" >&5
 ac_lib_var=`echo mysqlclient'_'mysql_init | sed 'y%./+-%__p_%'`
 if eval "test \"`echo '$''{'ac_cv_lib_$ac_lib_var'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
@@ -612,7 +613,7 @@ else
   ac_save_LIBS="$LIBS"
 LIBS="-lmysqlclient  $LIBS"
 cat > conftest.$ac_ext <<EOF
-#line 616 "configure"
+#line 617 "configure"
 #include "confdefs.h"
 /* Override any gcc2 internal prototype to avoid an error.  */
 /* We use char because int might match the return type of a gcc2
@@ -623,7 +624,7 @@ int main() {
 mysql_init()
 ; return 0; }
 EOF
-if { (eval echo configure:627: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
+if { (eval echo configure:628: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
   rm -rf conftest*
   eval "ac_cv_lib_$ac_lib_var=yes"
 else
@@ -643,32 +644,143 @@ else
   echo "$ac_t""no" 1>&6
 fi
 
+
+## if CHECK_LIB failed (mysqlclient is not in /usr/lib)
+
 if test -z "${PKG_LIBS}"; then
-  echo "could not find your MySQL client library"
-  exit 1
+  ## we need to release mysqlclient from cache
+  unset ac_cv_lib_mysqlclient_mysql_init
+
+  ## check the default mysql install directory instead
+  echo $ac_n "checking for mysql_init in -lmysqlclient""... $ac_c" 1>&6
+echo "configure:657: checking for mysql_init in -lmysqlclient" >&5
+ac_lib_var=`echo mysqlclient'_'mysql_init | sed 'y%./+-%__p_%'`
+if eval "test \"`echo '$''{'ac_cv_lib_$ac_lib_var'+set}'`\" = set"; then
+  echo $ac_n "(cached) $ac_c" 1>&6
+else
+  ac_save_LIBS="$LIBS"
+LIBS="-lmysqlclient -L/usr/local/lib/mysql $LIBS"
+cat > conftest.$ac_ext <<EOF
+#line 665 "configure"
+#include "confdefs.h"
+/* Override any gcc2 internal prototype to avoid an error.  */
+/* We use char because int might match the return type of a gcc2
+    builtin and then its argument prototype would still apply.  */
+char mysql_init();
+
+int main() {
+mysql_init()
+; return 0; }
+EOF
+if { (eval echo configure:676: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
+  rm -rf conftest*
+  eval "ac_cv_lib_$ac_lib_var=yes"
+else
+  echo "configure: failed program was:" >&5
+  cat conftest.$ac_ext >&5
+  rm -rf conftest*
+  eval "ac_cv_lib_$ac_lib_var=no"
+fi
+rm -f conftest*
+LIBS="$ac_save_LIBS"
+
+fi
+if eval "test \"`echo '$ac_cv_lib_'$ac_lib_var`\" = yes"; then
+  echo "$ac_t""yes" 1>&6
+  MYLIB_DIR="/usr/local/lib/mysql"
+else
+  echo "$ac_t""no" 1>&6
 fi
 
 
+  if test -z "${MYLIB_DIR}"; then
+    ## try again now somewhere else
+    unset ac_cv_lib_mysqlclient_mysql_init
+
+    echo $ac_n "checking for mysql_init in -lmysqlclient""... $ac_c" 1>&6
+echo "configure:702: checking for mysql_init in -lmysqlclient" >&5
+ac_lib_var=`echo mysqlclient'_'mysql_init | sed 'y%./+-%__p_%'`
+if eval "test \"`echo '$''{'ac_cv_lib_$ac_lib_var'+set}'`\" = set"; then
+  echo $ac_n "(cached) $ac_c" 1>&6
+else
+  ac_save_LIBS="$LIBS"
+LIBS="-lmysqlclient -L/usr/local/mysql/lib/mysql $LIBS"
+cat > conftest.$ac_ext <<EOF
+#line 710 "configure"
+#include "confdefs.h"
+/* Override any gcc2 internal prototype to avoid an error.  */
+/* We use char because int might match the return type of a gcc2
+    builtin and then its argument prototype would still apply.  */
+char mysql_init();
+
+int main() {
+mysql_init()
+; return 0; }
+EOF
+if { (eval echo configure:721: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
+  rm -rf conftest*
+  eval "ac_cv_lib_$ac_lib_var=yes"
+else
+  echo "configure: failed program was:" >&5
+  cat conftest.$ac_ext >&5
+  rm -rf conftest*
+  eval "ac_cv_lib_$ac_lib_var=no"
+fi
+rm -f conftest*
+LIBS="$ac_save_LIBS"
+
+fi
+if eval "test \"`echo '$ac_cv_lib_'$ac_lib_var`\" = yes"; then
+  echo "$ac_t""yes" 1>&6
+  MYLIB_DIR="/usr/local/mysql/lib/mysql"
+else
+  echo "$ac_t""no" 1>&6
+fi
+
+    if test -z "${MYLIB_DIR}"; then
+      echo "could not find your MySQL client library -- you'll need to"
+      echo "manually specify the location of your MySQL header files and"
+      echo "libraries, and re-run R CMD INSTALL"
+      echo ""
+      echo "INSTRUCTIONS:"
+      echo "  Define and export the shell variables PKG_CPPFLAGS and"
+      echo "  PKG_LIBS to have the directory for header files and libraries"
+      echo "  for example,"
+      echo ""
+      echo "     export PKG_CPPFLAG=-I<MySQL-include-dir>"
+      echo "     export PKG_LIBS='-L<MySQL-lib-dir> -lmysqlclient'"
+      echo "     R CMD INSTALL RMySQL_<version>.tar.gz"
+      exit 1
+     else
+      PKG_LIBS="-L${MYLIB_DIR} -lmysqlclient"
+     fi
+  else 
+    PKG_LIBS="-L${MYLIB_DIR} -lmysqlclient"
+  fi
+fi
+
+## /usr/local/mysql/include/mysql added (which is default)
 for dir in \
     /usr/include \
     /usr/include/mysql \
     /usr/local/include \
     /usr/local/include/mysql \
+    /usr/local/mysql/include/mysql \
     /opt/include \
     /opt/include/mysql; do
     ac_safe=`echo "${dir}/mysql.h" | sed 'y%./+-%__p_%'`
 echo $ac_n "checking for ${dir}/mysql.h""... $ac_c" 1>&6
-echo "configure:662: checking for ${dir}/mysql.h" >&5
+echo "configure:774: checking for ${dir}/mysql.h" >&5
 if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 667 "configure"
+#line 779 "configure"
 #include "confdefs.h"
 #include <${dir}/mysql.h>
 EOF
 ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
-{ (eval echo configure:672: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+{ (eval echo configure:784: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
 ac_err=`grep -v '^ *+' conftest.out | grep -v "^conftest.${ac_ext}\$"`
 if test -z "$ac_err"; then
   rm -rf conftest*
@@ -689,12 +801,30 @@ else
   echo "$ac_t""no" 1>&6
 fi
 
-    if test $PKG_CPPFLAGS; then break; fi
+    if test -n "$PKG_CPPFLAGS"; then break; fi
 done
 if test -z "${PKG_CPPFLAGS}"; then
-  echo "could not find your MySQL header files"
+  echo "could not find your MySQL header files -- you'll need to"
+  echo "manually specify the location of your MySQL header files and"
+  echo "libraries, and re-run R CMD INSTALL"
+  echo ""
+  echo "INSTRUCTIONS:"
+  echo "  Define and export the shell variables PKG_CPPFLAGS and"
+  echo "  PKG_LIBS to have the directory for header files and libraries"
+  echo "  for example,"
+  echo ""
+  echo "     export PKG_CPPFLAG=-I<MySQL-include-dir>"
+  echo "     export PKG_LIBS='-L<MySQL-lib-dir> -lmysqlclient'"
+  echo "     R CMD INSTALL RMySQL_<version>.tar.gz"
   exit 1
+else
+  ## if the libs are in /usr/local/mysql/lib/mysql, add this by -L
+  if test -n "${MYLIB_DIR}"; then
+     PKG_CPPFLAGS="${PKG_CPPFLAGS}"
+  fi
 fi
+
+
 
 
 trap '' 1 2 15
@@ -842,8 +972,8 @@ s%@oldincludedir@%$oldincludedir%g
 s%@infodir@%$infodir%g
 s%@mandir@%$mandir%g
 s%@CPP@%$CPP%g
-s%@PKG_LIBS@%$PKG_LIBS%g
 s%@PKG_CPPFLAGS@%$PKG_CPPFLAGS%g
+s%@PKG_LIBS@%$PKG_LIBS%g
 
 CEOF
 EOF

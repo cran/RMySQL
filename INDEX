@@ -1,23 +1,32 @@
-MySQL                    Create a MySQL Database Connection Manager
-close.MySQLResultSet     Close a MySQL Result
-close                    Close a Database Object
-dbConnect.MySQLManager   Connect to a MySQL Database
-dbConnect                Connect to a database
-dbExec                   Execute and Get Value for an SQL Statement
-dbExecStatement          Execute an SQL Statement
-describe                 Describe a Database Driver Object
-fetch                    Fetch Rows From an SQL resultSet
-getCurrentDatabase       Get Name of the Current Database
-getDatabases             Get a list of Existing Databases
-getException             Get Exceptions Associated With a SQL Driver
-                         Object
-getFields                Get Information About the Fields in a resultSet
-getInfo                  Get Information About an SQL Driver object
-getRowCount              Get the Number of Rows in a resultSet
-getRowsAffected          Get the Number of Rows Affected by a resultSet
-getStatement             Show the Statement Associated With a resultSet
-getTableFields           Show Fields From a Table
-getTableIndeces          Show Indeces From a Table
-getTables                List All Tables in a Database
-hasCompleted             Check a resultSet for Unfetched Rows
-isIdCurrent              Verify a dbObjectId Object
+MySQL                    Instantiate a MySQL client from the current R or
+                         S session
+S4R                      R compatibility with S version 4/Splus5 support
+                         functions
+SQLDataType              Determine the SQL Data Type of an R/S object
+callProc                 Call an SQL stored procedure
+commit                   RDBMS Transaction Management
+dbConnect                Create a connection to a RDBMS
+dbExec                   Execute an SQL script on a given database
+                         connection
+dbExecStatement          Execute an SQL statement on a given database
+                         connection
+dbManager                Instantiate a database manager
+describe                 Describe an object through its meta-data
+fetch                    Fetch records from a previously executed SELECT
+                         statement
+getManager               Get a database manager object from a derived
+                         handle
+getNumRows               Get number of rows/columns of an SQL table
+getTable                 Convenience functions for Importing/Exporting
+                         RDBMS tables into R/S.
+isIdCurrent              Check whether a database handle object is valid
+                         or not
+isSQLKeyword             Is a name an SQL keyword?
+load                     Load/unload the client part of a database
+                         interface
+make.SQL.names           Make R/S identifiers into legal SQL identifiers.
+metaData                 R/S database interface meta-data
+methods.MySQL            Support MySQL methods
+quickSQL                 Quick SQL Execution
+setDataMappings          Set data mappings between an RDBMS and R/S
+supportObjects           Support objects for RS-DBI

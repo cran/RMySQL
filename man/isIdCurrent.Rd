@@ -1,25 +1,48 @@
 \name{isIdCurrent}
 \alias{isIdCurrent}
-\title{ Verify a dbObjectId Object}
+\title{
+  Check whether a database handle object is valid or not
+}
 \description{
-    This function verifies that a dbObjectId refers to a currently
-    open/loaded database.
+Support function that verifies that an object holding a reference
+to a foreign object is still valid for communicating with the RDBMS
 }
 \usage{
-isIdCurrent(object)
+isIdCurrent(obj)
 }
 \arguments{
- \item{object}{ an object of class dbObjectId or one that has a single
-     dbObjectId component called Id}
+\item{obj}{
+any \code{dbObject} (e.g., \code{dbManager},
+\code{dbConnection}, \code{dbResultset}).
+}
 }
 \value{
-    TRUE or FALSE
+a logical scalar.
 }
-\references{\url{http://www.mysql.com/}}
-\author{David James}
-\seealso{ \code{\link{MySQL}}}
-\examples{
-m <- MySQL()
-isIdCurrent(m)
+\details{
+\code{dbObjects} are R/S remote references to foreign objects.
+This introduces differences to the object's semantics such as
+persistence (e.g., connections may be closed unexpectedly),
+thus this function provides a minimal verification to ensure 
+that the foreign object being referenced can be contacted.
 }
-\keyword{interface}
+\seealso{
+\code{\link{dbManager}}
+\code{\link{dbConnect}}
+\code{\link{dbExecStatement}}
+\code{\link{dbExec}}
+\code{\link{fetch}}
+}
+\examples{\dontrun{
+cursor <- dbExec(con, sql.statement)
+isIdCurrent(cursor)
+}
+}
+\keyword{RS-DBI}
+\keyword{MySQL}
+\keyword{databases}
+\keyword{RDBMS}
+\keyword{manip}
+\keyword{}
+% docclass is function
+% Converted by Sd2Rd version 1.15.2.1.

@@ -1,0 +1,80 @@
+Version 0.4-2
+
+* (R version) We fixed a problem with load() --- we had correctly elevated 
+  this function to generic, but failed to define load.default as the 
+  load() in package:base; this problem only manifested when using load from 
+  inside other packages (thanks to Prof. Brian Ripley for catching this one.)
+
+* We now include the GNU files "getopt.h" and "getopt.c"  under the "gnu" 
+  directory -- this is for the sake of non GNU systems (note that these 
+  files are also included in the MySQL source distributions).  We also have 
+  a copy of "getopt.h" in the "src" directory (this simplifies installation 
+  for users of gcc on Solaris and possibly other non-GNU systems).
+  We still need to code this into the R configure script -- see below.
+
+* Updated dbExec documentation, various typos, etc.
+
+Version 0.4-1
+
+* A manual in the Adobe PDF file "RS-MySQL.pdf"
+
+* A lot of changes to the internal C code to have a common source
+  for R and Splus 5.x and 6.x 
+
+* A better configure.in (thanks to Torsten Hothorn). I still need
+  to add code to check for the GNU getopt.c and getopt.h (as required
+  by MySQL) on systems with no GNU tools (e.g., solaris/irix/hpux/aix).
+
+* Added a convenience RS-DBI dbConnect method dbConnect(mgr="character"), 
+  e.g., dbConnect("MySQL", ...) to invoke the dbManager("MySQL") 
+  prior to opening the actual connection.
+
+* added (almost) trivial convenience RS-DBI functions getTable(), 
+  assignTable(), existsTable(), and removeTable().  They all mimic the 
+  corresponding R/S get(), assign(), exists(), and remove(), and they 
+  all work with a connection object and an sql table name (NOT generic 
+  SQL queries); assignTable() assigns a data.frame object (or coerceable) 
+  to the database. (These functions provide the basis for "user-defined
+  databases in S -- see below.)
+
+* Added support RS-DBI functions make.SQL.names() and isSQLKeyword()
+  to create legal SQL identifiers and to test for SQL keywords. 
+
+* Similarly, added a new RS-DBI generic function SQLDataType(dbObjectId, obj) 
+  that returns the DBMS data type that most closely can represent 
+  the R/S object "obj".  Added the corresponding MySQL method for 
+  SQLDataType(MySQLObject, obj).
+
+* (Splus only) 
+  Added RS-DBI methods to be able to attach a relational DBMS 
+  as an S user-defined S database, e.g., 
+     con <- dbConnect("MySQL", group = "vitalAnalysis")
+     attach(con, translate = T, max.rows = 10000)
+     ls(pos=2)
+     x <- CLIENTMAPTABLE
+
+  See ?attach.dbConnection for details.
+
+  Note: *DO NOT* use this facility on large tables --- see the "proxyDBMS"
+  library for a more efficient/ambitious interface.
+
+  (I'm not sure this facility belongs in the RS-DBI, but it sure is easiest
+  to be bundled here.)
+
+* (Splus only)
+  Added a MySQLObject virtual class that extends dbObjectId.
+
+  dbObjectId is now the virtual class for generic remote (DBMS) database 
+  objects; each driver then extends it through its own virtual 
+  class, e.g., MySQLObject -> dbObjectId.  MySQLObject is virtual and the 
+  base class for all MySQL objects (dbManager, dbConnection, etc.); this
+  is cleaner, and besides, it simplifies some "mixin" helper classes, 
+  e.g., show() for remote objects, SQLDataType(), and so on.)
+
+Version 0.4.0
+
+* Parses $HOME/.my.cnf file.  Added an "rs-dbi" stanza, and
+  the S code parses for other stanzas, as specified in
+  the argument "group=" in the call to dbConnect.
+  For details, see help(MySQL) and the MySQL manual.
+

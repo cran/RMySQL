@@ -1,46 +1,39 @@
-\name{dbExec}
-\alias{dbExec}
+\name{quickSQL}
+\alias{quickSQL}
 \title{
-  Execute an SQL script on a given database connection
+  Quick SQL Execution
 }
 \description{
-Submits and executes an arbitrary SQL script (one or more
-statements) on a specific connection.
+Simplifies queries by submitting an SQL command and fetching 
+its output in one function
 }
 \usage{
-dbExec(con, script, ...)
+quickSQL(con, statement, ...)
 }
 \arguments{
 \item{con}{
-a connection object (i.e., an object that extends 
-\code{dbConnection}).
+an open \code{dbConnection} object.
 }
-\item{script}{
-a character vector with one or more SQL statements.
+\item{statement}{
+an SQL statement as a character vector.
 }
 \item{\dots }{
-database-specific parameters may be specified.
+any additional arguments specific to the database engine
+may be specified.
 }
 }
 \value{
-an object that extends \code{dbResult}, in the case of
-an SQL statement that produces no output (e.g., \code{INSERT}),
-or \code{dbResultSet} in the case of a 
-\code{SELECT}-like statement.
-}
-\section{Side Effects}{
-The statements are submitted to the server connected through
-the connection \code{con.}
+a \code{data.frame}
+in the case of a \code{SELECT}-like statement, or
+NULL otherwise.
 }
 \details{
-This function submits and executes SQL scripts, i.e., one or 
-more SQL statements, to the database engine.  To fetch records you need to 
-use the function \code{fetch}.
-Currently it is undefined how multiple result sets are to be
-processed.
+This function simply calls \code{\link{dbExecStatement}}
+followed by \code{fetch}.
 }
-\section{Bugs}{
-  Current implementations can only handle one-statement scripts.
+\section{Bugs:}{
+Perhaps this function should be named \code{dbQuery}
+or \code{dbImmediate}?
 }
 \section{References}{
 See the Omega Project for Statistical Computing
@@ -85,13 +78,14 @@ On meta-data:
 \code{\link{getInfo}}
 }
 \examples{\dontrun{
-mgr <- dbManger("MySQL")
+# The following extract all the tables in the current database
+
+mgr <- dbManager("MySQL")
 con <- dbConnect(mgr)
-rs <- dbExecStatement(con, "SELECT * from liv25")
-data <- fetch(rs, n = -1)
+quickSQL(con, "show tables")
 }
 }
-\keyword{<s-keyword>RS-DBI}
+\keyword{RS-DBI}
 \keyword{MySQL}
 \keyword{databases}
 \keyword{RDBMS}

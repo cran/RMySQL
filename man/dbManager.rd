@@ -1,50 +1,52 @@
-\name{dbConnect}
-\alias{dbConnect}
+\name{dbManager}
+\alias{dbManager}
 \title{
-  Create a connection to a RDBMS
+  Instantiate a database manager
 }
 \description{
-  Connect to a RDBMS going through the appropriate authorization
-  procedure
+This function creates an object that allows you to
+connect to the Relational Database Systems (RDBMS) 
+specified in its argument.
 }
 \usage{
-dbConnect(mgr, ...)
+dbManager(mgr, ...)
 }
 \arguments{
 \item{mgr}{
-a \code{dbManager} object, 
 a character string specifying the RDBMS, e.g., "MySQL", 
-"Oracle", "Informix", or another \code{dbConnect} object.
+"Oracle", "Informix". 
 }
 \item{\dots }{
-authorization arguments needed by the RDBMS instance;
-these typically include \code{user}, \code{password},
-\code{dbname}, \code{host}, \code{port}, etc.
-For details see the appropriate \code{dbManager}.
+additional parameters may be specified for the actual database engine.
+E.g., the MySQL implementation allows you to specify the maximum 
+number of open connection and a default maximum number of records 
+to be transferred from the database.
+See the individual manager functions for details,
+e.g., \code{MySQL}, 
+\code{Oracle}.
 }
 }
 \value{
-An object that extends \code{dbConnect} and 
+An object that extends \code{dbManager} and 
 \code{dbObjectId} in a database-specific manner.
-For instance \code{dbConnect("MySQL")} produces
-an object of class \code{MySQLConnection}.
+For instance \code{dbManager("MySQL")} produces
+an object of class \code{MySQLManager} and 
+is equivalent to using \code{MySQL}.
+Similarly \code{dbManager("Oracle")} produces
+an \code{OracleManager} object and its equivalent
+to invoking \code{Oracle}.
 
-This object is used to direct SQL commands to the database engine.
+This object is required to create connections
+to one or several database engines.
 }
 \section{Side Effects}{
-A connection between R/S and the database server is established,
-and the R/S program becodes a client of the database engine.
-Typically the connections is through the TCP/IP protocol, 
-but this will depend on vendor-specific details.
+The R/S client part of the database communication is initialized,
+connecting to the database engine needs to be done through
+calls to \code{dbConnect}.
 }
 \details{
-Some implementations (e.g., RS-MySQL, RS-Oracle) may allow you
-to have multiple connecions open, so you may invoke this 
-function repeatedly assigning its output to different objects.
-}
-\notes{
-Make sure you close the connection using \code{close(con)}
-when it is not longer needed.
+This object is a singleton, that is, if you invoke this function
+again, it will return the same initialized object. 
 }
 \section{References}{
 See the Omega Project for Statistical Computing
@@ -99,11 +101,12 @@ MySQLManager id = (7269)
 > con <- dbConnect(m)    
 
 # Let's look at the status of the manager
-> describe(m)
+> describe(m, verbose = F)   
 MySQLManager id = (7269) 
   Max  connections: 16 
   Conn. processed: 1 
   Default records per fetch: 500 
+  Open connections: 1 
 
 # Run an SQL statement by creating first a resultSet object
 > rs <- dbExecStatement(con, 
@@ -118,6 +121,25 @@ MySQLResultSet id = (12629,1,3)
 > data <- fetch(rs, n = -1)   # extract all rows
 > dim(data)
 [1] 1779  18
+
+# Extract meta-data information.  What MySQL databases are there 
+# available on host "wyner"
+> getDatabases(m, host = "wyner")
+   Database 
+1     mysql
+2      opto
+3      test
+4 iptraffic
+5     fraud
+
+> # What tables are there in the "opto" database? 
+> dbTables(m, dbname = "opto", host = "wyner")
+  Tables in opto 
+1           PBCT
+2          PURGE
+3             WL
+4          liv25
+5          liv85
 }
 }
 \keyword{RS-DBI}

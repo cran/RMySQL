@@ -1,33 +1,87 @@
 dnl Borrowed from the RPgSQL package
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(src/RMySQL.c)
+dnl We only need to locate MySQL include library directories.
+
+AC_INIT(src/RS-MySQL.c)
 
 AC_PROG_CPP
 
 dnl Checks for libraries.
+
 AC_CHECK_LIB(mysqlclient, mysql_init, PKG_LIBS="-lmysqlclient")
+
+## if CHECK_LIB failed (mysqlclient is not in /usr/lib)
+
 if test -z "${PKG_LIBS}"; then
-  echo "could not find your MySQL client library"
-  exit 1
+  ## we need to release mysqlclient from cache
+  unset ac_cv_lib_mysqlclient_mysql_init
+
+  ## check the default mysql install directory instead
+  AC_CHECK_LIB(mysqlclient, mysql_init, MYLIB_DIR="/usr/local/lib/mysql",,[-L/usr/local/lib/mysql])
+
+  if test -z "${MYLIB_DIR}"; then
+    ## try again now somewhere else
+    unset ac_cv_lib_mysqlclient_mysql_init
+
+    AC_CHECK_LIB(mysqlclient, mysql_init,MYLIB_DIR="/usr/local/mysql/lib/mysql",,[-L/usr/local/mysql/lib/mysql])
+    if test -z "${MYLIB_DIR}"; then
+      echo "could not find your MySQL client library -- you'll need to"
+      echo "manually specify the location of your MySQL header files and"
+      echo "libraries, and re-run R CMD INSTALL"
+      echo ""
+      echo "INSTRUCTIONS:"
+      echo "  Define and export the shell variables PKG_CPPFLAGS and"
+      echo "  PKG_LIBS to have the directory for header files and libraries"
+      echo "  for example,"
+      echo ""
+      echo "     export PKG_CPPFLAG=-I<MySQL-include-dir>"
+      echo "     export PKG_LIBS='-L<MySQL-lib-dir> -lmysqlclient'"
+      echo "     R CMD INSTALL RMySQL_<version>.tar.gz"
+      exit 1
+     else
+      PKG_LIBS="-L${MYLIB_DIR} -lmysqlclient"
+     fi
+  else 
+    PKG_LIBS="-L${MYLIB_DIR} -lmysqlclient"
+  fi
 fi
-AC_SUBST(PKG_LIBS)
 
 dnl Checks for header files.
 dnl Following courtesy of Kurt Hornik
+## /usr/local/mysql/include/mysql added (which is default)
 for dir in \
     /usr/include \
     /usr/include/mysql \
     /usr/local/include \
     /usr/local/include/mysql \
+    /usr/local/mysql/include/mysql \
     /opt/include \
     /opt/include/mysql; do
     AC_CHECK_HEADER(${dir}/mysql.h, PKG_CPPFLAGS="-I${dir}")
-    if test $PKG_CPPFLAGS; then break; fi
+    if test -n "$PKG_CPPFLAGS"; then break; fi
 done
 if test -z "${PKG_CPPFLAGS}"; then
-  echo "could not find your MySQL header files"
+  echo "could not find your MySQL header files -- you'll need to"
+  echo "manually specify the location of your MySQL header files and"
+  echo "libraries, and re-run R CMD INSTALL"
+  echo ""
+  echo "INSTRUCTIONS:"
+  echo "  Define and export the shell variables PKG_CPPFLAGS and"
+  echo "  PKG_LIBS to have the directory for header files and libraries"
+  echo "  for example,"
+  echo ""
+  echo "     export PKG_CPPFLAG=-I<MySQL-include-dir>"
+  echo "     export PKG_LIBS='-L<MySQL-lib-dir> -lmysqlclient'"
+  echo "     R CMD INSTALL RMySQL_<version>.tar.gz"
   exit 1
+else
+  ## if the libs are in /usr/local/mysql/lib/mysql, add this by -L
+  if test -n "${MYLIB_DIR}"; then
+     PKG_CPPFLAGS="${PKG_CPPFLAGS}"
+  fi
 fi
+
 AC_SUBST(PKG_CPPFLAGS)
+AC_SUBST(PKG_LIBS)
 
 AC_OUTPUT(src/Makevars)
