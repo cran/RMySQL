@@ -1,3 +1,12 @@
+Version 0.5-4
+
+* Fixed 2 problems in configure.in:
+  Since the MySQL client library requires libz, but now explicitly
+  check for it ourselves;  also we now explicitly check for the GNU 
+  getopt_long in the C library and set the C preprocessor macro 
+  HAVE_GETOPT_LONG accordingly, which we use to conditionally include 
+  or exclude the appropriate C code.
+
 Version 0.5-3
 
 * Fixed a data.frame subsetting problem introduced (uncovered?) with

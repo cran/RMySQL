@@ -1,0 +1,55 @@
+2c2
+<  * $Id: RS-MySQL.c,v 1.5 2003/05/16 12:10:15 dj Exp dj $
+---
+>  * $Id: RS-MySQL.c,v 1.5 2003/05/16 12:10:15 dj Exp $
+132c132
+<   mgrHandle = RS_DBI_asMgrHandle(MGR_ID(conHandle));
+---
+>   mgrHandle = RS_DBI_asMgrHandle(PID(conHandle), MGR_ID(conHandle));
+196,198c196
+< #ifdef WIN32
+<   char  *tmp;  /* we'll have to peek into the MYSQL connection obj, darn!*/
+< #else
+---
+> #if HAVE_GETOPT_LONG
+200a199,200
+> #else
+>   char  *tmp;  /* we'll have to peek into the MYSQL connection obj, darn!*/
+243,244c243
+< #ifndef WIN32
+<   /* What about Mac OS 9 and/or OS X? */
+---
+> #if HAVE_GETOPT_LONG
+276c275
+< #endif    /* WIN32 */
+---
+> #endif  /* HAVE_GETOPT_LONG */
+307c306
+< #ifdef WIN32
+---
+> #if ! HAVE_GETOPT_LONG
+329c328
+< #endif    /* WIN32 */
+---
+> #endif    /* ! HAVE_GETOPT_LONG */
+427,429c426,427
+<     rsHandle = RS_DBI_asResHandle(MGR_ID(conHandle), 
+< 	                          CON_ID(conHandle),
+< 				  res_id);
+---
+>     rsHandle = RS_DBI_asResHandle(PID(conHandle), MGR_ID(conHandle), 
+> 	                          CON_ID(conHandle), res_id);
+857c855
+<   Sint j, n = 8;
+---
+>   Sint j, n = 9;
+858a857
+>                      "processId",
+861a861
+>                      INTEGER_TYPE,
+864c864
+<   Sint  mgrLen[]  = {1, 1, 1, 1, 1, 1, 1, 1};
+---
+>   Sint  mgrLen[]  = {1, 1, 1, 1, 1, 1, 1, 1, 1};
+897a898
+>   LST_INT_EL(output,j++,0) = mgr->processId;

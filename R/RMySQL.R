@@ -515,9 +515,8 @@ function(obj, what="", ...)
 {
    if(!isIdCurrent(obj))
       stop(paste("expired", class(obj)))
-   drvId <- as(obj, "integer")[1]
+   drvId <- as(obj, "integer")
    info <- .Call("RS_MySQL_managerInfo", drvId, PACKAGE = .MySQLPkgName)  
-   drvId <- info$managerId
    ## replace drv/connection id w. actual drv/connection objects
    conObjs <- vector("list", length = info$"num_con")
    ids <- info$connectionIds
@@ -558,7 +557,7 @@ function(con, ...)
 {
    if(!isIdCurrent(con))
       stop(paste("expired", class(con)))
-   conId <- as(con, "integer")[1:2]
+   conId <- as(con, "integer")
    newId <- .Call("RS_MySQL_cloneConnection", conId, PACKAGE = .MySQLPkgName)
    new("MySQLConnection", Id = newId)
 }

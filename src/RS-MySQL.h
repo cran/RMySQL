@@ -1,7 +1,7 @@
 #ifndef _RS_MYSQL_H
 #define _RS_MYSQL_H 1
 /*  
- *  $Id: RS-MySQL.h,v 1.4 2003/12/01 20:34:23 dj Exp dj $
+ *  $Id: RS-MySQL.h,v 1.5 2004/04/12 18:08:10 dj Exp dj $
  *
  * Copyright (C) 1999-2002 The Omega Project for Statistical Computing.
  *
@@ -24,9 +24,17 @@
 extern  "C" {
 #endif
 
+/* We use HAVE_GETOPT_LONG to signal we can use getopt_long() 
+ * (by default we assume we're running on a GNU-aware system)
+ */
+#ifndef HAVE_GETOPT_LONG
+#   define HAVE_GETOPT_LONG 1
+#endif
+
 #ifdef WIN32
-#include <windows.h>
-#undef ERROR
+#   include <windows.h>
+#   define HAVE_GETOPT_LONG 0
+#   undef ERROR
 #endif
 
 #include <mysql.h>
