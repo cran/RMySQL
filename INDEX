@@ -1,0 +1,23 @@
+MySQL                    Create a MySQL Database Connection Manager
+close.MySQLResultSet     Close a MySQL Result
+close                    Close a Database Object
+dbConnect.MySQLManager   Connect to a MySQL Database
+dbConnect                Connect to a database
+dbExec                   Execute and Get Value for an SQL Statement
+dbExecStatement          Execute an SQL Statement
+describe                 Describe a Database Driver Object
+fetch                    Fetch Rows From an SQL resultSet
+getCurrentDatabase       Get Name of the Current Database
+getDatabases             Get a list of Existing Databases
+getException             Get Exceptions Associated With a SQL Driver
+                         Object
+getFields                Get Information About the Fields in a resultSet
+getInfo                  Get Information About an SQL Driver object
+getRowCount              Get the Number of Rows in a resultSet
+getRowsAffected          Get the Number of Rows Affected by a resultSet
+getStatement             Show the Statement Associated With a resultSet
+getTableFields           Show Fields From a Table
+getTableIndeces          Show Indeces From a Table
+getTables                List All Tables in a Database
+hasCompleted             Check a resultSet for Unfetched Rows
+isIdCurrent              Verify a dbObjectId Object

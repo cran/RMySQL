@@ -1,0 +1,261 @@
+S/R-Database Interface (S-DBI) definition proposal.
+
+$Id: S-DBI.notes.txt,v 1.1.1.1 2000/01/04 21:38:26 root Exp $
+
+This is a first draft of a common set of classes and methods for
+interfacing S/R and relational databases (RDBMS).  The idea is that a
+common interface will simplify data access to any RDBMS.  The emphasis
+is on querying databases, and not so much in a full low-level
+interface for database development (like in JDBC or ODBC).  Also,
+unlike the JDBC and Perl API's, we want to approach the problem from
+the "whole-object" perspective so natural to S/R (e.g., by fetching
+all fields and records simultaneously) yet allowing finer control for
+users that need it.  Currently we envision providing drivers for
+Oracle, Informix, Sybase, mySQL, mSQL, and Postgres.  It's quite
+possible that we may want to create an interface to UNIX (gzipped)
+flat file databases.  A typical use may be
+
+Example:
+
+   mgr <- Oracle()
+   con <- dbConnect(mgr, user = "user", passwd = "passwd")
+   rs <- dbExecStatement(con, "select fld1, fld2, fld3 from MY_TABLE")
+   tbls <- fetch(rs, n = 100)
+   hasCompleted(tbls)
+   [1] T
+   close(rs)
+   rs <- dbExecStatement(con, "select id_name, q25, q50 from liv2")
+   res <- fetch(rs)
+   getRowCount(rs)
+   [1] 73
+   close(con)
+
+The exact same script should work with other RDBMS, (say, MySQL) by
+replacing the first line with "mgr <- MySQL()".
+
+S-DBI Classes:
+
+These are the main classes for the interface.
+
+  dbManager:  Virtual class extended by actual database manager,
+	      e.g., Oracle, MySQL.
+  dbConnection:  Virtual class that captures a connection to the
+	      actual database instance.
+  dbResultSet:  Virtual class to the result of an SQL statement.  
+  
+  All these classes should implement the show() and describe() methods
+  (describe() prints the meta-deta of the specified object).
+
+  In addition, the following methods should also be implemented:
+
+  getDatabases() List all available databases known to the dbManager.
+  getTables()  List tables in db.
+  getTableFields()  Fields in table@db
+  getTableIndeces()  indices defined for table@db.
+
+Class: dbManager
+
+  This is a virtual class that identifies the relational database
+  management system (RDBMS).  It needs to be extended by individual
+  drivers (oracle, postgress,...).  The dbManager class defines the
+  following methods.
+  
+  load() Initialization of the driver code.  We suggest having the
+    generator, dbManager("driver"), automatically load() the driver.
+
+  unload() Releases whatever resources the driver has.
+
+  version() Returns the version of the S-DBI currently implemented,
+    plus any other relevant information about the implementation
+    itself and the RDBMS being used.
+
+Class: dbConnection
+     
+  This virtual class captures a connection to an RDBMS.  It provides
+  access to dynamic SQL, result sets, RDBMS session management
+  (transactions), etc.  Note that the dbManager may allow multiple
+  simultaneous dbConnections.
+   
+  dbConnect() Opens a connection to the database "dbname".  Other
+    likely arguments include "host", "user", and "password".  It
+    returns an object that extends "dbConnection" in a driver-specific
+    manner.  Note that we could separate the steps of connecting to a
+    RDBMS and opening a database there (i.e., opening an *instance*).
+    I think that for simplicity we should do the 2 steps in this
+    method.  If the user needs to open another instance in the same
+    DBMS, just open a new connection.
+
+  close() Closes the connection (and all pending work) in the connection.
+
+  dbExecStatement() Submits one SQL statement.  It returns a resultSet
+    object.  Note that we're using a slightly broader definition of a
+    result set.  JDBC, Python, Perl use result sets *only* in the case
+    of SQL queries, but for us a resultSet is (as the name says) the
+    result of any SQL statement.  I think we want to define the result
+    of UPDATE, DELETE, CREATE, ALTER, ..., etc.  as the number of rows
+    affected (this seems to be common in SQL).  This resultSet will
+    be needed for fetching rows in the case of a SELECT.  
+
+  commit()  commits pending transaction (optional).
+
+  rollback() Undo current transaction (optional).
+
+  callProc() Invokes a stored procedure in the DBMS (tentative).
+    Stored procedures are NOT part of the ANSI SQL standard and
+    possibly vary a lot from one DBMS to another.  Oracle seems to
+    have a fairly decent implementation.
+
+  SQL Scripts: How should SQL scripts be run?  We could execute
+  statements without returning until we encounter a query
+  (SELECT-like) statement and return its resultSet.  The application
+  is then responsible for fetching these rows, and then invoke
+  "dbNextResultSet" which repeats the exec/fetching until we encounter
+  the next query.  And so on.  The following 2 methods are the initial
+  proposal:
+
+  dbExec() Submit an SQL "script" (multiple statements). May be
+    implemented by looping with dbExecStatement(). 
+
+  dbNextResultSet() When running SQL scripts (multiple statements),
+    close the current resultSet in the dbConnection, execute the
+    next statement and return its resultSet.  
+
+  [How about commitments and rollbacks for SQL scripts?]  
+  
+Class: dbResultSet
+
+  This object describes the result of an SQL statement and the state
+  of the operation.  Data definition language statements (e.g.,
+  CREATE, UPDATE, DELETE) set the "completed" state to 1, while
+  queries may set it to 0 so long as there are pending rows to fetch.
+  Error conditions set this slot to a negative numbers. The method
+  getException() extracts that last error message.  The dbResultSet
+  class defines the following methods:
+
+  getFields() describes the SELECTed fields. The description includes
+    field names, RDBMS internal data types, internal length, internal
+    precision and scale, null flag (i.e., column allows NULL's), and
+    corresponding S class (which can be over-ridden with user-provided
+    classes).
+
+  setDataMappings() defines a conversion between the internal RDBMS
+    data types and S/R.  We expect the default mappings to be by far
+    the most common ones, but users that need more control may specify
+    a class generator for individual fields in the resultSet. 
+    (See next section for details.)
+ 
+  getStatement()  The sql statement associated with the resultSet.    
+  getDBConnection()  The dbConnection associated with the resultSet.
+  getRowsAffected() Number of rows affected by the operation.
+  getRowCount()  Rows fetched so far (in the case of SELECT's result sets)
+  hasCompleted() Was the operation completed? SELECT's, for instance,
+    are never completed and their output needs to be fetch()'ed.
+  getNullOk()  returns a logical describing with fields accept NULL's.
+  getException() extracts the last exception.
+
+ 
+  The current S-Oracle and S-MySQL implementations represents a result
+  set as a list with the following members:
+
+    connection -- the connection object associated with this resultSet;
+    statement --  is a string with the SQL statement being processed; 
+    description -- a field description list with elements "name", 
+      "type, "length", "precision", "scale", "Sclass";
+    rowsAffected -- how many rows were affected (non-SELECT statements);
+    rowCount --  number of rows currently fetched; 
+    completed -- logical describing  whether the operation has
+      completed  or not (SELECT statement return an uncompleted 
+      resultSet that is used by fetch().  When completed,
+     "rowsAffected" will equal "rowCount".	 
+    nullOk -- logical vector specifying whether the corresponding
+      column may take NULL values.              
+
+  The methods above are implemented as accessor functions in the
+  obvious way.
+  
+  In addition to the above methods, dbResultSet objects support the
+  following:
+
+  close() Closes the result set and frees resources both in S and the
+    DBMS.
+  
+  fetch() Fetches the next "max.rec" records (-1 means all).
+ 
+S-DBI Data Type mappings:
+
+  Since S has few primitive data types as compared to databases, by
+  default we'll do the "obvious".  Any of the many character objects
+  are mapped to S' CHAR.  Numbers are mapped into either doubles (S
+  numeric) or long (S integer).  Dates are mapped to character using
+  the appropriate TO_CHAR() function in the DBMS (which should take
+  care of any locale information).  Some DBMS's support the type
+  CURRENCY or MONEY which should be mapped to S numeric.  Large object
+  (character, binary, file, etc. also need to be mapped).
+  User-defined functions may be specified to do the actual conversion
+  as follows:
+
+    (1) run the query (either dbExec or dbExecStatement):
+            rs <- dbExecStatement(con, "select whatever-I-need")
+    (2) extract the output field definitions with 
+            flds <- getFields(rs)
+    (3) replace the class generator in the, say 3rd field, by the user 
+        own generator:
+
+	    > flds[3, "Sclass"]            # default mapping
+            [1] "character"
+        to
+            flds[3, "Sclass"] <- "myOwnGeneratorFunction"
+
+    (4) setDataMappings(resutlSet, flds)
+
+  [TBD] Large objects (up to 4GB, at least in theory) could be fetched
+  by repeatedly invoking a specified S function that takes as argument
+  chunks of specified number of raw bytes.  In the case of S4 (and
+  Splus5.x) the S-DBI implementation can write into an opened
+  connection for which the user has defined a reader (but can we
+  guarantee that we won't overflow the connection?).
+    
+Open Issues:
+
+  We may need to provide some additional utilities, for instance to
+  convert dates, to strip blanks, etc.  There are other SQL92 types
+  we're not considering (BLOB's, LOB's, etc.)
+
+  What kind of data object is the output of a SQL query.  We can
+  implement this as a data.frame, a list, or some class that extends
+  one of these.  Perhaps jmc's dataTable?  (One simple issue with data
+  frames is that they automatically re-label the fields according to S
+  syntax, changing the actual DBMS labels of the variables.)
+
+  What kind of error/exception handling should we implement?  Should
+  we print warnings from the C implementation, or return some kind of
+  structure describing the state of the computation (e.g., if there
+  are syntax errors we may want to report where the error occur).
+
+  How should large object be handled?  (See previous section.)
+  
+Limitations:
+
+Currently we allow only one SQL statement at a time (thus, the user is forced
+to split SQL scripts into individual statements).
+
+Transaction management is not fully described.
+ 
+This interface between S/R and RDBMS is heavily biased towards
+queries, as opposed to general purpose database development.  In
+particular we made no attempt to define "bind variables", that is a
+mechanism by which the contents S object are implicitly moved to the
+database during SQL execution.  For instance, the following embedded C
+statement
+	
+	SELECT * from emp_table where emp_id = :sample_employee
+
+would take the array "sample_employee" and iterate over each of its
+elements to get the result.  Perhaps S-DBI could at some point in the
+future do the same.
+
+
+
+
+
+

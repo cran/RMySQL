@@ -1,0 +1,5 @@
+.First.lib <- function(lib, pkg) {
+  library.dynam("RMySQL", pkg, lib)
+}
+
+provide("RMySQL")

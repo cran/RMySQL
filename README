@@ -1,0 +1,95 @@
+The following is the README file for the S4 version of this package.
+
+S DataBase Interface and the S-MySQL driver
+
+The chapter implements an S-MySQL interface according
+to the S-DataBase Interface specification (see S-DBI.notes.txt).
+
+For installation see "README.install"
+
+Example:
+--------
+$ S
+S Version 4-M (June  2, 1999) 
+Working Data will be in Directory "." (/home/dj/S-dbi/mySQL) 
+
+  > m = MySQL()
+  > con = dbConnect(m, user = "me", password = "pass", dbname = "mydata")
+  > rs = dbExecStatement(con, "SHOW TABLES")
+  > rel = fetch(rs, n = 10)
+
+  > describe(m, verbose=T)  
+  MySQLManager id = (27589) 
+    Default records per fetch: 5000 
+    Conn. processed: 1 
+    Max  connections: 16 
+    Open connections: 1 
+    Open connections: 1 
+    1  MySQLConnection id = (27589,1) 
+
+  > describe(con, T)
+  MySQLConnection id = (27589,1) 
+    User: opto 
+    Host:  
+    Dbname: opto 
+    Connection type: Localhost via UNIX socket 
+  MySQLResultSet id = (27589,1,1) 
+    Statement: show tables 
+    Has completed? no 
+    Rows fetched: 0 
+    Affected rows: -1 
+    Fields:
+              name    Sclass type len precision scale nullOK 
+  1 Tables in opto character       64        64     0  FALSE
+
+
+Description:
+------------
+
+The S-Database Interface is an attempt to define a common interface
+between S (S4, Splus5.x, R, S3, Splus 3.X, etc) and *any* relational
+database.  The S-DBI defines a minimum set of classes and methods
+that actual interfaces (Oracle, Postgres, MySQL, mSQL, Informix)
+implement.
+
+The S-MySQL interface implements the S-DBI version 0.2 (see the file
+S-DBI.notes.txt).  Currently this includes the following classes:
+
+MySQLManager that implements the VIRTUAL class dbManager:  
+MySQLConnection that implements the VIRTUAL class dbConnection:
+MySQLResultSet that implements the VIRTUAL class dbResutSet:
+
+The S-MySQL implementation can handle multiple open connections to
+multiple MySQL servers.  Each connection can process one SQL statement
+at a time.  It's possible to extend this with something like
+
+dbSQLScript <- function(con, script)
+## return a list with one member per SQL statment in script
+## Assume that each script[i] is a full SQL statement
+{
+  n <- length(script)
+  output <- vector("list", length = n)
+  for(i in 1:n){
+    statment <- script[i]
+    rs <- dbExecStatement(con, statement)
+    if(!hasCompleted(rs))
+      out[i] <- fetch(rs, n = -1)   # fetch all (n=-1) data
+  }
+  output
+}     
+
+Methods:
+--------
+
+The following methods exists for the dbManager, dbConnection, and
+dbResultSet:
+
+ 	describe(obj)   # prints "nicely" metadata in obj
+	getInfo(obj)    # gets metadata from obj as a list
+
+	close(obj)      # closes a connection or a resultSet
+
+	unload(dbManager)  # frees up connections
+
+There are also a bunch of get<piece-of-info> for querying resultSets,
+connections, dbmanager, but describe() may be more user-friendly.

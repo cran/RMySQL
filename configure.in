@@ -1,0 +1,22 @@
+dnl Borrowed from the RPgSQL package
+dnl Process this file with autoconf to produce a configure script.
+AC_INIT(src/RMySQL.c)
+
+dnl Checks for libraries.
+AC_CHECK_LIB(mysqlclient, mysql_init)
+
+dnl Checks for header files.
+dnl Following courtesy of Kurt Hornik
+for dir in \
+    /usr/include \
+    /usr/include/mysql \
+    /usr/local/include \
+    /usr/local/include/mysql \
+    /opt/include \
+    /opt/include/mysql; do
+    AC_CHECK_HEADER(${dir}/mysql.h, PKG_CPPFLAGS="-I${dir}")
+    if test $PKG_CPPFLAGS; then break; fi
+done
+AC_SUBST(PKG_CPPFLAGS)
+
+AC_OUTPUT(src/Makefile)

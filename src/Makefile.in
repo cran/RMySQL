@@ -1,0 +1,21 @@
+SHELL = /bin/sh
+
+PACKAGE = RMySQL
+
+# Autoconf substitutions
+PKG_LDFLAGS = @LDFLAGS@
+PKG_CPPFLAGS = @PKG_CPPFLAGS@
+LIBS = @LIBS@
+
+SHLIB = $(PACKAGE).$(SHLIBEXT)
+SOURCE = RMySQL.c RMySQL.h
+
+$(SHLIB) : $(SOURCE)
+	$(CC) $(ALL_CPPFLAGS) $(ALL_CFLAGS) $(PKG_LDFLAGS) \
+		$(SHLIBLDFLAGS) -o $@ $< $(LIBS)
+
+clean :
+	rm -f $(SHLIB)
+
+distclean: clean
+	rm -f Makefile
