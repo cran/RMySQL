@@ -5,10 +5,12 @@
 \alias{as.MySQLConnection}
 \alias{as.MySQLManager}
 \alias{as.MySQLResultSet}
+\alias{as.character.dbObjectId}
 \alias{as.integer.MySQLConnection}
 \alias{as.integer.MySQLManager}
 \alias{as.integer.MySQLResultSet}
 \alias{as.integer.dbObjectId}
+\alias{as.numeric.dbObjectId}
 \alias{assignTable.MySQLConnection}
 \alias{close.MySQLConnection}
 \alias{close.MySQLResultSet}
@@ -63,11 +65,12 @@
 \alias{load.MySQLManager}
 \alias{load.default}
 \alias{loadManager.MySQLManager}
-\alias{new.MySQLManager}
-\alias{new.MySQLObject}
-\alias{new.MySQLResultSet}
-\alias{new.dbObjectId}
-\alias{new.default}
+\alias{NEW.MySQLObject}
+\alias{NEW.dbObjectId}
+\alias{NEW.MySQLManager}
+\alias{NEW.MySQLConnection}
+\alias{NEW.MySQLResultSet}
+\alias{NEW.default}
 \alias{newConnection.MySQLManager}
 \alias{print.MySQLConnection}
 \alias{print.MySQLManager}
@@ -86,13 +89,30 @@
   documentation of the generic function.
 }
 \usage{
-<generic>.MySQLManager(obj, ...)   
+assignTable.MySQLConnection(con, name, value, field.types, row.names, overwrite, append, ...)
 }
 \arguments{
-  \item{<generic>}{refers to an actual generic function name, e.g., 
-        \code{dbConnect}}
-  \item{obj}{is some kind of MySQL object}
-  \item{\dots}{additional arguments}
+  \item{con}{an MySQL connection.}
+  \item{name}{the name of the MySQL table to create, overwrite, or append to.}
+  \item{value}{a data.frame to be exported to the DBMS}
+  \item{row.names}{field name in \code{value} to be mapped to a
+        \code{row_names} MySQL column. By default \code{row.names(value)}
+        is added as the first column of the \code{value} data.frame,
+        and this expanded data.frame is transferred to the database. 
+        If the argument \code{row.names} is \code{NULL}, \code{FALSE} or 0 
+        then no row names are attached to \code{value}.}
+  \item{field.types}{a list with as many elements as fields in the
+        target MySQL \code{table}.  Each member of the list maps the
+        corresponding field in \code{value} into a MySQL data type.
+        By default, this argument is built by invoking
+        \code{\link{SQLDataType}} on each element of \code{value}, possibly
+        after adding a \code{row.names} field (not attribute) to \code{value}
+        (see previous argument).}
+  \item{overwrite}{logical specifying whether to overwrite an existing 
+        MySQL table or not.}      
+  \item{append}{logical specifying whether to append to an existing 
+        MySQL table or not.}      
+  \item{\dots}{additional arguments are silently ignored.}
 }
 \details{
   See \code{help(generic)} for a description of the

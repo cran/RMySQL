@@ -1,0 +1,31 @@
+
+1. Embedding MySQL.  Add code to handle the embedded MySQL (this
+   should be pretty easy).  This does bring up a configuration
+   issue.  We may be able to easily define a macro based on which
+   library we're linking against (libmysqlclient or libmysqld).
+   
+2. dbApply. Move the dbApply C code into the fetch C code. Extend
+   dbApply to work with multiple fields and report which field(s)
+   has/have changed group.
+
+3. Allow users to specify whether to transfer all the data
+   to the MySQL client or not.  Currently when we execute a query
+   we leave all the data in the MySQL server and fetch row by row.
+   This has performance implications (dbExec returns quickly but we
+   incur many tcp round trips), and we run the risk of the server
+   dropping some of the output records.  We could instead have the
+   server send the entire result set to the client MySQL, and have
+   the MySQL library (not R/Splus) cache the result set for us (this
+   can cause a big increase in the amount of memory that R/Splus
+   is using, although R itself is not managing the MySQL result set
+   cache proper).  Some advantages of this approach is that small
+   and medium size result sets could be sped up quite a bit, and
+   the R/S code that builds up the data.frame where the output goes
+   need not be built up dynamically, but in one go.  This would
+   require to add a flag to fetch() to use mysql_use_result()
+   or mysql_store_result(), say something like "greedy" or "lazy"...?
+
+
+4. Also, we should allow the user to specify whether to lock or
+   not the tables we're querying.
+

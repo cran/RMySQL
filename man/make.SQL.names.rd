@@ -7,11 +7,14 @@
 Produce legal SQL identifiers from an R/S chacter vector.
 }
 \usage{
-make.SQL.names(snames, unique=T, allow.keywords=T)
+make.SQL.names(snames, keywords=.SQL92Keywords, unique=T, allow.keywords=T)
 }
 \arguments{
 \item{snames}{
-a character vector of R/S identifiers (syntactic names).
+   a character vector of R/S identifiers (syntactic names).
+}
+\item{keywords}{
+   a character vector of SQL keywords. It defaults to \code{.SQL92Keywords}.
 }
 \item{unique}{
 logical describing whether the resulting set of SQL names should be unique.

@@ -1,0 +1,8 @@
+##
+## Note that we need to link against the libmySQL.dll **NOT** the
+## libmysqlclient.lib (as in Linux/Unix).
+##
+## Change the drive/directory where mysql resides, as appropriate.
+
+PKG_CPPFLAGS = -D__CYGWIN__ -I. -Id:/mysql/include 
+PKG_LIBS = -L. -Ld:/mysql/lib/opt -lmysql -lzlib

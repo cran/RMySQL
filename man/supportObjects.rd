@@ -1,7 +1,9 @@
 \name{supportObjects}
 \alias{.MySQL.NA.string}
-\alias{.SQLKeywords}
+\alias{.SQL92Keywords}
+\alias{.MySQLKeywords}
 \alias{.conflicts.OK}
+\alias{existsFunction}
 \non_function{}
 \title{Support objects for RS-DBI}
 \usage{data(.SQLKeywords)}

@@ -1,7 +1,8 @@
-/* $Id$
+/* 
+ * $Id: RS-MySQL.c,v 1.3 2002/05/20 23:11:25 dj Exp dj $
  *
  *
- * Copyright (C) 1999 The Omega Project for Statistical Computing.
+ * Copyright (C) 1999-2002 The Omega Project for Statistical Computing.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -178,10 +179,13 @@ RS_MySQL_newConnection(Mgr_Handle *mgrHandle, s_object *con_params,
   unsigned int  p, port, client_flags;
   char      *user = NULL, *passwd = NULL, *host = NULL, *dbname = NULL;
   char      *unix_socket = NULL;
-  int       i, argc, option_index;
+  int       i; 
   Sint      ngroups;
   char      **groups;
+#ifndef __CYGWIN__
+  int       argc, option_index;
   char      **argv;
+#endif
 
   if(!is_validHandle(mgrHandle, MGR_HANDLE_TYPE))
     RS_DBI_errorMessage("invalid MySQLManager", RS_DBI_ERROR);
@@ -206,6 +210,10 @@ RS_MySQL_newConnection(Mgr_Handle *mgrHandle, s_object *con_params,
   groups[ngroups+2] = NULL;       /* required sentinel */
   for(i=0; i<ngroups; i++)
     groups[i+2] = RS_DBI_copyString(CHR_EL(MySQLgroups,i));
+#ifndef __CYGWIN__
+  /* apparently, Win32 MySQL (3.23) doesn't have the load_defaults
+   * included in the client libs, thus the __CYGWIN__.
+   */
   argc = 1;
   argv = (char **) S_alloc((long) 1, (int) sizeof(char **));
   argv[0] = (char *) RS_DBI_copyString("dummy"); 
@@ -213,6 +221,7 @@ RS_MySQL_newConnection(Mgr_Handle *mgrHandle, s_object *con_params,
   load_defaults("my",(const char **) groups, &argc, &argv);
   option_index = optind = 0;
   while(1){
+    int nc;
     char c;
     struct option long_options[] = {
       {"host",     required_argument, NULL, 'h'},
@@ -223,9 +232,10 @@ RS_MySQL_newConnection(Mgr_Handle *mgrHandle, s_object *con_params,
       {"database", required_argument, NULL, 'd'},
       {0, 0, 0, 0}
     };
-    c = getopt_long(argc, argv, "h:u:p:d:P:s:", long_options, &option_index);
-    if(c == -1)
+    nc = getopt_long(argc, argv, "h:u:p:d:P:s:", long_options, &option_index);
+    if(nc == -1)
       break;
+    c = (char) nc;
     switch(c){
     case 'h': host = optarg;   break;
     case 'u': user = optarg;   break;
@@ -235,6 +245,7 @@ RS_MySQL_newConnection(Mgr_Handle *mgrHandle, s_object *con_params,
     case 's': unix_socket = optarg;  break;
     }
   }
+#endif    /* __CYGWIN__ */
 
 #define IS_EMPTY(s1)   !strcmp((s1), "")
 
@@ -348,8 +359,7 @@ RS_MySQL_exec(Con_Handle *conHandle, s_object *statement)
   RS_DBI_resultSet  *result;
   MYSQL             *my_connection;
   MYSQL_RES         *my_result;
-  unsigned int   num_fields;
-  int      state;
+  int      num_fields, state;
   Sint     res_id, is_select;
   char     *dyn_statement;
 
@@ -396,7 +406,7 @@ RS_MySQL_exec(Con_Handle *conHandle, s_object *statement)
   if(!my_result)
     my_result = (MYSQL_RES *) NULL;
     
-  num_fields = mysql_field_count(my_connection);
+  num_fields = (int) mysql_field_count(my_connection);
   is_select = (Sint) TRUE;
   if(!my_result){
     if(num_fields>0){
@@ -492,7 +502,11 @@ RS_MySQL_createDataMappings(Res_Handle *rsHandle)
     case FIELD_TYPE_SHORT:           /* 2-byte SMALLINT  */
     case FIELD_TYPE_INT24:           /* 3-byte MEDIUMINT */
     case FIELD_TYPE_LONG:            /* 4-byte INTEGER   */
-      flds->Sclass[j] = INTEGER_TYPE;
+    /* if unsigned, turn into numeric (may be too large for ints/long)*/
+      if(select_dp[j].flags & UNSIGNED_FLAG)
+        flds->Sclass[j] = NUMERIC_TYPE;
+      else
+        flds->Sclass[j] = INTEGER_TYPE;
       break;
     case FIELD_TYPE_LONGLONG:        /* TODO: can we fit these in R/S ints? */
       if(sizeof(Sint)>=8)            /* Arg! this ain't pretty:-( */
@@ -563,7 +577,8 @@ RS_MySQL_fetch(s_object *rsHandle, s_object *max_rec)
   int    i, j, null_item, expand;
   Sint   *fld_nullOk, completed;
   Stype  *fld_Sclass;
-  Sint   num_rec, num_fields;
+  Sint   num_rec; 
+  int    num_fields;
 
   result = RS_DBI_getResultSet(rsHandle);
   flds = result->fields;
@@ -579,11 +594,13 @@ RS_MySQL_fetch(s_object *rsHandle, s_object *max_rec)
   num_fields = flds->num_fields;
   MEM_PROTECT(output = NEW_LIST((Sint) num_fields));
   RS_DBI_allocOutput(output, flds, num_rec, 0);
+#ifndef USING_R
   if(IS_LIST(output))
     output = AS_LIST(output);
   else
     RS_DBI_errorMessage("internal error: could not alloc output list",
 			RS_DBI_ERROR);
+#endif
   fld_Sclass = flds->Sclass;
   fld_nullOk = flds->nullOk;
   
@@ -595,11 +612,13 @@ RS_MySQL_fetch(s_object *rsHandle, s_object *max_rec)
       if(expand){    /* do we extend or return the records fetched so far*/
 	num_rec = 2 * num_rec;
 	RS_DBI_allocOutput(output, flds, num_rec, expand);
+#ifndef USING_R
 	if(IS_LIST(output))
 	  output = AS_LIST(output);
 	else
 	  RS_DBI_errorMessage("internal error: could not alloc output list",
 			      RS_DBI_ERROR);
+#endif
       }
       else
 	break;       /* okay, no more fetching for now */
@@ -628,7 +647,7 @@ RS_MySQL_fetch(s_object *rsHandle, s_object *max_rec)
 	/* BUG: I need to verify that a TEXT field (which is stored as
 	 * a BLOB by MySQL!) is indeed char and not a true
 	 * Binary obj (MySQL does not truly distinguish them). This
-	 * test is very grosse.
+	 * test is very gross.
 	 */
 	if(null_item)
 #ifdef USING_R
@@ -730,11 +749,13 @@ RS_MySQL_getException(s_object *conHandle)
     RS_DBI_errorMessage("internal error: corrupt connection handle",
 			RS_DBI_ERROR);
   output = RS_DBI_createNamedList(exDesc, exType, exLen, n);
+#ifndef USING_R
   if(IS_LIST(output))
     output = AS_LIST(output);
   else
     RS_DBI_errorMessage("internal error: could not allocate named list",
 			RS_DBI_ERROR);
+#endif
   my_connection = (MYSQL *) con->drvConnection;
   LST_INT_EL(output,0,0) = (Sint) mysql_errno(my_connection);
   SET_LST_CHR_EL(output,1,0,C_S_CPY(mysql_error(my_connection)));
@@ -798,11 +819,13 @@ RS_MySQL_managerInfo(Mgr_Handle *mgrHandle)
   mgrLen[1] = num_con;
 
   output = RS_DBI_createNamedList(mgrDesc, mgrType, mgrLen, n);
+#ifndef USING_R
   if(IS_LIST(output))
     output = AS_LIST(output);
   else
     RS_DBI_errorMessage("internal error: could not alloc named list", 
 			RS_DBI_ERROR);
+#endif
   j = (Sint) 0;
   if(mgr->drvName)
     SET_LST_CHR_EL(output,j++,0,C_S_CPY(mgr->drvName));
@@ -851,11 +874,13 @@ RS_MySQL_connectionInfo(Con_Handle *conHandle)
   conLen[7] = con->num_res;         /* num of open resultSets */
   my_con = (MYSQL *) con->drvConnection;
   output = RS_DBI_createNamedList(conDesc, conType, conLen, n);
+#ifndef USING_R
   if(IS_LIST(output))
     output = AS_LIST(output);
   else
     RS_DBI_errorMessage("internal error: could not alloc named list",
 			RS_DBI_ERROR);
+#endif
   conParams = (RS_MySQL_conParams *) con->conParams;
   SET_LST_CHR_EL(output,0,0,C_S_CPY(conParams->host));
   SET_LST_CHR_EL(output,1,0,C_S_CPY(conParams->user));
@@ -901,11 +926,13 @@ RS_MySQL_resultSetInfo(Res_Handle *rsHandle)
     flds = S_NULL_ENTRY;
 
   output = RS_DBI_createNamedList(rsDesc, rsType, rsLen, n);
+#ifndef USING_R
   if(IS_LIST(output))
     output = AS_LIST(output);
   else
     RS_DBI_errorMessage("internal error: could not alloc named list",
 			RS_DBI_ERROR);
+#endif
   SET_LST_CHR_EL(output,0,0,C_S_CPY(result->statement));
   LST_INT_EL(output,1,0) = result->isSelect;
   LST_INT_EL(output,2,0) = result->rowsAffected;
@@ -917,35 +944,19 @@ RS_MySQL_resultSetInfo(Res_Handle *rsHandle)
   return output;
 }
 
-
-char *
-RS_MySQL_getFieldTypeName(Sint t)
-{
-  int i;
-  char buf[512];
-
-  for (i = 0; RS_MySQL_fieldTypes[i].typeName; i++) {
-    if (RS_MySQL_fieldTypes[i].typeId == t)
-      return RS_MySQL_fieldTypes[i].typeName;
-  }
-  sprintf(buf, "unknown data type: %ld", (long)t);
-  RS_DBI_errorMessage(buf, RS_DBI_ERROR);
-  return (char *) 0; /* for -Wall */
-}
-
 s_object *
-RS_MySQL_getFieldTypeNames(s_object *type)
+RS_MySQL_typeNames(s_object *type)
 {
   s_object *typeNames;
-  Sint n;
-  Sint *typeCodes;
+  Sint n, *typeCodes;
   int i;
   
   n = LENGTH(type);
   typeCodes = INTEGER_DATA(type);
   MEM_PROTECT(typeNames = NEW_CHARACTER(n));
   for(i = 0; i < n; i++) {
-    SET_CHR_EL(typeNames,i,C_S_CPY(RS_MySQL_getFieldTypeName(typeCodes[i])));
+    SET_CHR_EL(typeNames, i,
+          C_S_CPY(RS_DBI_getTypeName(typeCodes[i], RS_MySQL_dataTypes)));
   }
   MEM_UNPROTECT(1);
   return typeNames;
@@ -990,7 +1001,7 @@ RS_MySQL_getFieldTypeNames(s_object *type)
 
 s_object    *expand_list(s_object *old, Sint new_len);
 void         add_group(s_object *group_names, s_object *data, 
-		             Sint fld_Sclass[], Sint group, 
+		             Stype *fld_Sclass, Sint group, 
 			     Sint ngroup, Sint i);
 unsigned int check_groupEvents(s_object *data, Stype fld_Sclass[], 
                           Sint row, Sint col);
@@ -1100,10 +1111,11 @@ RS_MySQL_dbApply(s_object *rsHandle,     /* resultset handle */
 #ifndef USING_R
    s_object  *raw_obj, *raw_container;
 #endif
-   unsigned long  *lens = (long *)0;
+   unsigned long  *lens = (unsigned long *)0;
    Stype  *fld_Sclass;
    Sint   i, j, null_item, expand, *fld_nullOk, completed;
-   Sint   num_rec, num_fields, num_groups;
+   Sint   num_rec, num_groups;
+   int    num_fields;
    Sint   max_rec = INT_EL(s_max_rec,0);     /* max rec per group */
    Sint   ngroup = 0, group_field = INT_EL(s_group_field,0);
    long   total_records;
@@ -1118,16 +1130,20 @@ RS_MySQL_dbApply(s_object *rsHandle,     /* resultset handle */
    int        invoke_endGroup   = (GET_LENGTH(endGroupFun)>0);
    int        invoke_newRecord  = (GET_LENGTH(newRecordFun)>0);
 
+   row = NULL;
+   beginGroupCall = R_NilValue;    /* -Wall */
    if(invoke_beginGroup){
       MEM_PROTECT(beginGroupCall=lang2(beginGroupFun, R_NilValue));
       ++np;
    }
+   endGroupCall = R_NilValue;    /* -Wall */
    if(invoke_endGroup){
       /* TODO: append list(...) to the call object */
       MEM_PROTECT(endGroupCall = lang4(endGroupFun, R_NilValue, 
 	          R_NilValue, R_NilValue));
       ++np;
    }
+   newRecordCall = R_NilValue;    /* -Wall */
    if(invoke_newRecord){
       MEM_PROTECT(newRecordCall = lang2(newRecordFun, R_NilValue));
       ++np;
@@ -1141,8 +1157,8 @@ RS_MySQL_dbApply(s_object *rsHandle,     /* resultset handle */
    num_fields = flds->num_fields;
    fld_Sclass = flds->Sclass;
    fld_nullOk = flds->nullOk;
-   MEM_PROTECT(data = NEW_LIST(num_fields));     /* buffer records */
-   MEM_PROTECT(cur_rec = NEW_LIST(num_fields));  /* current record */
+   MEM_PROTECT(data = NEW_LIST((Sint) num_fields));     /* buffer records */
+   MEM_PROTECT(cur_rec = NEW_LIST((Sint) num_fields));  /* current record */
    np += 2;
    RS_DBI_allocOutput(cur_rec, flds, (Sint) 1, 1);
    RS_DBI_makeDataFrame(cur_rec);
@@ -1378,7 +1394,9 @@ RS_MySQL_dbApply(s_object *rsHandle,     /* resultset handle */
    result->completed = (int) completed;
  
    SET_NAMES(out_list, group_names);       /* do I need to PROTECT? */
+#ifndef USING_R
    out_list = AS_LIST(out_list);           /* for S4/Splus[56]'s sake */
+#endif
 
    MEM_UNPROTECT(np);
    return out_list;
@@ -1432,11 +1450,11 @@ check_groupEvents(s_object *data, Stype fld_Sclass[], Sint irow, Sint jcol)
 /* append current group (as character) to the vector of group names */
 void
 add_group(s_object *group_names, s_object *data, 
-		Sint fld_Sclass[], Sint group_field, Sint ngroup, Sint i)
+		Stype *fld_Sclass, Sint group_field, Sint ngroup, Sint i)
 {
    char  buff[1024];   
 
-   switch(fld_Sclass[group_field]){
+   switch((int) fld_Sclass[group_field]){
 
       case LOGICAL_TYPE:
 	 (void) sprintf(buff, "%ld", (long) LST_LGL_EL(data,group_field,i));

@@ -1,10 +1,7 @@
 \name{S4R}
 \alias{ErrorClass}
-\alias{as}
-\alias{new}
-\alias{oldClass}
-\alias{oldClass<-}
-\alias{show}
+\alias{AS}
+\alias{NEW}
 \alias{usingR}
 
 \title{R compatibility with S version 4/Splus5+ support functions}
@@ -14,9 +11,8 @@
   there. May be obsolete in the future.
 }
 \usage{
-as(object, classname)
-new(classname, ...)
-show(object, ...)
+AS(object, classname)
+NEW(classname, ...)
 usingR(major, minor)
 }
 \keyword{internal}
