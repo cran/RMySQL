@@ -23,6 +23,7 @@ con <- dbConnect(m, user = "nobody", dbname = "test")
 rs <- dbExecStatement(con, "SHOW TABLES")
 fetch(rs, n = -1)
 getRowsAffected(rs)
+close(rs)
 close(con)
 }
 \keyword{interface}

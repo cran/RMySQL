@@ -19,7 +19,7 @@ getCurrentDatabase(object)
 \examples{
 m <- MySQL()
 con <- dbConnect(m, user = "nobody", dbname = "test")
-getCurrentDatanase(con)
+getCurrentDatabase(con)
 close(con)
 }
 \keyword{interface}

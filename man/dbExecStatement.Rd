@@ -26,6 +26,7 @@ con <- dbConnect(m, user = "nobody", dbname = "test")
 rs <- dbExecStatement(con, "SHOW TABLES")
 describe(rs, verbose = TRUE)
 fetch(rs, n = -1)
+close(rs)
 close(con)
 }
 \keyword{interface}

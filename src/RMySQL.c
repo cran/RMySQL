@@ -150,19 +150,22 @@ S_MySQL_newConnection(s_object *mgr_id, s_object *con_params)
   S_MySQL_connection  *con;
   unsigned int  port, client_flags;
   char  *user, *passwd, *host, *dbname, *unix_socket;
-  charPtr els;
 
   if(!is_validHandle(mgr_id, 1))
     S_DBI_errorMessage("invalid MySQLManger", S_DBI_ERROR);
 
-  els = CHARACTER_DATA(con_params);
-  user   = (strcmp(CHAR_DEREF(els[0]), "") ? CHAR_DEREF(els[0]) : NULL);
-  passwd = (strcmp(CHAR_DEREF(els[1]), "") ? CHAR_DEREF(els[1]) : NULL);
-  host =   (strcmp(CHAR_DEREF(els[2]), "") ? CHAR_DEREF(els[2]) : NULL); 
-  dbname = (strcmp(CHAR_DEREF(els[3]), "") ? CHAR_DEREF(els[3]) : NULL);
-  unix_socket = (strcmp(CHAR_DEREF(els[4]),"") ? CHAR_DEREF(els[4]) : NULL);
-  port = (unsigned int) atol(CHAR_DEREF(els[5]));
-  client_flags = (unsigned int) atol(CHAR_DEREF(els[6]));
+  user   = (strcmp(CHAR_DEREF(STRING_ELT(con_params, 0)), "") ?
+	    CHAR_DEREF(STRING_ELT(con_params, 0)) : NULL);
+  passwd = (strcmp(CHAR_DEREF(STRING_ELT(con_params, 1)), "") ?
+	    CHAR_DEREF(STRING_ELT(con_params, 1)) : NULL);
+  host   = (strcmp(CHAR_DEREF(STRING_ELT(con_params, 2)), "") ?
+	    CHAR_DEREF(STRING_ELT(con_params, 2)) : NULL);
+  dbname = (strcmp(CHAR_DEREF(STRING_ELT(con_params, 3)), "") ?
+	    CHAR_DEREF(STRING_ELT(con_params, 3)) : NULL);
+  unix_socket = (strcmp(CHAR_DEREF(STRING_ELT(con_params, 4)), "") ?
+		 CHAR_DEREF(STRING_ELT(con_params, 4)) : NULL);
+  port   = (unsigned int) atol(CHAR_DEREF(STRING_ELT(con_params, 5)));
+  client_flags = (unsigned int) atol(CHAR_DEREF(STRING_ELT(con_params, 6)));
 
   my_connection = mysql_init(NULL);
   my_connection = 
@@ -232,7 +235,7 @@ S_MySQL_exec(s_object *conHandle, s_object *statement)
   char   *dyn_statement;
 
   con = S_DBI_resolveConHandle(conHandle);
-  dyn_statement = S_DBI_copyString(CHAR_DEREF(CHARACTER_DATA(statement)[0]));
+  dyn_statement = S_DBI_copyString(CHAR_DEREF(STRING_ELT(statement, 0)));
 
   my_connection = con->my_connection;
 
@@ -429,10 +432,11 @@ S_DBI_allocOutput(s_object *output, S_DBI_fieldDescription *flds,
   fld_Sclass = flds->Sclass;
 
   if(expand){
-    s_object  **els;   
-    els = LIST_POINTER(output);
-    for(j = 0; j < num_fields; j++)
-      SET_LENGTH(els[j], num_rec);
+    for(j = 0; j < num_fields; j++) {
+      s_object *elt = VECTOR_ELT(output, j);
+      SET_LENGTH(elt, num_rec);
+      SET_VECTOR_ELT(output, j, elt);
+    }
     return;
   }
 
@@ -440,23 +444,23 @@ S_DBI_allocOutput(s_object *output, S_DBI_fieldDescription *flds,
 
     switch((int)fld_Sclass[j]){
     case LOGICAL_TYPE:    
-      SET_ELEMENT(output, (Sint) j, MEM_PROTECT(NEW_LOGICAL(num_rec)));
+      SET_VECTOR_ELT(output, (Sint) j, MEM_PROTECT(NEW_LOGICAL(num_rec)));
       break;
     case CHARACTER_TYPE:
-      SET_ELEMENT(output, (Sint) j, MEM_PROTECT(NEW_CHARACTER(num_rec)));
+      SET_VECTOR_ELT(output, (Sint) j, MEM_PROTECT(NEW_CHARACTER(num_rec)));
       break;
     case INTEGER_TYPE:
-      SET_ELEMENT(output, (Sint) j, MEM_PROTECT(NEW_INTEGER(num_rec)));
+      SET_VECTOR_ELT(output, (Sint) j, MEM_PROTECT(NEW_INTEGER(num_rec)));
       break;
     case NUMERIC_TYPE:
-      SET_ELEMENT(output, (Sint) j, MEM_PROTECT(NEW_NUMERIC(num_rec)));
+      SET_VECTOR_ELT(output, (Sint) j, MEM_PROTECT(NEW_NUMERIC(num_rec)));
       break;
     case LIST_TYPE:
-      SET_ELEMENT(output, (Sint) j, MEM_PROTECT(NEW_LIST(num_rec)));
+      SET_VECTOR_ELT(output, (Sint) j, MEM_PROTECT(NEW_LIST(num_rec)));
       break;
 #ifndef USING_R
     case RAW:
-      SET_ELEMENT(output, (Sint) j, MEM_PROTECT(NEW_RAW(num_rec)));
+      SET_VECTOR_ELT(output, (Sint) j, MEM_PROTECT(NEW_RAW(num_rec)));
       break;
 #endif
     default:
@@ -471,7 +475,7 @@ S_MySQL_fetch(s_object *rsHandle, s_object *max_rec)
 {
   S_EVALUATOR
 
-  s_object  *S_output_list, **els, *S_output_names;
+  s_object  *S_output_list, *S_output_names;
   s_object  *raw_obj, *raw_list;
 
   S_DBI_fieldDescription  *flds;
@@ -508,7 +512,6 @@ S_MySQL_fetch(s_object *rsHandle, s_object *max_rec)
   MEM_PROTECT(S_output_list = NEW_LIST((Sint) num_fields));
   S_DBI_allocOutput(S_output_list, flds, num_rec, 0);
 
-  els = LIST_POINTER(S_output_list);
   fld_names = flds->name;
   fld_Sclass = flds->Sclass;
   fld_nullOk = flds->nullOk;
@@ -522,7 +525,6 @@ S_MySQL_fetch(s_object *rsHandle, s_object *max_rec)
       if(expand){
 	num_rec = 2 * num_rec;
 	S_DBI_allocOutput(S_output_list, flds, num_rec, expand);
-        els = LIST_POINTER(S_output_list);
       }
       else
 	break;
@@ -546,21 +548,23 @@ S_MySQL_fetch(s_object *rsHandle, s_object *max_rec)
       null_item = (row[j] == NULL);
       switch((int)fld_Sclass[j]){
       case INTEGER_TYPE:
-	ptr_i = INTEGER_DATA(els[j]);
+	ptr_i = INTEGER_DATA(VECTOR_ELT(S_output_list, j));
 	if(null_item)
 	  ptr_i[i] = NA_INTEGER;
 	else
 	  ptr_i[i] = atol(row[j]);
 	break;
       case CHARACTER_TYPE:
-	ptr_c = CHARACTER_DATA(els[j]);
+      {
+	s_object *elt = VECTOR_ELT(S_output_list, j);
 	if(null_item)
-	  ptr_c[i] = NA_STRING;
+	  SET_STRING_ELT(elt, i, NA_STRING);
 	else
-	  ptr_c[i] = C_S_CPY(row[j]);
+	  SET_STRING_ELT(elt, i, C_S_CPY(row[j]));
 	break;
+      }
       case NUMERIC_TYPE:
-	ptr_d = NUMERIC_DATA(els[j]);
+	ptr_d = NUMERIC_DATA(VECTOR_ELT(S_output_list, j));
 	if(null_item)
 	  ptr_d[i] = NA_REAL;
 	else
@@ -584,8 +588,11 @@ S_MySQL_fetch(s_object *rsHandle, s_object *max_rec)
   if(i < num_rec){
     num_rec = i;
     /* adjust the length of each of the members in the output_list */
-    for(j = 0; j<num_fields; j++)
-      SET_LENGTH(els[j], num_rec);
+    for(j = 0; j<num_fields; j++) {
+      s_object *elt = VECTOR_ELT(S_output_list, j);
+      SET_LENGTH(elt, num_rec);
+      SET_VECTOR_ELT(S_output_list, j, elt);
+    }
   }
   if(completed < 0)
     S_DBI_errorMessage("error while fetching rows", S_DBI_WARNING);
@@ -594,9 +601,8 @@ S_MySQL_fetch(s_object *rsHandle, s_object *max_rec)
   result->completed = (int) completed;
 
   MEM_PROTECT(S_output_names = NEW_CHARACTER(num_fields));
-  ptr_c = CHARACTER_DATA(S_output_names);
   for(j = 0; j < num_fields; j++)
-    ptr_c[j] = C_S_CPY(fld_names[j]);
+    SET_STRING_ELT(S_output_names, j, C_S_CPY(fld_names[j]));
   SET_NAMES(S_output_list, S_output_names);
 
   MEM_UNPROTECT(2);
@@ -641,11 +647,11 @@ S_MySQL_getException(s_object *conHandle)
   MEM_PROTECT(s_errmsg = NEW_CHARACTER((Sint) 1));
   err_no = mysql_errno(con->my_connection);
   err_msg = mysql_error(con->my_connection); 
-  CHARACTER_DATA(s_errmsg)[0] = C_S_CPY(err_msg);
+  SET_STRING_ELT(s_errmsg, 0, C_S_CPY(err_msg));
   INTEGER_DATA(s_errno)[0] = (Sint) err_no;
 
-  SET_ELEMENT(exception, (Sint) 0, s_errno);
-  SET_ELEMENT(exception, (Sint) 1, s_errmsg);
+  SET_VECTOR_ELT(exception, (Sint) 0, s_errno);
+  SET_VECTOR_ELT(exception, (Sint) 1, s_errmsg);
 
   MEM_UNPROTECT(3);
 
@@ -948,7 +954,7 @@ S_MySQL_resultSetInfo(s_object *rsHandle, s_object *what)
   }
   if(EQUAL(fld_name, "statement")){
     MEM_PROTECT(info = NEW_CHARACTER((Sint) 1));
-    CHARACTER_DATA(info)[0] = C_S_CPY(result->statement);
+    SET_STRING_ELT(info, 0, C_S_CPY(result->statement));
     MEM_UNPROTECT(1);
     return info;
   }
@@ -965,7 +971,7 @@ S_MySQL_resultSetInfo(s_object *rsHandle, s_object *what)
     con = S_DBI_getConnection(result->connectionId);
     buf = mysql_get_host_info(con->my_connection);
     MEM_PROTECT(info = NEW_CHARACTER((Sint) 1));
-    CHARACTER_DATA(info)[0] = C_S_CPY(buf);
+    SET_STRING_ELT(info, 0, C_S_CPY(buf));
     MEM_UNPROTECT(1);
     return info;
   }
@@ -975,7 +981,7 @@ s_object *
 S_MySQL_managerInfo(void)
 {
   S_EVALUATOR
-  s_object *mgrInfo, *conIds, **els;
+  s_object *mgrInfo, *conIds;
   int  i, num_con;
 
   char *mgrDesc[] = {"connectionIds", "fetch_default_rec",
@@ -992,16 +998,20 @@ S_MySQL_managerInfo(void)
   mgrInfo = S_DBI_createNamedList(mgrDesc, mgrType, mgrLen, (Sint) 6);
   if(IS_LIST(mgrInfo))
     mgrInfo = AS_LIST(mgrInfo);
-  els = LIST_POINTER(mgrInfo);
-  conIds = els[0];
+  conIds = VECTOR_ELT(mgrInfo, 0);
   for(i = 0; i < num_con; i++)
     INTEGER_DATA(conIds)[i] = connectionTable->connectionIds[i];
 
-  INTEGER_DATA(els[1])[0] = connectionTable->fetch_default_rec;
-  INTEGER_DATA(els[2])[0] = connectionTable->processId;
-  INTEGER_DATA(els[3])[0] = connectionTable->length;
-  INTEGER_DATA(els[4])[0] = connectionTable->num_con;
-  INTEGER_DATA(els[5])[0] = connectionTable->counter;
+  INTEGER_DATA(VECTOR_ELT(mgrInfo, 1))[0] =
+      connectionTable->fetch_default_rec;
+  INTEGER_DATA(VECTOR_ELT(mgrInfo, 2))[0] =
+      connectionTable->processId;
+  INTEGER_DATA(VECTOR_ELT(mgrInfo, 3))[0] =
+      connectionTable->length;
+  INTEGER_DATA(VECTOR_ELT(mgrInfo, 4))[0] =
+      connectionTable->num_con;
+  INTEGER_DATA(VECTOR_ELT(mgrInfo, 5))[0] =
+      connectionTable->counter;
 
   return mgrInfo;
 }
@@ -1020,10 +1030,10 @@ S_MySQL_connectionInfo(s_object *conHandle)
   buf = mysql_get_host_info(con->my_connection);
 
   MEM_PROTECT(info = NEW_CHARACTER((Sint) 4));
-  CHARACTER_DATA(info)[0] = C_S_CPY(con->user);
-  CHARACTER_DATA(info)[1] = C_S_CPY(con->host);
-  CHARACTER_DATA(info)[2] = C_S_CPY(con->dbname);
-  CHARACTER_DATA(info)[3] = C_S_CPY(buf);
+  SET_VECTOR_ELT(info, 0, C_S_CPY(con->user));
+  SET_VECTOR_ELT(info, 1, C_S_CPY(con->host));
+  SET_VECTOR_ELT(info, 2, C_S_CPY(con->dbname));
+  SET_VECTOR_ELT(info, 3, C_S_CPY(buf));
   
   MEM_PROTECT(rsId = NEW_INTEGER((Sint) 1));
   if(con->resultSet!= (S_MySQL_resultSet *) NULL)
@@ -1032,8 +1042,8 @@ S_MySQL_connectionInfo(s_object *conHandle)
     INTEGER_DATA(rsId)[0] = (Sint) -1;
 
   output = NEW_LIST((Sint) 2);
-  SET_ELEMENT(output, (Sint) 0, info);
-  SET_ELEMENT(output, (Sint) 1, rsId);
+  SET_VECTOR_ELT(output, (Sint) 0, info);
+  SET_VECTOR_ELT(output, (Sint) 1, rsId);
 
   MEM_UNPROTECT(2);
   return output;
@@ -1044,7 +1054,7 @@ S_DBI_copyFieldDescription(S_DBI_fieldDescription *flds)
 {
   S_EVALUATOR
 
-  s_object *field_descriptors, **els;
+  s_object *field_descriptors;
   char  *desc[]={"name", "Sclass", "type", "len", "precision",
 		"scale","nullOK"};
   Stype types[] = {CHARACTER_TYPE, INTEGER_TYPE, INTEGER_TYPE,
@@ -1060,17 +1070,22 @@ S_DBI_copyFieldDescription(S_DBI_fieldDescription *flds)
 					    (Sint) 7);
   field_descriptors = AS_LIST(field_descriptors);
 
-  els = LIST_DATA(field_descriptors);
-  
   /* copy contentes in flds to S list */
   for(i = 0; i < num_fields; i++){
-    CHARACTER_DATA(els[0])[i] = C_S_CPY(flds->name[i]);
-    INTEGER_DATA(els[1])[i] = (Sint) flds->Sclass[i];
-    INTEGER_DATA(els[2])[i] = (Sint) flds->type[i];
-    INTEGER_DATA(els[3])[i] = (Sint) flds->length[i];
-    INTEGER_DATA(els[4])[i] = (Sint) flds->precision[i];
-    INTEGER_DATA(els[5])[i] = (Sint) flds->scale[i];
-    INTEGER_DATA(els[6])[i] = (Sint) flds->nullOk[i];
+    SET_STRING_ELT(VECTOR_ELT(field_descriptors, 0), i,
+		   C_S_CPY(flds->name[i]));
+    INTEGER_DATA(VECTOR_ELT(field_descriptors, 1))[i] =
+	(Sint) flds->Sclass[i];
+    INTEGER_DATA(VECTOR_ELT(field_descriptors, 2))[i] =
+	(Sint) flds->type[i];
+    INTEGER_DATA(VECTOR_ELT(field_descriptors, 3))[i] =
+	(Sint) flds->length[i];
+    INTEGER_DATA(VECTOR_ELT(field_descriptors, 4))[i] =
+	(Sint) flds->precision[i];
+    INTEGER_DATA(VECTOR_ELT(field_descriptors, 5))[i] =
+		 (Sint) flds->scale[i];
+    INTEGER_DATA(VECTOR_ELT(field_descriptors, 6))[i] =
+		 (Sint) flds->nullOk[i];
   }
 
   return(field_descriptors);
@@ -1080,15 +1095,13 @@ s_object *
 S_DBI_createNamedList(char **names, Stype *types, Sint *lengths, Sint  n)
 {
   S_EVALUATOR
-  s_object *output, *output_names, *obj, **els;
+  s_object *output, *output_names, *obj;
   charPtr  nms;
   Sint  num_elem;
   int   j;
 
   MEM_PROTECT(output = NEW_LIST(n));
-  els = LIST_DATA(output);
   MEM_PROTECT(output_names = NEW_CHARACTER(n));
-  nms = CHARACTER_DATA(output_names);
   for(j = 0; j < n; j++){
     num_elem = lengths[j];
     switch((int)types[j]){
@@ -1115,8 +1128,8 @@ S_DBI_createNamedList(char **names, Stype *types, Sint *lengths, Sint  n)
     default:
       S_DBI_errorMessage("unsupported data type", S_DBI_ERROR);
     }
-    SET_ELEMENT(output, (Sint)j, obj);
-    nms[j] = C_S_CPY(names[j]);
+    SET_VECTOR_ELT(output, (Sint)j, obj);
+    SET_STRING_ELT(output_names, j, C_S_CPY(names[j]));
   }
   SET_NAMES(output, output_names);
   MEM_UNPROTECT(2);
@@ -1204,7 +1217,8 @@ S_DBI_SclassNames(s_object *type)
   typeCodes = INTEGER_DATA(type);
   MEM_PROTECT(typeNames = NEW_CHARACTER(n));
   for(i = 0; i < n; i++) {
-    CHARACTER_DATA(typeNames)[i] = C_S_CPY(S_DBI_dataType2names(typeCodes[i]));
+    SET_STRING_ELT(typeNames, i,
+		   C_S_CPY(S_DBI_dataType2names(typeCodes[i])));
   }
   MEM_UNPROTECT(1);
   return typeNames;
@@ -1269,7 +1283,8 @@ S_MySQL_fieldTypeNames(s_object *type)
   typeCodes = INTEGER_DATA(type);
   MEM_PROTECT(typeNames = NEW_CHARACTER(n));
   for(i = 0; i < n; i++) {
-    CHARACTER_DATA(typeNames)[i] = C_S_CPY(S_MySQL_fieldType2names(typeCodes[i]));
+    SET_STRING_ELT(typeNames, i,
+		  C_S_CPY(S_MySQL_fieldType2names(typeCodes[i])));
   }
   MEM_UNPROTECT(1);
   return typeNames;

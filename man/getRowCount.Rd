@@ -24,6 +24,7 @@ rs <- dbExecStatement(con, "SHOW TABLES")
 getRowCount(rs)
 fetch(rs, n = -1)
 getRowCount(rs)
+close(rs)
 close(con)
 }
 \keyword{interface}

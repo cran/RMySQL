@@ -24,6 +24,7 @@ m <- MySQL()
 con <- dbConnect(m, user = "nobody", dbname = "test")
 rs <- dbExecStatement(con, "SHOW TABLES")
 fetch(rs, n = -1)
+close(rs)
 close(con)
 }
 \keyword{interface}

@@ -27,7 +27,21 @@
 #endif
 
 #ifdef USING_R
-#  include "Rdefines.h"
+#include "Rversion.h"
+#include "Rinternals.h"
+#include "Rdefines.h"
+
+#if R_VERSION < R_Version(1, 2, 0)
+#define STRING_ELT(x,i)		(STRING(x)[i])
+#define VECTOR_ELT(x,i)         (VECTOR(x)[i])
+#define SET_STRING_ELT(x,i,v)	(STRING(x)[i] = (v))
+#define SET_VECTOR_ELT(x,i,v)	(VECTOR(x)[i] = (v))
+#endif
+
+#ifdef s_object
+#undef s_object
+#endif
+#define s_object struct SEXPREC
 #define singl double
 #define Sint int
 #define charPtr SEXP *

@@ -26,6 +26,7 @@ getInfo(con)
 getInfo(rs)
 fetch(rs, n = -1)
 getInfo(rs)
+close(rs)
 close(con)
 }
 \keyword{interface}

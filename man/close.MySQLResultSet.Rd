@@ -22,12 +22,16 @@ close.resultSet(con)
 m <- MySQL()
 con <- dbConnect(m, user = "nobody", dbname = "test")
 rs <- dbExecStatement(con, "SHOW DATABASES")
+\dontrun{
 rs <- dbExecStatement(con, "SHOW TABLES")  # error
+}
 close(rs)
 rs <- dbExecStatement(con, "SHOW TABLES")
 fetch(rs, n = -1)                          # fetch all rows
+close(rs)
 rs <- dbExecStatement(con, "SHOW DATABASES")  # no problem here
 fetch(rs, n = -1)
+close(rs)
 close(con)
 }
 \keyword{interface}

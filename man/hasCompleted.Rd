@@ -23,6 +23,7 @@ rs <- dbExecStatement(con, "SHOW TABLES")
 hasCompleted(rs)
 fetch(rs, n = -1)
 hasCompleted(rs)
+close(rs)
 close(con)
 }
 \keyword{interface}

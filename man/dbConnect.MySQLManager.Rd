@@ -24,7 +24,7 @@ newConnection.MySQLManager(dbMgr, dbname = "", username, password = "",
  \item{host}{ host to connect to.}
  \item{unix.socket}{ filename for the unix socket.}
  \item{port}{ port number to connect to.}
- \item{client.flag}{ see C API documentation for mysql_real_connect.}
+ \item{client.flag}{ see C API documentation for \code{mysql_real_connect}.}
 }
 \value{
     dbConnect.MySQLManager returns an object of class MySQLConnection

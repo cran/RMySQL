@@ -1,8 +1,0 @@
-This file contains any messages produced by compilers while
-running configure, to aid debugging if configure makes a mistake.
-
-configure:527: checking for mysql_init in -lmysqlclient
-configure:582: checking how to run the C preprocessor
-configure:663: checking for /usr/include/mysql.h
-configure:582: checking how to run the C preprocessor
-configure:663: checking for /usr/include/mysql/mysql.h

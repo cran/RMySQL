@@ -2,8 +2,15 @@ dnl Borrowed from the RPgSQL package
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(src/RMySQL.c)
 
+AC_PROG_CPP
+
 dnl Checks for libraries.
-AC_CHECK_LIB(mysqlclient, mysql_init)
+AC_CHECK_LIB(mysqlclient, mysql_init, PKG_LIBS="-lmysqlclient")
+if test -z "${PKG_LIBS}"; then
+  echo "could not find your MySQL client library"
+  exit 1
+fi
+AC_SUBST(PKG_LIBS)
 
 dnl Checks for header files.
 dnl Following courtesy of Kurt Hornik
@@ -17,6 +24,10 @@ for dir in \
     AC_CHECK_HEADER(${dir}/mysql.h, PKG_CPPFLAGS="-I${dir}")
     if test $PKG_CPPFLAGS; then break; fi
 done
+if test -z "${PKG_CPPFLAGS}"; then
+  echo "could not find your MySQL header files"
+  exit 1
+fi
 AC_SUBST(PKG_CPPFLAGS)
 
-AC_OUTPUT(src/Makefile)
+AC_OUTPUT(src/Makevars)
