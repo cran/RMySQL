@@ -1,7 +1,7 @@
 #ifndef _RS_MYSQL_H
 #define _RS_MYSQL_H 1
 /*  
- *  $Id: RS-MySQL.h,v 1.2 2002/05/20 23:11:25 dj Exp dj $
+ *  $Id: RS-MySQL.h,v 1.3 2002/06/25 15:34:12 dj Exp dj $
  *
  * Copyright (C) 1999-2002 The Omega Project for Statistical Computing.
  *
@@ -22,6 +22,11 @@
 
 #ifdef _cplusplus
 extern  "C" {
+#endif
+
+#ifdef WIN32
+#include <windows.h>
+#undef ERROR
 #endif
 
 #include <mysql.h>
@@ -50,14 +55,15 @@ typedef struct st_sdbi_conParams {
 RS_MySQL_conParams *RS_MySQL_allocConParams(void);
 void                RS_MySQL_freeConParams(RS_MySQL_conParams *conParams);
 
-/* The following functions are the S/R entry into the C implementation
+/* The following functions are the S/R entry points into the C implementation
  * (i.e., these are the only ones visible from R/S) we use the prefix
  * "RS_MySQL" in function names to denote this.
  * These functions are  built on top of the underlying RS_DBI manager, 
  * connection, and resultsets structures and functions (see RS-DBI.h).
  * 
  * Note: A handle is just an R/S object (see RS-DBI.h for details), i.e.,
- *       Mgr_Handle, Con_Handle, Res_Handle, Db_Handle are s_object.
+ *       Mgr_Handle, Con_Handle, Res_Handle, Db_Handle are s_object 
+ *       (integer vectors, to be precise).
  */
   
 /* dbManager */

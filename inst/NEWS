@@ -1,10 +1,25 @@
+Version 0.4-6
+
+Ported to Windows with some very nasty porting problems beatifully
+solved by BDR (thanks!)
+
+* Added Makevars.win for Windows' sake.
+
+* ifdef the code that parses group default (problems with getop.c).
+  The issue is that MySQL C function load_defaults() is not defined
+  in libMySQL.lib, only mysqlclient.lib.  Unfortunately the client
+  library is only for static, thread-safe applications. (Need to 
+  solve this thread-safty issue).
+
+* Need to re-import the libMySQL.lib (see README.windows).
+
 Version 0.4-5
   
 A transitional, internal version.  
 
 *  Synchronized the RS-DBI.c and RS-DBI.h with ROracle_0.3-3.
 
-*  Fixed a bug in getopt_long (being assined to a char, instead
+*  Fixed a bug in getopt_long (being assigned to a char, instead
    of an int). Apparently this cause problems only on Yellow Dog 
    Linux versions (thanks to DTL for reporting this).
 

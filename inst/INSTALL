@@ -47,6 +47,10 @@ S/W Requirements:
 
    but they are included in the latest 3.23.33 rpm versions.
 
+   The library libz.  This is a standard library on many (but not all)
+   systems.  Under Red Hat, it's included in the rpm zlib-devel.
+   I've been told that on debian it's in the zlib1g-dev package.
+
 Potential configuration BUG  -- getopt.h and getopt.c
 
    If you're not using a GNU aware compiler (possibly on Sun, other 

@@ -1,0 +1,51 @@
+
+RMySQL Windows Binary distribution.
+
+   NOTE:
+
+   Your PATH variable should include the directory where the library
+   file libmysql.dll (which is distributed with RMySQL) is located;
+   typically they'll be in the R's area \library\RMySQL\libs.  Or
+   you may move it to a directory in your PATH.
+
+RMySQL Windows Source Distribution.
+
+   NOTE:
+
+   The following (edited) instructions are from Prof. Ripley and
+   describe how to compile RMySQL and link against the MySQL libraries.  
+   If you have problems, please let me (dj@bell-labs.com) know.
+
+   1. You need to make sure sure the file src/Makevars.win has the 
+      correct location for MySQL.  For example, 
+
+      PKG_CPPFLAGS = -I/mysql/include
+      PKG_LIBS = -L/mysql/lib/opt -lmysql -liberty
+
+
+   2. You need to re-import the libmysql.dll library.
+
+      Unfortunately, the "libmysql.lib" supplied with the MySQL binary
+      distribution is not compatible with R.  Therefore you need to 
+      create an R-compatible MySQL library file "libmysql.dll" as follows:
+
+   a. Install the re-import utility "reimp", available at
+      http://mefriss1.swan.ac.uk/~jfonseca/gnu-win32/software/reimp/index.html
+
+      Make sure "reimp" is in your path -- an easy way is to install it
+      in the mysql\lib\opt directory.
+
+      cd \mysql\lib\opt     
+      unzip reimp.zip
+
+   b. Run reimp on "libmysql.lib" and copy the output file as follows:
+      
+      cd \mysql\lib\opt
+      bin\reimp libmysql.lib
+      copy liblibmysql.dll $R_HOME\src\library\RMySQL\libs\libmysql.dll
+
+   c. Make sure \mysql\lib\opt is in your PATH (how to do this depends on 
+      what version of Windows you're running).
+
+   From then on you load the RMySQL package as any other package.
+

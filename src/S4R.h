@@ -1,4 +1,4 @@
-/* $Id: S4R.h,v 1.2 2002/05/17 22:48:24 dj Exp dj $
+/* $Id: S4R.h,v 1.2 2002/05/17 22:48:24 dj Exp $
  * S4 (Splus5+) and R portability macros.
  *
  * This file provides additional macros to the ones in Rdefines.h (in R)
