@@ -18,12 +18,13 @@ if(usingR()){
   ErrorClass <- "Error"  
 }
 ## 
-## $Id: zzz.R,v 1.3 2003/05/16 12:09:34 dj Exp dj $
+## $Id: zzz.R,v 1.5 2003/12/02 16:01:04 dj Exp dj $
 ##
 
 ".conflicts.OK" <- TRUE
 ## need DBI and methods *prior* to having library.dynam() invoked!
-require(DBI, quietly = TRUE, warn.conflicts = FALSE)
+library(methods)
+library(DBI, warn.conflicts = FALSE)
 
 ".First.lib" <- 
 function(lib, pkg) 
@@ -33,7 +34,7 @@ function(lib, pkg)
    library.dynam("RMySQL", pkg, lib)
 }
 ##
-## $Id: dbObjectId.R,v 1.4 2002/09/10 11:50:46 dj Exp dj $
+## $Id: dbObjectId.R,v 1.4 2002/09/10 11:50:46 dj Exp $
 ## 
 ## Copyright (C) 1999-2002 The Omega Project for Statistical Computing.
 ##
@@ -106,7 +107,7 @@ function(obj)
    .Call("RS_DBI_validHandle", obj, PACKAGE = .MySQLPkgName)
 }
 ##
-## $Id: MySQL.R,v 1.8 2002/12/18 21:17:56 dj Exp dj $
+## $Id: MySQL.R,v 1.10 2003/12/02 16:39:46 dj Exp $
 ##
 ## Copyright (C) 1999 The Omega Project for Statistical Computing.
 ##
@@ -128,9 +129,9 @@ function(obj)
 ## Constants
 ##
 
-.MySQLRCS <- "$Id: MySQL.R,v 1.8 2002/12/18 21:17:56 dj Exp dj $"
+.MySQLRCS <- "$Id: MySQL.R,v 1.10 2003/12/02 16:39:46 dj Exp $"
 .MySQLPkgName <- "RMySQL"      ## should we set thru package.description()?
-.MySQLVersion <- "0.5-1"       ##package.description(.MySQLPkgName, fields = "Version")
+.MySQLVersion <- "0.5-3"       ##package.description(.MySQLPkgName, fields = "Version")
 .MySQL.NA.string <- "\\N"      ## on input, MySQL interprets \N as NULL (NA)
 
 setOldClass("data.frame")      ## to appease setMethod's signature warnings...
@@ -145,7 +146,7 @@ setClass("MySQLObject", representation("DBIObject", "dbObjectId", "VIRTUAL"))
 ##
 
 "MySQL" <- 
-function(max.con=10, fetch.default.rec = 500, force.reload=F)
+function(max.con=16, fetch.default.rec = 500, force.reload=F)
 {
    mysqlInitDriver(max.con = max.con, fetch.default.rec = fetch.default.rec,
       force.reload = force.reload)
@@ -240,8 +241,10 @@ setMethod("summary", "MySQLConnection",
 ## convenience methods 
 setMethod("dbListTables", "MySQLConnection",
    def = function(conn, ...){
-      tbls <- dbGetQuery(conn, "show tables")[,1]
-      if(is.null(tbls)) 
+      tbls <- dbGetQuery(conn, "show tables")
+      if(length(tbls)>0) 
+         tbls <- tbls[,1]
+      else
          tbls <- character()
       tbls
    },
@@ -265,7 +268,9 @@ setMethod("dbExistsTable",
    signature(conn="MySQLConnection", name="character"),
    def = function(conn, name, ...){
       ## TODO: find out the appropriate query to the MySQL metadata
-      match(tolower(name), tolower(dbListTables(conn)), nomatch=0)>0
+      avail <- dbListTables(conn)
+      if(length(avail)==0) avail <- ""
+      match(tolower(name), tolower(avail), nomatch=0)>0
    },
    valueClass = "logical"
 )
@@ -434,7 +439,7 @@ setMethod("dbApply", "MySQLResult",
    def = function(res, ...)  mysqlDBApply(res, ...),
 )
 ##
-## $Id: MySQLSupport.R,v 1.7 2002/12/18 21:18:27 dj Exp dj $
+## $Id: MySQLSupport.R,v 1.9 2003/12/02 15:20:39 dj Exp dj $
 ##
 ## Copyright (C) 1999 The Omega Project for Statistical Computing.
 ##
@@ -454,7 +459,7 @@ setMethod("dbApply", "MySQLResult",
 ##
 
 "mysqlInitDriver" <- 
-function(max.con=10, fetch.default.rec = 500, force.reload=F)
+function(max.con=16, fetch.default.rec = 500, force.reload=FALSE)
 ## create a MySQL database connection manager.  By default we allow
 ## up to "max.con" connections and single fetches of up to "fetch.default.rec"
 ## records.  These settings may be changed by re-loading the driver
@@ -482,7 +487,7 @@ function(drv, ...)
 }
 
 "mysqlDescribeDriver" <-
-function(obj, verbose = F, ...)
+function(obj, verbose = FALSE, ...)
 ## Print out nicely a brief description of the connection Driver
 {
    info <- dbGetInfo(obj)
@@ -559,7 +564,7 @@ function(con, ...)
 }
 
 "mysqlDescribeConnection" <-
-function(obj, verbose = F, ...)
+function(obj, verbose = FALSE, ...)
 {
    info <- dbGetInfo(obj)
    print(obj)
@@ -681,7 +686,7 @@ function(res, INDEX, FUN = stop("must specify FUN"),
          new.record = NULL, 
          end = NULL, 
          batchSize = 100, maxBatch = 1e6, 
-         ..., simplify = T)
+         ..., simplify = TRUE)
 ## (Experimental)
 ## This function is meant to handle somewhat gracefully(?) large amounts 
 ## of data from the DBMS by bringing into R manageable chunks (about 
@@ -743,7 +748,7 @@ function(res, INDEX, FUN = stop("must specify FUN"),
    end <- null.or.fun(end)
    new.record <- null.or.fun(new.record)
    rsId <- as(res, "integer")
-   con <- dbGetConnection(res)
+   con <- as(res, "MySQLConnection")
    on.exit({
       rc <- dbGetException(con)
       if(!is.null(rc$errorNum) && rc$errorNum!=0)
@@ -816,7 +821,7 @@ function(obj, what = "", ...)
 }
 
 "mysqlDescribeResult" <-
-function(obj, verbose = F, ...)
+function(obj, verbose = FALSE, ...)
 {
 
    if(!isIdCurrent(obj)){
@@ -846,12 +851,12 @@ function(res, ...)
 }
 
 "mysqlReadTable" <- 
-function(con, name, row.names = "row.names", check.names = T, ...)
+function(con, name, row.names = "row.names", check.names = TRUE, ...)
 ## Use NULL, "", or 0 as row.names to prevent using any field as row.names.
 {
    out <- dbGetQuery(con, paste("SELECT * from", name))
    if(check.names)
-       names(out) <- make.names(names(out), unique = T)
+       names(out) <- make.names(names(out), unique = TRUE)
    ## should we set the row.names of the output data.frame?
    nms <- names(out)
    j <- switch(mode(row.names),
@@ -869,23 +874,24 @@ function(con, name, row.names = "row.names", check.names = T, ...)
    }
    rnms <- as.character(out[,j])
    if(all(!duplicated(rnms))){
-      out <- out[,-j, drop = F]
+      out <- out[,-j, drop = FALSE]
       row.names(out) <- rnms
    } else warning("row.names not set on output (duplicate elements in field)")
    out
 } 
 
 "mysqlWriteTable" <-
-function(con, name, value, field.types, row.names = T, 
-   overwrite=F, append=F, ...)
-## TODO: This function should execute its sql as a single transaction,
-## and allow converter functions.
+function(con, name, value, field.types, row.names = TRUE, 
+   overwrite = FALSE, append = FALSE, ..., allow.keywords = FALSE)
 ## Create table "name" (must be an SQL identifier) and populate
 ## it with the values of the data.frame "value"
-## BUG: In the unlikely event that value has a field called "row.names"
-## we could inadvertently overwrite it (here the user should set row.names=F)
-## (I'm reluctantly adding the code re: row.names -- I'm not 100% comfortable
-## using data.frames as the basic data for relations.)
+## TODO: This function should execute its sql as a single transaction,
+##       and allow converter functions.
+## TODO: In the unlikely event that value has a field called "row.names"
+##       we could inadvertently overwrite it (here the user should set 
+##       row.names=F)  I'm (very) reluctantly adding the code re: row.names,
+##       because I'm not 100% comfortable using data.frames as the basic 
+##       data for relations.
 {
    if(overwrite && append)
       stop("overwrite and append cannot both be TRUE")
@@ -900,7 +906,9 @@ function(con, name, value, field.types, row.names = T,
       ## also, need to use converter functions (for dates, etc.)
       field.types <- sapply(value, dbDataType, dbObj = con)
    } 
+
    ## Do we need to coerce any field prior to write it out?
+   ## TODO: MySQL 4.1 introduces the boolean data type.  
    for(i in seq(along = value)){
       if(is(value[[i]], "logical"))
          value[[i]] <- as(value[[i]], "integer")
@@ -909,8 +917,7 @@ function(con, name, value, field.types, row.names = T,
    if(i>0) ## did we add a row.names value?  If so, it's a text field.
       field.types[i] <- dbDataType(dbObj=con, field.types$row.names)
    names(field.types) <- make.db.names(con, names(field.types), 
-                             allow.keywords=F)
-
+                             allow.keywords = allow.keywords)
    ## Do we need to clone the connection (ie., if it is in use)?
    if(length(dbListResults(con))!=0){ 
       new.con <- dbConnect(con)              ## there's pending work, so clone
@@ -954,7 +961,7 @@ function(con, name, value, field.types, row.names = T,
    fn <- tempfile("rsdbi")
    fn <- gsub("\\\\", "/", fn)  # Since MySQL on Windows wants \ double (BDR)
    safe.write(value, file = fn)
-   on.exit(unlink(fn), add = T)
+   on.exit(unlink(fn), add = TRUE)
    sql4 <- paste("LOAD DATA LOCAL INFILE '", fn, "'",
                   " INTO TABLE ", name, 
                   " LINES TERMINATED BY '\n' ", sep="")
@@ -971,7 +978,7 @@ function(con, name, value, field.types, row.names = T,
 ## the following is almost exactly from the ROracle driver 
 "safe.write" <- 
 function(value, file, batch, ...)
-## safe.write makes sure write.table don't exceed available memory by batching
+## safe.write makes sure write.table doesn't exceed available memory by batching
 ## at most batch rows (but it is still slowww)
 {  
    N <- nrow(value)
@@ -987,11 +994,11 @@ function(value, file, batch, ...)
    to <- min(batch, N)
    while(from<=N){
       if(usingR())
-         write.table(value[from:to, drop=FALSE], file = file, append = TRUE, 
+         write.table(value[from:to,, drop=FALSE], file = file, append = TRUE, 
                quote = FALSE, sep="\t", na = .MySQL.NA.string,
                row.names=FALSE, col.names=FALSE, eol = '\n', ...)
       else
-         write.table(value[from:to, drop=FALSE], file = file, append = TRUE, 
+         write.table(value[from:to,, drop=FALSE], file = file, append = TRUE, 
                quote.string = FALSE, sep="\t", na = .MySQL.NA.string,
                dimnames.write=FALSE, end.of.row = '\n', ...)
       from <- to+1
@@ -1026,41 +1033,45 @@ function(obj, ...)
    sql.type
 }
 
-## Additional MySQL keywords that are not part of the SQL92 standard
-## TODO: we're introducing some SQL92 keywords that  are *not* keywords 
-## in MySQL strictly speaking. Need to delete those.
+## the following reserved words were taken from Section 6.1.7
+## of the MySQL Manual, Version 4.1.1-alpha, html format.
 
-".MySQLKeywords" <- 
-sort(c(.SQL92Keywords,
-   "ACTION", "AFTER", "AGGREGATE", "AUTO_INCREMENT", "AVG_ROW_LENGTH",
-   "BIGINT", "BINARY", "BLOB", "BOOL", "BOTH", 
-   "CHANGE", "CHECKSUM", "COLUMNS", "COMMENT", "CROSS", 
-   "DATA", "DATABASE", "DATABASES", "DATETIME", "DAY_HOUR", "DAY_MINUTE",
-   "DAY_SECOND", "DAYOFMONTH", "DAYOFWEEK", "DAYOFYEAR", "DALAY_KEY_WRITE",
-   "ENCLOSED", "ENUM", "ESCAPED", "EXPLAIN",
-   "FIELDS", "FILE", "FLOAT4", "FLOAT8", "FLUSH", "FUNCTION",
-   "GRANT", "GRANTS", "GROUP",
-   "HEAP", "HIGH_PRIORITY", "HOSTS", "HOUR_MINUTE", "HOUR_SECOND", 
-   "IDENDIFIED", "IF", "IGNORE", "INFILE", "INSERT_ID", "INT1", "INT2", 
-   "INT3", "INT4", "INT8", "ISAM",
-   "KEYS", "KILL",
-   "LEADING", "LEFT", "LENGTH", "LIMIT", "LINES", "LOAD", "LOCK", "LOGS",
-   "LONG", "LONGBLOB", "LONGTEXT", "LOW_PRIORITY", 
-   "MAX_ROWS", "MEDIUMBLOB", "MEDIUMINT", "MEDIUMTEXT", "MIDDLEINT", 
-   "MIN_ROWS", "MINUTE_SECOND", "MODIFY", "MONTHNAME", "MYISAM",
-   "NATURAL", "NO",
-   "ON", "OPTIMIZE", "OPIONALLY", "OUTFILE",
-   "PACK_KEYS", "PASSWORD", "PROCESS", "PROCESSLIST",
-   "REGEXP", "RELOAD", "RENAME", "REPLACE", "RESTRICT", "RETURNS", 
-   "RLIKE", "ROW",
-   "SHUTDOWN", "SONAME", "SQL_BIG_RESULT", "SQL_BIG_SELECTS",
-   "SQL_BIG_TABLES", "SQL_LOG_OFF", "SQL_LOG_UPDATE", 
-   "SQL_LOW_PRIORITY_UPDATES", "SQL_SELECT_LIMIT", "SQL_SMALL_RESULT", 
-   "SQL_WARNINGS", "STARTING", "STATUS", "STRAIGHT_JOIN", "STRING", 
-   "SQL_SMALL_RESULT",
-   "TABLES", "TERMINATES", "TEXT", "TINYINT", "TINYTEXT", "TRAILING", "TYPE",
-   "UNLOCK", "UNSIGNED", "USAGE", "USE", 
-   "VARBINARY", "VARIABLES", 
-   "ZEROFILL")
-)
-
+".MySQLKeywords" <-
+c("ADD", "ALL", "ALTER", "ANALYZE", "AND", "AS", "ASC", "ASENSITIVE", 
+  "AUTO_INCREMENT", "BDB", "BEFORE", "BERKELEYDB", "BETWEEN", "BIGINT", 
+  "BINARY", "BLOB", "BOTH", "BY", "CALL", "CASCADE", "CASE", "CHANGE", 
+  "CHAR", "CHARACTER", "CHECK", "COLLATE", "COLUMN", "COLUMNS", 
+  "CONDITION", "CONNECTION", "CONSTRAINT", "CONTINUE", "CREATE", 
+  "CROSS", "CURRENT_DATE", "CURRENT_TIME", "CURRENT_TIMESTAMP", 
+  "CURSOR", "DATABASE", "DATABASES", "DAY_HOUR", "DAY_MICROSECOND", 
+  "DAY_MINUTE", "DAY_SECOND", "DEC", "DECIMAL", "DECLARE", "DEFAULT", 
+  "DELAYED", "DELETE", "DESC", "DESCRIBE", "DISTINCT", "DISTINCTROW", 
+  "DIV", "DOUBLE", "DROP", "ELSE", "ELSEIF", "ENCLOSED", "ESCAPED", 
+  "EXISTS", "EXIT", "EXPLAIN", "FALSE", "FETCH", "FIELDS", "FLOAT", 
+  "FOR", "FORCE", "FOREIGN", "FOUND", "FROM", "FULLTEXT", "GRANT", 
+  "GROUP", "HAVING", "HIGH_PRIORITY", "HOUR_MICROSECOND", "HOUR_MINUTE", 
+  "HOUR_SECOND", "IF", "IGNORE", "IN", "INDEX", "INFILE", "INNER", 
+  "INNODB", "INOUT", "INSENSITIVE", "INSERT", "INT", "INTEGER", 
+  "INTERVAL", "INTO", "IO_THREAD", "IS", "ITERATE", "JOIN", "KEY", 
+  "KEYS", "KILL", "LEADING", "LEAVE", "LEFT", "LIKE", "LIMIT", 
+  "LINES", "LOAD", "LOCALTIME", "LOCALTIMESTAMP", "LOCK", "LONG", 
+  "LONGBLOB", "LONGTEXT", "LOOP", "LOW_PRIORITY", "MASTER_SERVER_ID", 
+  "MATCH", "MEDIUMBLOB", "MEDIUMINT", "MEDIUMTEXT", "MIDDLEINT", 
+  "MINUTE_MICROSECOND", "MINUTE_SECOND", "MOD", "NATURAL", "NOT", 
+  "NO_WRITE_TO_BINLOG", "NULL", "NUMERIC", "ON", "OPTIMIZE", "OPTION", 
+  "OPTIONALLY", "OR", "ORDER", "OUT", "OUTER", "OUTFILE", "PRECISION", 
+  "PRIMARY", "PRIVILEGES", "PROCEDURE", "PURGE", "READ", "REAL", 
+  "REFERENCES", "REGEXP", "RENAME", "REPEAT", "REPLACE", "REQUIRE", 
+  "RESTRICT", "RETURN", "RETURNS", "REVOKE", "RIGHT", "RLIKE", 
+  "SECOND_MICROSECOND", "SELECT", "SENSITIVE", "SEPARATOR", "SET", 
+  "SHOW", "SMALLINT", "SOME", "SONAME", "SPATIAL", "SPECIFIC", 
+  "SQL", "SQLEXCEPTION", "SQLSTATE", "SQLWARNING", "SQL_BIG_RESULT", 
+  "SQL_CALC_FOUND_ROWS", "SQL_SMALL_RESULT", "SSL", "STARTING", 
+  "STRAIGHT_JOIN", "STRIPED", "TABLE", "TABLES", "TERMINATED", 
+  "THEN", "TINYBLOB", "TINYINT", "TINYTEXT", "TO", "TRAILING", 
+  "TRUE", "TYPES", "UNDO", "UNION", "UNIQUE", "UNLOCK", "UNSIGNED", 
+  "UPDATE", "USAGE", "USE", "USER_RESOURCES", "USING", "UTC_DATE", 
+  "UTC_TIME", "UTC_TIMESTAMP", "VALUES", "VARBINARY", "VARCHAR", 
+  "VARCHARACTER", "VARYING", "WHEN", "WHERE", "WHILE", "WITH", 
+  "WRITE", "XOR", "YEAR_MONTH", "ZEROFILL"
+  )

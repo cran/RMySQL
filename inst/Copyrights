@@ -1,10 +1,9 @@
 IMPORTANT:
 
 Please note that the Windows binary distribution of RMySQL includes
-a copy of the MySQL's libmysql.dll and a re-imported libmysql.a.
-The software for both libmysql.dll and RMySQL is licensed under
-the GNU General Public License and their source code can be freely
-obtained from the following locations:
+a copy of the MySQL's libmysql.dll.  The software for libmysql.dll
+is licensed under the GNU General Public License and their source
+code can be freely obtained from the following locations:
 
 libmysql.dll   
   http://www.mysql.com

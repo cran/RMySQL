@@ -1,3 +1,4 @@
+% $Id: mysqlDBApply.Rd,v 1.2 2003/12/02 18:28:56 dj Exp dj $
 \name{mysqlDBApply}
 \alias{mysqlDBApply}
 \title{Apply R/S-Plus functions to remote groups of DBMS rows (experimental)}
@@ -7,10 +8,13 @@
   is expected to be sorted by the grouping field.
 }
 \usage{
-mysqlDBApply(res, INDEX, FUN, 
-   begin, group.begin, new.record, end,
-   batchSize = 100, maxBatch = 1e5, ..., 
-   simplify = FALSE)
+mysqlDBApply(res, INDEX, FUN = stop("must specify FUN"), 
+         begin = NULL, 
+         group.begin =  NULL, 
+         new.record = NULL, 
+         end = NULL, 
+         batchSize = 100, maxBatch = 1e6, 
+         ..., simplify = TRUE)
 }
 \arguments{
   \item{res}{a result set (see \code{\link[DBI]{dbSendQuery}}).}

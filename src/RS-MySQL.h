@@ -1,7 +1,7 @@
 #ifndef _RS_MYSQL_H
 #define _RS_MYSQL_H 1
 /*  
- *  $Id: RS-MySQL.h,v 1.3 2002/06/25 15:34:12 dj Exp $
+ *  $Id: RS-MySQL.h,v 1.4 2003/12/01 20:34:23 dj Exp dj $
  *
  * Copyright (C) 1999-2002 The Omega Project for Statistical Computing.
  *
@@ -37,7 +37,9 @@ extern  "C" {
 
 #include "RS-DBI.h"
 
-#define RS_MYSQL_MAX_CON 100    /* typically we alloc a max of 16 */
+/* Note that MySQL client/server buffers are limited to 16MB and 1MB,
+ * respectively (MySQL 4.1.1-alpha manual).  So plan accordingly!
+ */
 
 /* MySQL connection parameters struct, allocating and freeing 
  * methods. See mysql_real_connect() for details on the params 

@@ -1,15 +1,30 @@
 In no particular order:
 
-1. Embedding MySQL.  Add code to handle the embedded MySQL (this
+*  MySQL 4.1 introduces a number of enhancements that we should
+   incorporate into RMySQL.  E.g.,
+    (a) a boolean type (finally!) -- we'll need to get 
+        rid of the coercion to integers in mysqlWriteTable().
+    (b) prepared statements, which we could implement in RMySQL 
+        with a modest effort by mimicking the implementation in 
+        ROracle.
+    (c) multiple sql statments per call (what we call "scripts").
+        For this we'll need to define in DBI a method like
+        "nextResult" to move over a collection of result sets
+        created by a "script".
+
+*  Embedding MySQL.  Add code to handle the embedded MySQL (this
    should be pretty easy).  This does bring up a configuration
    issue.  We may be able to easily define a macro based on which
    library we're linking against (libmysqlclient or libmysqld).
    
-2. dbApply. Move the dbApply C code into the fetch C code. Extend
+*  Transactions have been available since 4.0 (and optionally before
+   then).  We need to implement them in RMySQL.
+
+*  dbApply. Move the dbApply C code into the fetch C code. Extend
    dbApply to work with multiple fields and report which field(s)
    has/have changed group.
 
-3. Allow users to specify whether to transfer all the data to the
+*  Allow users to specify whether to transfer all the data to the
    MySQL client or not (say, we could add a cache=T/F argument to 
    fetch).  Currently when we execute a query we leave all
    the data in the MySQL server and fetch row by row.  This has
@@ -23,28 +38,25 @@ In no particular order:
    Some advantages of this approach is that small and medium size
    result sets could be sped up quite a bit, and the R/S code that
    builds up the data.frame where the output goes need not be built
-   up dynamically, but in one go.  
+   up dynamically but in one go.  
 
-4. Also, we should allow the user to specify whether to lock or
+*  Also, we should allow the user to specify whether to lock or
    not the tables we're querying.
 
-5. Need to add a test for libz to the configure script.
+*  Need to add a test for libz to the configure script.
 
-6. Need to look at asynchronous fetches (this brings the issue of
+*  Need to look at asynchronous fetches (this brings the issue of
    threads and thread safety).
 
-7. Move the dbApply code to it's own file dbApply.c so that we can
+*  Move the dbApply code to it's own file dbApply.c so that we can
    conditionally compile RMySQL on Splus (currently we abort because
    I haven't abstracted out the callback  mechanism).
 
-8. Port to Max OS/X.
-
-
-9. Should the default for fetch(rs, n = 0) should be n=-1?  The issue
+*  Should the default for fetch(rs, n = 0) should be n=-1?  The issue
    is safety (chunking) vs. convenience for small data sets).
    A possibility would be to set it to -1, but define an absolute threshold
    "max.records" that would cause to stop the fetching at that value
    and issue a warning message.
 
-11. Benchmark batch size and exec time...
+*  Benchmark batch size and exec time...
 

@@ -1,3 +1,4 @@
+% $Id: safe.write.Rd,v 1.1 2003/12/02 14:53:01 dj Exp dj $
 \name{safe.write}
 \alias{safe.write}
 \title{Write a data.frame avoiding exceeding memory limits}
@@ -17,8 +18,8 @@ safe.write(value, file, batch, ...)
 \details{
    The function has a while loop invoking \code{\link[base]{write.table}}
    for subsets of \code{batch} rows of \code{value}.  Since this is
-   a helper function for \code{\link[RMySQL]{mysqlWriteTable}} has hardcoded
-   other arguments to \code{write.table}.
+   a helper function for \code{\link[RMySQL]{mysqlWriteTable}}, it has 
+   hardcoded other arguments to \code{write.table}.
 }
 \value{
     \code{NULL}, invisibly.

@@ -1,3 +1,19 @@
+Version 0.5-3
+
+* Fixed a data.frame subsetting problem introduced (uncovered?) with
+  the new R 1.8.0 data.frame subsetting semantics.  (The code was in
+  safe.write(), to be precise).
+
+* Fixed the vector .MySQLKeywords of reserved words (it was no 100% 
+  accurate).
+
+* Yet many more changes to the documentation structure (not the 
+  contents) due to yet more changes in the R help system.
+
+* Updated S4R.h to include changes to the .Call API in S-Plus 6.x (untested).
+
+* Built a Windows binary against MySQL 4.0.16 (see inst/libs).
+
 Version 0.5-2
 
 * Added a test to verify whether the MySQL runtime version is different

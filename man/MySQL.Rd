@@ -1,3 +1,4 @@
+% $Id: MySQL.Rd,v 1.1 2003/12/02 14:53:01 dj Exp dj $
 \name{MySQL}
 \alias{MySQL}
 \title{
@@ -9,14 +10,16 @@ It returns an driver object that allows you to connect
 to one or several MySQL servers.
 }
 \usage{
-MySQL(max.con = 10, fetch.default.rec = 500, force.reload = F)
+MySQL(max.con = 16, fetch.default.rec = 500, force.reload = F)
 }
 \arguments{
 \item{max.con }{
   maximum number of connections that are intended to have open at one time.
-  This can be up to 100, a limit defined at compilation time.
-  Strictly speaking this limit applies to MySQL \emph{servers},
-  but clients can have (at least in theory) more than this.
+  There's no intrinic limit, since strictly speaking this limit applies 
+  to MySQL \emph{servers}, but clients can have (at least in theory) 
+  more than this.  Typically there are at most a handful of open connections,
+  thus the internal \code{RMySQL} code uses a very simple linear search 
+  algorithm to manage its connection table.
   }
 \item{fetch.default.rec}{
   number of records to fetch at one time from the database.

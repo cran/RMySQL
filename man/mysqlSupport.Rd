@@ -1,3 +1,4 @@
+% $Id: mysqlSupport.Rd,v 1.2 2003/12/02 18:28:56 dj Exp dj $
 \name{mysqlSupport}
 \alias{mysqlInitDriver}            % driver-related function
 \alias{mysqlDriverInfo}
@@ -32,7 +33,7 @@
 }
 \usage{
    ## MySQLDriver-related
-   mysqlInitDriver(max.con=10, fetch.default.rec = 500, force.reload=FALSE)
+   mysqlInitDriver(max.con=16, fetch.default.rec = 500, force.reload=FALSE)
    mysqlDriverInfo(obj, what, ...)
    mysqlDescribeDriver(obj, verbose = FALSE, ...)
    mysqlCloseDriver(drv, ...)
@@ -58,7 +59,7 @@
    mysqlDataType(obj, ...)
    mysqlReadTable(con, name, row.names = "row.names", check.names = TRUE, ...)
    mysqlWriteTable(con, name, value, field.types, row.names = TRUE, 
-      overwrite=FALSE, append=FALSE, ...)
+      overwrite=FALSE, append=FALSE, ..., allow.keywords = FALSE)
 }
 \arguments{
 \item{max.con}{
@@ -129,10 +130,6 @@
    (optional) integer setting flags for the client.  Consult the
    MySQL documentation for details.
 }
-\item{max.results}{
-   positive integer indicating the maximum number of results that
-   MySQL connections will hold open.  
-}
 \item{force}{
    logical indicating whether to close a connection that has open
    result sets.  The default is \code{FALSE}.
@@ -174,6 +171,12 @@
    logical indicating whether to append \code{value} to the existing
    table \code{name}.
 }
+\item{allow.keywords}{
+   logical indicating whether column names that happen to be MySQL
+   keywords be used as column names in the resulting relation (table)
+   being written.  Defaults to \code{FALSE}, forcing \code{mysqlWriteTable}
+   to modify column names to make them legal MySQL identifiers.
+   }
 \item{\dots}{
    placeholder for future use.
 }
