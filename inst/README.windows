@@ -10,6 +10,8 @@ RMySQL Windows Binary distribution.
 
 RMySQL Windows Source Distribution.
 
+[Update 16 May 2003, for MySQL 3.23.56, R 1.7.0 patched as of 13 May 2003]
+
    NOTE:
 
    The following (edited) instructions are from Prof. Ripley and
@@ -19,33 +21,44 @@ RMySQL Windows Source Distribution.
    1. You need to make sure sure the file src/Makevars.win has the 
       correct location for MySQL.  For example, 
 
-      PKG_CPPFLAGS = -I/mysql/include
-      PKG_LIBS = -L/mysql/lib/opt -lmysql -liberty
+      PKG_CPPFLAGS = -Ic:/mysql/include
+      PKG_LIBS = -Lc:/mysql/lib/opt -lmysql -liberty
 
+     (c:/mysql is the default directory for the MySQL binary installation, 
+     at least for 3.23.56)
 
-   2. You need to re-import the libmysql.dll library.
+   2. You need to re-import the libmysql.dll into libmysql.a library
+      in order to create RMySQL.dll:
 
-      Unfortunately, the "libmysql.lib" supplied with the MySQL binary
-      distribution is not compatible with R.  Therefore you need to 
-      create an R-compatible MySQL library file "libmysql.dll" as follows:
+      Unfortunately, the "libmysql.lib" supplied with the MySQL
+      binary distribution is not compatible for building dll for
+      use with R.  This manifest itself during creation of the RMySQL.dll
+      with multiple error messages like 
 
-   a. Install the re-import utility "reimp", available at
+        "RMySQL.a(RMySQL.o) ... undefined reference mysql_get_client_info@0"
+        "RMySQL.a(RMySQL.o) ... undefined reference mysql_init@4"
+        ...
+
+      Therefore you need to create an R-compatible MySQL library file 
+      "libmysql.a" in c:\mysql\lib\opt as follows:
+
+      a. Install the re-import utility "reimp", (used to be) available at
       http://mefriss1.swan.ac.uk/~jfonseca/gnu-win32/software/reimp/index.html
 
-      Make sure "reimp" is in your path -- an easy way is to install it
-      in the mysql\lib\opt directory.
+         Make sure "reimp" is in your path -- an easy way is to install it
+         in the c:\mysql\lib\opt directory.
 
-      cd \mysql\lib\opt     
-      unzip reimp.zip
+         cd \mysql\lib\opt     
+         unzip reimp.zip
 
-   b. Run reimp on "libmysql.lib" and copy the output file as follows:
+      b. Run reimp on "libmysql.lib" to create "libmysql.a" (you may leave
+         this *.a in \mysql\lib\opt)
       
-      cd \mysql\lib\opt
-      bin\reimp libmysql.lib
-      copy liblibmysql.dll $R_HOME\src\library\RMySQL\libs\libmysql.dll
+         cd \mysql\lib\opt
+         bin\reimp libmysql.lib
 
-   c. Make sure \mysql\lib\opt is in your PATH (how to do this depends on 
-      what version of Windows you're running).
+      c. Make sure c:\mysql\bin is in your PATH.  If you have multiple
+         copies of libMySQL.dll, make sure the one in \mysql\bin
+         appears first in your PATH.
 
-   From then on you load the RMySQL package as any other package.
-
+      From then on you load the RMySQL package as any other package.

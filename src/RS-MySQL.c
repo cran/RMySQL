@@ -1,5 +1,5 @@
 /* 
- * $Id: RS-MySQL.c,v 1.4 2002/06/25 15:34:48 dj Exp $
+ * $Id: RS-MySQL.c,v 1.5 2003/05/16 12:10:15 dj Exp dj $
  *
  *
  * Copyright (C) 1999-2002 The Omega Project for Statistical Computing.
@@ -20,6 +20,9 @@
  */
 
 #include "RS-MySQL.h"
+
+/* as of version 4.0 mysql_get_client_version() only returns a string */
+static char *compiled_mysql_client_version = MYSQL_SERVER_VERSION;   /* sic.*/
 
 #ifndef USING_R
 #  error("the function RS_DBI_invokeBeginGroup() has not been implemented in S")
@@ -45,7 +48,7 @@
  *     Also, "MySQL" by Paul Dubois (2000) New Riders Publishing.
  *
  * TODO:
- *    1. Make sure the code is thread-save, in particular,
+ *    1. Make sure the code is thread-safe, in particular,
  *       we need to remove the PROBLEM ... ERROR macros
  *       in RS_DBI_errorMessage() because it's definetely not 
  *       thread-safe.  But see RS_DBI_setException().
@@ -67,7 +70,15 @@ RS_MySQL_init(s_object *config_params, s_object *reload)
   Mgr_Handle *mgrHandle;
   Sint  fetch_default_rec, force_reload, max_con;
   const char *drvName = "MySQL";
+  const char *clientVersion = mysql_get_client_info();
 
+  if(strcmp(clientVersion, compiled_mysql_client_version)){
+     char  buf[256];
+     (void) sprintf(buf, 
+                    "%s mismatch between compiled version %s and runtime version %s",
+                    drvName, compiled_mysql_client_version, clientVersion);
+     RS_DBI_errorMessage(buf, RS_DBI_WARNING);
+  }
   max_con = INT_EL(config_params,0); 
   fetch_default_rec = INT_EL(config_params,1);
   force_reload = LGL_EL(reload,0);

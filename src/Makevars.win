@@ -4,6 +4,6 @@
 ##
 ## Change the drive/directory where mysql resides, as appropriate.
 
-PKG_CPPFLAGS = -I/mysql/include 
-PKG_LIBS = -L/mysql/lib/opt -lmysql -liberty
+PKG_CPPFLAGS = -Ic:/mysql/include 
+PKG_LIBS = -Lc:/mysql/lib/opt -lmysql -liberty
 

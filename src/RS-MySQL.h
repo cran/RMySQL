@@ -30,6 +30,7 @@ extern  "C" {
 #endif
 
 #include <mysql.h>
+#include <mysql_version.h>
 #include <mysql_com.h>
 #include "getopt.h"             /* NOTE: this comes from mysql/include */
 #include <string.h>

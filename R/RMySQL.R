@@ -18,7 +18,7 @@ if(usingR()){
   ErrorClass <- "Error"  
 }
 ## 
-## $Id: zzz.R,v 1.2 2002/09/10 02:05:09 dj Exp $
+## $Id: zzz.R,v 1.3 2003/05/16 12:09:34 dj Exp dj $
 ##
 
 ".conflicts.OK" <- TRUE
@@ -29,7 +29,7 @@ require(DBI, quietly = TRUE, warn.conflicts = FALSE)
 function(lib, pkg) 
 {
    library(methods)
-   require(DBI, quietly = TRUE, warn.conflicts = FALSE)
+   library(DBI, warn.conflicts = FALSE)
    library.dynam("RMySQL", pkg, lib)
 }
 ##

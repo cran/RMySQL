@@ -1,0 +1,3 @@
+The file libMySQL.dll is a copy from the MySQL 3.23.56 binary
+Windows distribution.  See the file Copyrights in this directory
+for compliance with the GPL.

@@ -1,5 +1,5 @@
 As of version 0.5-0, RMySQL functions have different names
-as required by the R/S-Plus database interface DBI.  
+as suggested by the R/S-Plus database interface DBI.  
 
 prior to 0.5             DBI 0.1-4 / RMySQL 0.5-0 and later 
 ----------------------   ----------------------------------
