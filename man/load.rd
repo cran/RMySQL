@@ -76,10 +76,8 @@ m <- MySQL()
 unload(m)
 }
 }
-\keyword{RS-DBI}
-\keyword{MySQL}
-\keyword{databases}
-\keyword{RDBMS}
-\keyword{manip}
+\keyword{interface}
+\keyword{database}
 % docclass is function
 % Converted by Sd2Rd version 1.15.2.1.
+% vim: syntax=tex

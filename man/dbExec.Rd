@@ -8,14 +8,14 @@ Submits and executes an arbitrary SQL script (one or more
 statements) on a specific connection.
 }
 \usage{
-dbExec(con, script, ...)
+dbExec(con, statement, ...)
 }
 \arguments{
 \item{con}{
 a connection object (i.e., an object that extends 
 \code{dbConnection}).
 }
-\item{script}{
+\item{statement}{
 a character vector with one or more SQL statements.
 }
 \item{\dots }{
@@ -91,10 +91,8 @@ rs <- dbExecStatement(con, "SELECT * from liv25")
 data <- fetch(rs, n = -1)
 }
 }
-\keyword{<s-keyword>RS-DBI}
-\keyword{MySQL}
-\keyword{databases}
-\keyword{RDBMS}
-\keyword{manip}
+\keyword{interface}
+\keyword{database}
 % docclass is function
 % Converted by Sd2Rd version 1.15.2.1.
+% vim: syntax=tex

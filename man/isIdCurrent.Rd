@@ -38,11 +38,8 @@ cursor <- dbExec(con, sql.statement)
 isIdCurrent(cursor)
 }
 }
-\keyword{RS-DBI}
-\keyword{MySQL}
-\keyword{databases}
-\keyword{RDBMS}
-\keyword{manip}
-\keyword{}
+\keyword{interface}
+\keyword{database}
 % docclass is function
 % Converted by Sd2Rd version 1.15.2.1.
+% vim: syntax=tex

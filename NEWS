@@ -1,3 +1,72 @@
+Version 0.4-3
+
+NOTE: Next release will most likely implement the emerging R/S DBI
+      interface, so I anticipate that the functions will have very
+      different names, although the core functionality will be
+      pretty much the same.)  Stay tuned.
+
+* Added an *experimental* dbApply() that applies a function to 
+  groups of rows, one group at a time, avoiding having to hold the
+  data from all the groups in R/S.  It takes a result set, a grouping
+  field, plus one or more functions and invokes them when certain
+  "fetching events" occur (e.g., at the beginning/end of groups).
+  See help(dbApply) for more details.  [I must have(?) a bizarre
+  bug in the my C code that causes an R core dump when quantile(x,
+  ..., names=T) is invoked inside the R callback function, but
+  works fine with quantile(x, ..., names=F) -- any hints will be
+  greatly appreciated!]
+
+* Fixed the unimplemented append=T in assignTable() (thanks to
+  Jens Nieschulze for the patch).  Also, assignTable() now
+  explicitly sets the end-of-line to be '\n' in the call to LOAD
+  DATA -- this should fix the incompatibility in Windows that Brian
+  Ripley alerted me to (thanks!)  Also fixed the treatment of NA's
+  when exporting a data.frame to MySQL. (On input MySQL interprets
+  '\N' as an SQL NULL, which is what we use in SQL to denote an NA
+  in R/S.)  Re-named the argument from "rownames" to "row.names"
+  for consitancy with getTable (see below).
+
+* Added row.names= argument to getTable().  The semantics is similar
+  (but not identical) to read.table(), namely if row.names is a
+  column name or index, the corresponding column is used as row.names
+  (provided the column has no duplicate values, of course); a NULL
+  or 0 value mean "don't use any field to set the row.names of the
+  output data.frame."
+
+* The getTables() method now returns a character vector, instead of
+  a data.frame.
+
+* There have been 2 reports of NULL's in MySQL double fields being 
+  incorrectly mapped to non-NA's, random (very small) numbers;
+  in both cases on Solaris (we couldn't reproduce it on Linux nor
+  our local Sun servers).  In one case the problem was traced back
+  to multiple versions of the libmysqlclient.so library.  We still
+  need to get to the bottom of this:-( 
+
+* Fixed a bug when converting from NULL in a float dbms field to
+  a numeric (i.e., double) NA.  
+
+* Fixed a bug that core dumped somewhat randomly when fetching
+  a large result set that required extending the receiving vectors of
+  the output list.  The cause was not PROTECTing the code expanded
+  by SET_LENGTH.  [Somewhat counter to my (buggy) intuition, an
+  element *inside* a protected list loses its protection when we
+  use SET_LENGTH on it.  See the function RS_DBI_allocOutput in
+  RS-DBI.c for the gory details.]  (This problems occurred with R
+  1.2.3 and previous versions.)
+
+* Fixed a bug in the data conversions of FIELD_TYPE_LONG into R/S 
+  integers that erroneously map them to numeric/double when their
+  length was greater than sizeof(Sint).  The current logic (only
+  applies to BIGINTs) is that if R's integers, sizeof(Sint), have
+  less then BIGINT's 8 bytes then we convert BIGINT to double to
+  avoid overflow. This is clearly platform specific. Grrr!
+
+* Fixed a typo (PKG_CPPFLAG, sic) in the instructions generated 
+  when configure couldn't find the MySQL header files and libraries.
+
+* Fixed an unobservable bug in the LST_CHR_EL macro in S4R.h.
+
 Version 0.4-2
 
 * (R version) We fixed a problem with load() --- we had correctly elevated 

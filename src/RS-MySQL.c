@@ -20,6 +20,12 @@
 
 #include "RS-MySQL.h"
 
+#ifndef USING_R
+#  error("the function RS_DBI_invokeBeginGroup() has not been implemented in S")
+#  error("the function RS_DBI_invokeEndGroup()   has not been implemented in S")
+#  error("the function RS_DBI_invokeNewRecord()  has not been implemented in S")
+#endif
+
 /* R and S DataBase Interface to MySQL
  * 
  *
@@ -51,12 +57,12 @@
 Mgr_Handle *
 RS_MySQL_init(s_object *config_params, s_object *reload)
 {
+  S_EVALUATOR
+
   /* Currently we can specify the defaults for 2 parameters, max num of
    * connections, and max of records per fetch (this can be over-ridden
    * explicitly in the S call to fetch).
    */
-  S_EVALUATOR
-
   Mgr_Handle *mgrHandle;
   Sint  fetch_default_rec, force_reload, max_con;
   const char *drvName = "MySQL";
@@ -74,6 +80,7 @@ s_object *
 RS_MySQL_closeManager(Mgr_Handle *mgrHandle)
 {
   S_EVALUATOR
+
   RS_DBI_manager *mgr;
   s_object *status;
 
@@ -95,6 +102,7 @@ Con_Handle *
 RS_MySQL_cloneConnection(Con_Handle *conHandle)
 {
   S_EVALUATOR
+
   Mgr_Handle  *mgrHandle;
   RS_DBI_connection  *con;
   RS_MySQL_conParams *conParams;
@@ -162,6 +170,7 @@ RS_MySQL_newConnection(Mgr_Handle *mgrHandle, s_object *con_params,
 		       s_object *MySQLgroups)
 {
   S_EVALUATOR
+
   RS_DBI_connection  *con;
   RS_MySQL_conParams *conParams;
   Con_Handle  *conHandle;
@@ -294,6 +303,7 @@ s_object *
 RS_MySQL_closeConnection(Con_Handle *conHandle)
 {
   S_EVALUATOR
+
   RS_DBI_connection *con;
   MYSQL *my_connection;
   s_object *status;
@@ -478,14 +488,14 @@ RS_MySQL_createDataMappings(Res_Handle *rsHandle)
       flds->Sclass[j] = CHARACTER_TYPE;
       flds->isVarLength[j] = (Sint) 1;
       break;
-    case FIELD_TYPE_TINY:
-    case FIELD_TYPE_SHORT:
+    case FIELD_TYPE_TINY:            /* 1-byte TINYINT   */
+    case FIELD_TYPE_SHORT:           /* 2-byte SMALLINT  */
+    case FIELD_TYPE_INT24:           /* 3-byte MEDIUMINT */
+    case FIELD_TYPE_LONG:            /* 4-byte INTEGER   */
       flds->Sclass[j] = INTEGER_TYPE;
       break;
-    case FIELD_TYPE_LONG:            /* are we sure we can fit these */
-    case FIELD_TYPE_LONGLONG:        /* in S ints? */
-    case FIELD_TYPE_INT24:           
-      if(flds->length[j] <= sizeof(Sint))
+    case FIELD_TYPE_LONGLONG:        /* TODO: can we fit these in R/S ints? */
+      if(sizeof(Sint)>=8)            /* Arg! this ain't pretty:-( */
 	flds->Sclass[j] = INTEGER_TYPE;
       else 
 	flds->Sclass[j] = NUMERIC_TYPE;
@@ -496,8 +506,6 @@ RS_MySQL_createDataMappings(Res_Handle *rsHandle)
 	flds->Sclass[j] = INTEGER_TYPE;
       break;
     case FIELD_TYPE_FLOAT:
-      flds->Sclass[j] = NUMERIC_TYPE;
-      break;
     case FIELD_TYPE_DOUBLE:
       flds->Sclass[j] = NUMERIC_TYPE;
       break;
@@ -541,14 +549,16 @@ s_object *    /* output is a named list */
 RS_MySQL_fetch(s_object *rsHandle, s_object *max_rec)
 {
   S_EVALUATOR
+
   RS_DBI_manager   *mgr;
   RS_DBI_resultSet *result;
   RS_DBI_fields    *flds;
   MYSQL_RES *my_result;
   MYSQL_ROW  row;
-  s_object  *output;
-  s_object  *raw_obj;
-  s_object  *raw_container;
+  s_object  *output, *s_tmp;
+#ifndef USING_R
+  s_object  *raw_obj, *raw_container;
+#endif
   unsigned long  *lens;
   int    i, j, null_item, expand;
   Sint   *fld_nullOk, completed;
@@ -612,7 +622,7 @@ RS_MySQL_fetch(s_object *rsHandle, s_object *max_rec)
 	if(null_item)
 	  NA_SET(&(LST_INT_EL(output,j,i)), INTEGER_TYPE);
 	else
-	  LST_INT_EL(output,j,i) = atol(row[j]);
+	  LST_INT_EL(output,j,i) = (Sint) atol(row[j]);
 	break;
       case CHARACTER_TYPE:
 	/* BUG: I need to verify that a TEXT field (which is stored as
@@ -639,7 +649,7 @@ RS_MySQL_fetch(s_object *rsHandle, s_object *max_rec)
 	break;
       case NUMERIC_TYPE:
 	if(null_item)
-	  NA_SET(&(LST_NUM_EL(output,j,i)), SINGLE_TYPE);
+	  NA_SET(&(LST_NUM_EL(output,j,i)), NUMERIC_TYPE);
 	else
 	  LST_NUM_EL(output,j,i) = (double) atof(row[j]);
 	break;
@@ -682,8 +692,12 @@ RS_MySQL_fetch(s_object *rsHandle, s_object *max_rec)
   if(i < num_rec){
     num_rec = i;
     /* adjust the length of each of the members in the output_list */
-    for(j = 0; j<num_fields; j++)
-      SET_LENGTH(LST_EL(output,j), num_rec);
+    for(j = 0; j<num_fields; j++){
+      s_tmp = LST_EL(output,j);
+      MEM_PROTECT(SET_LENGTH(s_tmp, num_rec));
+      SET_ELEMENT(output, j, s_tmp);
+      MEM_UNPROTECT(1);
+    }
   }
   if(completed < 0)
     RS_DBI_errorMessage("error while fetching rows", RS_DBI_WARNING);
@@ -732,6 +746,7 @@ s_object *
 RS_MySQL_closeResultSet(s_object *resHandle)
 {
   S_EVALUATOR 
+
   RS_DBI_resultSet *result;
   MYSQL_RES        *my_result;
   s_object *status;
@@ -762,6 +777,7 @@ s_object *
 RS_MySQL_managerInfo(Mgr_Handle *mgrHandle)
 {
   S_EVALUATOR
+
   RS_DBI_manager *mgr;
   s_object *output;
   Sint i, num_con, max_con, *cons, ncon;
@@ -912,11 +928,7 @@ RS_MySQL_getFieldTypeName(Sint t)
     if (RS_MySQL_fieldTypes[i].typeId == t)
       return RS_MySQL_fieldTypes[i].typeName;
   }
-#ifdef USING_R
-  sprintf(buf, "unknown data type: %d", t);
-#else
-  sprintf(buf, "unknown data type: %ld", t);
-#endif
+  sprintf(buf, "unknown data type: %ld", (long)t);
   RS_DBI_errorMessage(buf, RS_DBI_ERROR);
   return (char *) 0; /* for -Wall */
 }
@@ -937,4 +949,516 @@ RS_MySQL_getFieldTypeNames(s_object *type)
   }
   MEM_UNPROTECT(1);
   return typeNames;
+}
+
+/*
+ * RS_MySQL_dbApply. 
+ *
+ * R/S: dbApply(rs, INDEX, FUN, group.begin, group.end, end, ...)
+ *
+ * This first implementation of R's dbApply()
+ * extracts rows from an open result set rs and applies functions
+ * to those rows of each group.  This is how it works: it keeps tracks of
+ * the values of the field pointed by "group" and it identifies events:
+ * BEGIN_GROUP (just read the first row of a different group),
+ * NEW_RECORD (every record fetched generates this event),
+ * and END_GROUP (just finished with the current group). At these points
+ * we invoke the R functions group.end() and group.begin() in the
+ * environment() of dbApply
+ * [should it be the environment where dbApply was called from (i.e., 
+ * dbApply's parent's * frame)?]  
+ * Except for the very first group, the order of invocation is 
+ * end.group() followed by begin.group()
+ *
+ * NOTE: We're thinking of groups as commonly defined in awk scripts
+ * (but also in SAP's ABAP/4) were rows are assumed to be sorted by
+ * the "group" fields and we detect a different (new) group when any of
+ * the "group" fields changes.  Our implementation does not require
+ * the result set to be sorted by group, but for performance-sake, 
+ * it better be.
+ *
+ * TODO: 1. Notify the reason for exiting (normal, exhausted maxBatches, etc.)
+ *       2. Allow INDEX to be a list, as in tapply().
+ *       3. Handle NA's (SQL NULL's) in the INDEX and/or data fields.  
+ *          Currently they are ignored, thus effectively causing a
+ *          new BEGIN_GROUP event.
+ *       4. Re-write fetch() in terms of events (END_OF_DATA, 
+ *          EXHAUST_DATAFRAME, DB_ERROR, etc.)
+ *       5. Create a table of R callback functions indexed by events,
+ *          then a handle_event() could conveniently handle all the events.
+ */
+
+s_object    *expand_list(s_object *old, Sint new_len);
+void         add_group(s_object *group_names, s_object *data, 
+		             Sint fld_Sclass[], Sint group, 
+			     Sint ngroup, Sint i);
+unsigned int check_groupEvents(s_object *data, Stype fld_Sclass[], 
+                          Sint row, Sint col);
+
+/* The following are the masks for the events/states we recognize as we
+ * bring rows from the result set/cursor
+ */
+#define NEVER           0
+#define BEGIN           1  /* prior to reading 1st row from the resultset */
+#define END             2  /* after reading last row from the result set  */
+#define BEGIN_GROUP     4  /* just read in 1'st row for a different group */
+#define END_GROUP       8  /* just read the last row of the current group */
+#define NEW_RECORD     16  /* uninteresting ... */
+#define PARTIAL_GROUP  32  /* too much data (>max_rex) partial buffer     */
+
+/* the following are non-grouping events (e.g., db errors, memory) */
+#define EXHAUSTED_DF   64  /* exhausted the allocated data.frame  */
+#define EXHAUSTED_OUT 128  /* exhausted the allocated output list */
+#define END_OF_DATA   256  /* end of data from the result set     */
+#define DBMS_ERROR    512  /* error in remote dbms                */
+
+/* beginGroupFun takes only one arg: the name of the current group */
+s_object *
+RS_DBI_invokeBeginGroup(s_object *callObj,      /* should be initialized */
+                        const char *group_name, /* one string */
+                        s_object *rho)
+{
+   S_EVALUATOR
+
+   s_object *s_group_name, *val;
+
+   /* make a copy of the argument */
+   MEM_PROTECT(s_group_name = NEW_CHARACTER((Sint) 1));
+   SET_CHR_EL(s_group_name, 0, C_S_CPY(group_name));
+
+   /* and stick into call object */
+   SETCADR(callObj, s_group_name);
+   val = EVAL_IN_FRAME(callObj, rho);
+   MEM_UNPROTECT(1);
+
+   return S_NULL_ENTRY;
+}
+
+s_object *
+RS_DBI_invokeNewRecord(s_object *callObj,   /* should be initialized already */
+                       s_object *new_record,/* a 1-row data.frame */
+                       s_object *rho)
+{
+   S_EVALUATOR
+
+   s_object *df, *val;
+
+   /* make a copy of the argument */
+   MEM_PROTECT(df = COPY_ALL(new_record));
+
+   /* and stick it into the call object */
+   SETCADR(callObj, df);
+   val = EVAL_IN_FRAME(callObj, rho);
+   MEM_UNPROTECT(1);
+
+   return S_NULL_ENTRY;
+}
+
+/* endGroupFun takes two args: a data.frame and the group name */
+s_object *
+RS_DBI_invokeEndGroup(s_object *callObj, s_object *data,
+                      const char *group_name, s_object *rho)
+{
+   S_EVALUATOR
+
+   s_object *s_x, *s_group_name, *val;
+
+   /* make copies of the arguments */
+   MEM_PROTECT(callObj = duplicate(callObj));
+   MEM_PROTECT(s_x = COPY_ALL(data));
+   MEM_PROTECT(s_group_name = NEW_CHARACTER((Sint) 1));
+   SET_CHR_EL(s_group_name, 0, C_S_CPY(group_name));
+
+   /* stick copies of args into the call object */
+   SETCADR(callObj, s_x);
+   SETCADDR(callObj, s_group_name);
+   SETCADDDR(callObj, R_DotsSymbol);
+
+   val = EVAL_IN_FRAME(callObj, rho);
+
+   MEM_UNPROTECT(3);
+   return val;
+}
+
+s_object *                               /* output is a named list */
+RS_MySQL_dbApply(s_object *rsHandle,     /* resultset handle */
+                 s_object *s_group_field,/* this is a 0-based field number */
+                 s_object *s_funs,       /* a 5-elem list with handler funs */
+                 s_object *rho,          /* the env where to run funs */
+                 s_object *s_batch_size, /* alloc these many rows */
+                 s_object *s_max_rec)    /* max rows per group */
+{
+   S_EVALUATOR
+
+   RS_DBI_resultSet *result;
+   RS_DBI_fields    *flds;
+
+   MYSQL_RES *my_result;
+   MYSQL_ROW  row;
+
+   s_object  *data, *cur_rec, *out_list, *group_names, *val;
+#ifndef USING_R
+   s_object  *raw_obj, *raw_container;
+#endif
+   unsigned long  *lens = (long *)0;
+   Stype  *fld_Sclass;
+   Sint   i, j, null_item, expand, *fld_nullOk, completed;
+   Sint   num_rec, num_fields, num_groups;
+   Sint   max_rec = INT_EL(s_max_rec,0);     /* max rec per group */
+   Sint   ngroup = 0, group_field = INT_EL(s_group_field,0);
+   long   total_records;
+   Sint   pushed_back = FALSE;
+
+   unsigned int event = NEVER; 
+   int    np = 0;        /* keeps track of MEM_PROTECT()'s */
+   s_object    *beginGroupCall, *beginGroupFun = LST_EL(s_funs, 2);
+   s_object    *endGroupCall,   *endGroupFun   = LST_EL(s_funs, 3);
+   s_object    *newRecordCall,   *newRecordFun  = LST_EL(s_funs, 4);
+   int        invoke_beginGroup = (GET_LENGTH(beginGroupFun)>0);
+   int        invoke_endGroup   = (GET_LENGTH(endGroupFun)>0);
+   int        invoke_newRecord  = (GET_LENGTH(newRecordFun)>0);
+
+   if(invoke_beginGroup){
+      MEM_PROTECT(beginGroupCall=lang2(beginGroupFun, R_NilValue));
+      ++np;
+   }
+   if(invoke_endGroup){
+      /* TODO: append list(...) to the call object */
+      MEM_PROTECT(endGroupCall = lang4(endGroupFun, R_NilValue, 
+	          R_NilValue, R_NilValue));
+      ++np;
+   }
+   if(invoke_newRecord){
+      MEM_PROTECT(newRecordCall = lang2(newRecordFun, R_NilValue));
+      ++np;
+   }
+
+   result = RS_DBI_getResultSet(rsHandle);
+   flds = result->fields;
+   if(!flds)
+     RS_DBI_errorMessage("corrupt resultSet, missing fieldDescription",
+		       RS_DBI_ERROR);
+   num_fields = flds->num_fields;
+   fld_Sclass = flds->Sclass;
+   fld_nullOk = flds->nullOk;
+   MEM_PROTECT(data = NEW_LIST(num_fields));     /* buffer records */
+   MEM_PROTECT(cur_rec = NEW_LIST(num_fields));  /* current record */
+   np += 2;
+   RS_DBI_allocOutput(cur_rec, flds, (Sint) 1, 1);
+   RS_DBI_makeDataFrame(cur_rec);
+
+   num_rec = INT_EL(s_batch_size, 0);     /* this is num of rec per group! */
+   max_rec = INT_EL(s_max_rec,0);         /* max rec **per group**         */
+   num_groups = num_rec;
+   MEM_PROTECT(out_list = NEW_LIST(num_groups));
+   MEM_PROTECT(group_names = NEW_CHARACTER(num_groups));
+   np += 2;
+
+   /* set conversion for group names */
+
+   if(result->rowCount==0){
+      event = BEGIN;
+      /* here we could invoke the begin function*/
+   }
+
+   /* actual fetching.... */
+
+   my_result = (MYSQL_RES *) result->drvResultSet;
+   completed = (Sint) 0;
+
+   total_records = 0;
+   expand = 0;                  /* expand or init each data vector? */
+   i = 0;                       /* index into row number **within** groups */
+   while(1){
+
+     if(i==0 || i==num_rec){         /* BEGIN, EXTEND_DATA, BEGIN_GROUP */
+
+        /* reset num_rec upon a new group, double it if needs to expand */
+        num_rec = (i==0) ? INT_EL(s_batch_size, 0) : 2*num_rec;
+        if(i<max_rec)
+	   RS_DBI_allocOutput(data, flds, num_rec, expand++);
+        else
+	   break;       /* ok, no more fetching for now (pending group?) */
+     }
+
+     if(!pushed_back)
+        row = mysql_fetch_row(my_result);
+
+     if(row==NULL){    /* either we finish or we encounter an error */
+        unsigned int  err_no;     /* TODO: move block to check_groupEvents */
+        RS_DBI_connection   *con;
+        con = RS_DBI_getConnection(rsHandle);
+        err_no = mysql_errno((MYSQL *) con->drvConnection);
+        completed = (Sint) (err_no ? -1 : 1);
+        break;
+     }
+
+     if(!pushed_back){                      /* recompute fields lengths? */
+       lens = mysql_fetch_lengths(my_result);  /* lengths for each field */
+       ++total_records;
+     }
+     else
+        pushed_back = FALSE;
+
+     /* coerce each entry row[j] to an R/S type according to its Sclass.
+      * TODO:  converter functions are badly needed.
+      */
+     for(j = 0; j < num_fields; j++){
+
+        null_item = (row[j] == NULL);
+        switch((int)fld_Sclass[j]){
+
+	   case INTEGER_TYPE: 
+	      if(null_item)
+		 NA_SET(&(LST_INT_EL(data,j,i)), INTEGER_TYPE);
+	      else
+	      LST_INT_EL(data,j,i) = atol(row[j]);
+	      LST_INT_EL(cur_rec,j,0) = LST_INT_EL(data,j,i);
+	      break;
+
+	   case CHARACTER_TYPE: 
+	      /* BUG: I need to verify that a TEXT field (which is stored as
+	       * a BLOB by MySQL!) is indeed char and not a true
+	       * Binary obj (MySQL does not truly distinguish them). This
+	       * test is very gross.
+	       */
+	      if(null_item)
+#ifdef USING_R
+	          SET_LST_CHR_EL(data,j,i,NA_STRING);
+#else
+	          NA_CHR_SET(LST_CHR_EL(data,j,i));
+#endif
+	      else {
+	         if((size_t) lens[j] != strlen(row[j])){
+	            char warn[128];
+	            (void) sprintf(warn, 
+			   "internal error: row %ld field %ld truncated",
+			   (long) i, (long) j);
+	            RS_DBI_errorMessage(warn, RS_DBI_WARNING);
+	         }
+	         SET_LST_CHR_EL(data,j,i,C_S_CPY(row[j]));
+	      }
+	      SET_LST_CHR_EL(cur_rec, j, 0, C_S_CPY(LST_CHR_EL(data,j,i)));
+	      break;
+
+           case NUMERIC_TYPE:
+	      if(null_item)
+	         NA_SET(&(LST_NUM_EL(data,j,i)), NUMERIC_TYPE);
+	      else
+	         LST_NUM_EL(data,j,i) = (double) atof(row[j]);
+	      LST_NUM_EL(cur_rec,j,0) = LST_NUM_EL(data,j,i);
+	      break;
+
+#ifndef USING_R
+           case SINGLE_TYPE:
+	      if(null_item)
+	         NA_SET(&(LST_FLT_EL(data,j,i)), SINGLE_TYPE);
+	      else
+	         LST_FLT_EL(data,j,i) = (float) atof(row[j]);
+	      LST_FLT_EL(cur_rec,j,0) = LST_FLT_EL(data,j,i);
+	      break;
+
+           case RAW_TYPE:           /* these are blob's */
+	      raw_obj = NEW_RAW((Sint) lens[j]);
+	      memcpy(RAW_DATA(raw_obj), row[j], lens[j]);
+	      raw_container = LST_EL(data,j);    /* get list of raw objects*/
+	      SET_ELEMENT(raw_container, (Sint) i, raw_obj); 
+	      SET_ELEMENT(data, (Sint) j, raw_container);
+    	      break;
+#endif
+
+           default:  /* error, but we'll try the field as character (!)*/
+	      if(null_item)
+#ifdef USING_R
+		 SET_LST_CHR_EL(data,j,i, NA_STRING);
+#else
+	         NA_CHR_SET(LST_CHR_EL(data,j,i));
+#endif
+	      else {
+	         char warn[64];
+	         (void) sprintf(warn, 
+			   "unrecognized field type %d in column %d",
+			   (int) fld_Sclass[j], (int) j);
+	         RS_DBI_errorMessage(warn, RS_DBI_WARNING);
+	         SET_LST_CHR_EL(data,j,i,C_S_CPY(row[j]));
+	      }
+	      SET_LST_CHR_EL(cur_rec,j,0, C_S_CPY(LST_CHR_EL(data,j,i)));
+	      break;
+        } 
+     }
+
+     /* We just finished processing the new record, now we check 
+      * for some events (in addition to NEW_RECORD, of course).
+      */
+     event = check_groupEvents(data, fld_Sclass, i, group_field);
+
+     if(BEGIN_GROUP & event){
+        if(ngroup==num_groups){                  /* exhausted output list? */
+           num_groups = 2 * num_groups;
+           MEM_PROTECT(SET_LENGTH(out_list, num_groups)); 
+           MEM_PROTECT(SET_LENGTH(group_names, num_groups)); 
+	   np += 2;
+        }
+	if(invoke_beginGroup)
+           RS_DBI_invokeBeginGroup(
+		beginGroupCall, CHR_EL(group_names, ngroup), rho);
+     }
+
+     if(invoke_newRecord){
+	RS_DBI_invokeNewRecord(newRecordCall, cur_rec, rho);
+     }
+
+     if(END_GROUP & event){                     
+     
+	add_group(group_names, data, fld_Sclass, group_field, ngroup, i-1);
+
+	RS_DBI_allocOutput(data, flds, i, expand++);
+        RS_DBI_makeDataFrame(data); 
+     
+	val = RS_DBI_invokeEndGroup(endGroupCall, data,
+		                    CHR_EL(group_names, ngroup), rho);
+        SET_ELEMENT(out_list, ngroup, val);
+
+        /* set length of data to zero to force initialization 
+	 * for next group 
+	 */
+	RS_DBI_allocOutput(data, flds, (Sint) 0, (Sint) 1);
+        i = 0;                                  /* flush */
+	++ngroup;   
+        pushed_back = TRUE;
+        continue;
+     }
+
+     i++;
+   }    
+  
+   /* we fetched all the rows we needed/could; compute actual number of 
+    * records fetched.
+    * TODO: What should we return in the case of partial groups???
+    */
+   if(completed < 0)
+       RS_DBI_errorMessage("error while fetching rows", RS_DBI_WARNING);
+   else if(completed)
+       event = (END_GROUP|END);
+   else
+       event = PARTIAL_GROUP;
+
+   /* wrap up last group */
+   if((END_GROUP & event) || (PARTIAL_GROUP & event)){ 
+
+      add_group(group_names, data, fld_Sclass, group_field, ngroup, i-i);
+
+      if(i<num_rec){
+	 RS_DBI_allocOutput(data, flds, i, expand++);
+	 RS_DBI_makeDataFrame(data); 
+      }
+      if(invoke_endGroup){
+	 val = RS_DBI_invokeEndGroup(endGroupCall, data, 
+	                             CHR_EL(group_names, ngroup), rho);
+         SET_ELEMENT(out_list, ngroup++, val);
+      }
+      if(PARTIAL_GROUP & event){
+         char buf[512];
+	 (void) strcpy(buf, "exhausted the pre-allocated storage. The last ");
+	 (void) strcat(buf, "output group was computed with partial data. ");
+	 (void) strcat(buf, "The remaining data were left un-read in the ");
+	 (void) strcat(buf, "result set.");
+	 RS_DBI_errorMessage(buf, RS_DBI_WARNING);
+      }
+   }
+
+   /* set the correct length of output list */
+   if(GET_LENGTH(out_list) != ngroup){
+      MEM_PROTECT(SET_LENGTH(out_list, ngroup));
+      MEM_PROTECT(SET_LENGTH(group_names, ngroup));
+      np += 2;
+   }
+
+   result->rowCount += total_records;  
+   result->completed = (int) completed;
+ 
+   SET_NAMES(out_list, group_names);       /* do I need to PROTECT? */
+   out_list = AS_LIST(out_list);           /* for S4/Splus[56]'s sake */
+
+   MEM_UNPROTECT(np);
+   return out_list;
+}
+
+unsigned int
+check_groupEvents(s_object *data, Stype fld_Sclass[], Sint irow, Sint jcol)
+{
+   if(irow==0) /* Begin */
+       return (BEGIN|BEGIN_GROUP);
+
+   switch(fld_Sclass[jcol]){
+
+      case LOGICAL_TYPE:
+	 if(LST_LGL_EL(data,jcol,irow)!=LST_LGL_EL(data,jcol,irow-1))
+	    return (END_GROUP|BEGIN_GROUP);
+	 break;
+
+      case INTEGER_TYPE:
+	 if(LST_INT_EL(data,jcol,irow)!=LST_INT_EL(data,jcol,irow-1))
+	    return (END_GROUP|BEGIN_GROUP);
+	 break;
+
+      case NUMERIC_TYPE:
+	 if(LST_NUM_EL(data,jcol,irow)!=LST_NUM_EL(data,jcol,irow-1))
+	    return (END_GROUP|BEGIN_GROUP);
+	 break;
+#ifndef USING_R
+
+      case SINGLE_TYPE:
+	 if(LST_FLT_EL(data,jcol,irow)!=LST_FLT_EL(data,jcol,irow-1))
+	    return (END_GROUP|BEGIN_GROUP);
+	 break;
+#endif
+
+      case CHARACTER_TYPE:
+	 if(strcmp(LST_CHR_EL(data,jcol,irow), LST_CHR_EL(data,jcol,irow-1)))
+	    return (END_GROUP|BEGIN_GROUP);
+	 break;
+
+      default:
+	 PROBLEM
+	   "un-regongnized R/S data type %d", fld_Sclass[jcol]
+	 ERROR;
+         break;
+   }      
+
+   return NEW_RECORD;
+}
+
+/* append current group (as character) to the vector of group names */
+void
+add_group(s_object *group_names, s_object *data, 
+		Sint fld_Sclass[], Sint group_field, Sint ngroup, Sint i)
+{
+   char  buff[1024];   
+
+   switch(fld_Sclass[group_field]){
+
+      case LOGICAL_TYPE:
+	 (void) sprintf(buff, "%ld", (long) LST_LGL_EL(data,group_field,i));
+	 break;
+      case INTEGER_TYPE:
+	 (void) sprintf(buff, "%ld", (long) LST_INT_EL(data,group_field,i));
+	 break;
+#ifndef USING_R
+      case SINGLE_TYPE:
+	 (void) sprintf(buff, "%f", (double) LST_FLT_EL(data,group_field,i));
+	 break;
+#endif
+      case NUMERIC_TYPE:
+	 (void) sprintf(buff, "%f", (double) LST_NUM_EL(data,group_field,i));
+	 break;
+      case CHARACTER_TYPE:
+	 strcpy(buff, LST_CHR_EL(data,group_field,i));
+	 break;
+      default:
+	 RS_DBI_errorMessage("unrecognized R/S type for group", RS_DBI_ERROR);
+	 break;
+   }
+   SET_CHR_EL(group_names, ngroup, C_S_CPY(buff));
+   return;
 }

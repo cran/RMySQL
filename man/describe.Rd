@@ -8,10 +8,10 @@ Prints a concise description of the meta-data associated
 with an object
 }
 \usage{
-describe(object, verbose, ...)
+describe(obj, verbose, ...)
 }
 \arguments{
-\item{object}{
+\item{obj}{
 any object that implements some functionality under the R/S interface 
 to databases, e.g.,
 \code{dbManager},
@@ -56,7 +56,7 @@ On transaction management:
 
 \code{\link{commit}}
 \code{\link{rollback}}
-
+Ora
 On meta-data:
 
 \code{\link{describe}}
@@ -75,12 +75,12 @@ On meta-data:
 \code{\link{getInfo}}
 }
 \examples{\dontrun{
-> m <- dbManager("MySQL")
+> m <- dbManager("Oracle")
 > ...
 # Let's look at the status of the manager
 
 > describe(m, verbose = F)   
-MySQLManager id = (7269) 
+OraManager id = (7269) 
   Max  connections: 16 
   Conn. processed: 1 
   Default records per fetch: 500 
@@ -100,7 +100,7 @@ MySQLManager id = (7269)
 # A full description of the result set is
 
 > describe(rs, verbose = T)
-MySQLResultSet id = (7269,3,1) 
+OraResultSet id = (7269,3,1) 
   Statement: show tables 
   Has completed? no 
   Affected rows: -1 
@@ -110,10 +110,8 @@ MySQLResultSet id = (7269,3,1)
 1 Tables in opto character FIELD_TYPE_STRING  64        64     0      F
 }
 }
-\keyword{RS-DBI}
-\keyword{MySQL}
-\keyword{databases}
-\keyword{RDBMS}
-\keyword{manip}
+\keyword{database}
+\keyword{interface}
 % docclass is function
 % Converted by Sd2Rd version 1.15.2.1.
+% vim:syntax=tex

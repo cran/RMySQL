@@ -25,27 +25,25 @@ Extract meta-data associated with various objects
 }
 \usage{
 getInfo(dbObject, what)      # meta-data for any dbObject
-getConnection(dbObject)
+getConnection(what, ...)
 
 getConnections(mgr)          # meta-data for dbManager objects
-getDatabases(mgr, dbname)
-getTables(mgr, dbname)
-getVersion(mgr)
-getTableIndices(mgr, dbname)
-
+getDatabases(obj, ...)       
+getTables(obj, dbname, row.names, ...)
+getVersion(obj, ...)
+getTableIndices(res, table, dbname, ...)
 
 getCurrentDatabase(con)      # meta-data for dbConnection objects
-getException(con)
-getResultSets(con)
-getTableFields(con, table, dbname)
+getException(con, ...)
+getResultSets(con, ...)
+getTableFields(res, table, dbname, ...)
 
-getStatement(rs)             # meta-data for dbResultSet objects
-getConnection(rs)
-getFields(rs)
-hasCompleted(rs)
-getRowCount(rs)
-getRowsAffected(rs)
-getNullOk(rs)
+getStatement(res)             # meta-data for dbResultSet objects
+getFields(res, ...)
+hasCompleted(res, ...)
+getRowCount(res, ...)
+getRowsAffected(res, ...)
+getNullOk(res, ...)
 }
 \arguments{
 \item{dbObject}{
@@ -147,7 +145,7 @@ m <- dbManager(dbms)
 4 iptraffic
 5     fraud
 
-# What tables are there in the "opto" database? 
+# What tables are there in the Oracle "opto" database? 
 
 > dbTables(m, dbname = "opto", host = "wyner")
   Tables in opto 
@@ -206,10 +204,6 @@ m <- dbManager(dbms)
 [5] "completed"        "fieldDescription"
 }
 }
-\keyword{RS-DBI}
-\keyword{MySQL}
-\keyword{databases}
-\keyword{RDBMS}
-\keyword{manip}
-% docclass is function
-% Converted by Sd2Rd version 1.15.2.1.
+\keyword{interface}
+\keyword{database}
+% vim:syntax=tex

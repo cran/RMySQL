@@ -142,8 +142,6 @@ m <- dbManager("MySQL")
 con <- dbConnect(m, user="opto", pass="pure-light", dbname="opto")
 }
 }
-\keyword{RS-DBI}
-\keyword{MySQL}
-\keyword{databases}
-\keyword{RDBMS}
-\keyword{manip}
+\keyword{interface}
+\keyword{database}
+% vim: syntax=tex

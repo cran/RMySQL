@@ -44,9 +44,8 @@ isSQLKeyword(nam, c(.SQLKeywords, oracle.keywords))
 [1]  T  T  T  F
 }
 }
-\keyword{manip}
-\keyword{data}
+\keyword{interface}
 \keyword{database}
-\keyword{RS-DBI}
 % docclass is function
 % Converted by Sd2Rd version 1.15.2.1.
+% vim: syntax=tex

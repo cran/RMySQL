@@ -45,7 +45,7 @@ extern "C" {
 #  define Sint  int
 #  define charPtr SEXP *
 #  define CHAR_DEREF(x) CHAR(x)
-#  define C_S_CPY(p)    COPY_TO_USER_STRING(p)   /* cpy C string to R */
+#  define C_S_CPY(p)    COPY_TO_USER_STRING(p)    /* cpy C string to R */
 #  define MEM_PROTECT(x) PROTECT(x)
 #  define MEM_UNPROTECT(n) UNPROTECT(n)
 #  define MEM_UNPROTECT_PTR(x) UNPROTECT_PTR(x)
@@ -61,8 +61,18 @@ extern "C" {
 #  define MEM_UNPROTECT_PTR(x) /**/
 #endif
 
-/* data types common to R and S4 */
+/* The following are macros defined in the Green Book, but missing
+ * in Rdefines.h.  The semantics are as close to S4's as possible (?).
+ */
+#ifdef USING_R
+#  define COPY(x) duplicate(x)                  
+#  define COPY_ALL(x) duplicate(x)               
+#  define EVAL_IN_FRAME(expr,n)  eval(expr,n)     
+#  define GET_FROM_FRAME(name,n) findVar(install(name),n)
+#  define ASSIGN_IN_FRAME(name,obj,n) defineVar(install(name),COPY(obj),n)
+#endif
 
+/* data types common to R and S4 */
 #ifdef USING_R
 #  define Stype          SEXPTYPE
 #  define LOGICAL_TYPE	 LGLSXP
@@ -97,10 +107,7 @@ extern "C" {
 #  define S_NULL_ENTRY  NULL_ENTRY
 #endif
 
-/* The following macros perhaps should be moved to either S4R.h
- * or better yet to Rdefines.h (?)
- * 
- * We simplify one- and two-level access to object and list
+/* We simplify one- and two-level access to object and list
  * (mostly built on top of jmc's macros)
  *
  * NOTE: Recall that list element vectors should *not* be set 
@@ -135,7 +142,7 @@ extern "C" {
 #endif
 
 /* x[[i]][j] -- can be also assigned if x[[i]] is a numeric type */
-#define LST_CHR_EL(x,i,j) CHAR_DEREF(CHR_EL(LST_EL((x),(i)), (j)))
+#define LST_CHR_EL(x,i,j) CHR_EL(LST_EL((x),(i)), (j))
 #define LST_LGL_EL(x,i,j) LGL_EL(LST_EL((x),(i)), (j))
 #define LST_INT_EL(x,i,j) INT_EL(LST_EL((x),(i)), (j))
 #define LST_SGL_EL(x,i,j) SGL_EL(LST_EL((x),(i)), (j))
@@ -165,6 +172,19 @@ extern "C" {
 #  define NA_CHR_SET(p) (p) = C_S_CPY(NA_STRING)
 #  define IS_NA(p,t)    is_na((p), (t))
 #endif
+
+
+/* SET_ROWNAMES() and SET_CLASS_NAME() don't exist in S4 
+ */
+#ifdef USING_R
+#  define SET_ROWNAMES(df,n)  setAttrib(df, R_RowNamesSymbol, n)
+#  define GET_CLASS_NAME(x)   GET_CLASS(x)
+#  define SET_CLASS_NAME(x,n) SET_CLASS(x, n)
+#else
+#  define SET_ROWNAMES(df,n)  error("un-implemented macro SET_ROWNAMES")
+#  define SET_CLASS_NAME(x,n) error("un-implemented macro SET_CLASS_NAME")
+#endif
+
 /* end of RS-DBI macros */
 
 #ifdef __cplusplus

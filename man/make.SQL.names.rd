@@ -72,9 +72,8 @@ for(i in seq(along = export) )
    assignTable(con, name = tabs[i],  get(export[i]))
 }
 }
-\keyword{manip }
-\keyword{data }
-\keyword{database }
-\keyword{ RS-DBI}
+\keyword{interface}
+\keyword{database}
 % docclass is function
 % Converted by Sd2Rd version 1.15.2.1.
+% vim: syntax=tex

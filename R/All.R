@@ -1,5 +1,5 @@
 ## This file defines some functions that mimic S4 functionality,
-## namely:  new, as, show
+## namely:  new, as, show.
 
 usingR <- function(major=0, minor=0){
   if(is.null(version$language))
@@ -9,10 +9,18 @@ usingR <- function(major=0, minor=0){
   version$major>=major && version$minor>=minor
 }
 
+## constant holding the appropriate error class returned by try() 
+if(usingR()){
+  ErrorClass <- "try-error"
+} else {
+  ErrorClass <- "Error"  
+}
+
 as <- function(object, classname)
 {
   get(paste("as", as.character(classname), sep = "."))(object)
 }
+
 new <- function(classname, ...)
 {
   if(!is.character(classname))
@@ -20,14 +28,17 @@ new <- function(classname, ...)
   class(classname) <- classname
   UseMethod("new")
 }
+
 new.default <- function(classname, ...)
 {
   structure(list(...), class = unclass(classname))
 }
+
 show <- function(object, ...)
 {
   UseMethod("show")
 }
+
 show.default <- function(object)
 {
    print(object)
@@ -150,7 +161,7 @@ setDataMappings <- function(res, ...)
 {
   UseMethod("setDataMappings")
 }
-close.resultSet <- function(con, type)
+close.resultSet <- function(con, ...)
 {
   stop("close method for dbResultSet objects need to be written")
 }
@@ -265,7 +276,7 @@ getDatabases <- function(obj, ...)
 {
   UseMethod("getDatabases")
 }
-getTables <- function(obj, dbname, ...) 
+getTables <- function(obj, dbname, row.names, ...) 
 {
   UseMethod("getTables")
 }
@@ -298,9 +309,9 @@ new.dbObjectId <- function(Id, ...)
 ## Coercion: the trick as(dbObject, "integer") is very useful
 ## (in R this needs to be define for each of the "mixin" classes -- Grr!)
 as.integer.dbObjectId <- 
-function(object)
+function(x, ...)
 {
-  as.integer(object$Id)
+  as.integer(x$Id)
 }
 
 "isIdCurrent" <- 
@@ -312,16 +323,16 @@ function(obj)
 }
 
 "format.dbObjectId" <- 
-function(x)
+function(x, ...)
 {
   id <- as(x, "integer")
   paste("(", paste(id, collapse=","), ")", sep="")
 }
 "print.dbObjectId" <- 
-function(obj)
+function(x, ...)
 {
-  str <- paste(class(obj), " id = ", format(obj), sep="")
-  if(isIdCurrent(obj))
+  str <- paste(class(x), " id = ", format(x), sep="")
+  if(isIdCurrent(x))
     cat(str, "\n")
   else
     cat("Expired", str, "\n")
@@ -335,10 +346,39 @@ function(obj)
 {
   UseMethod("getTable")
 }
-"getTable.dbConnection" <- function(con, name, ...)
+
+"getTable.dbConnection" <- 
+function(con, name, row.names = "row.names", check.names = T, ...)
+## Should we also allow row.names to be a character vector (as in read.table)?
+## is it "correct" to set the row.names of output data.frame?
+## Use NULL, "", or 0 as row.names to prevent using any field as row.names.
 {
-    quickSQL(con, paste("SELECT * from", name))
+  out <- quickSQL(con, paste("SELECT * from", name))
+  if(check.names)
+     names(out) <- make.names(names(out), unique = T)
+  ## should we set the row.names of the output data.frame?
+  nms <- names(out)
+  j <- switch(mode(row.names),
+         "character" = if(row.names=="") 0 else
+                       match(tolower(row.names), tolower(nms), 
+                             nomatch = if(missing(row.names)) 0 else -1),
+         "numeric" = row.names,
+         "NULL" = 0,
+         0)
+  if(j==0) 
+     return(out)
+  if(j<0 || j>ncol(out)){
+     warning("row.names not set on output data.frame (non-existing field)")
+     return(out)
+  }
+  rnms <- as.character(out[,j])
+  if(all(!duplicated(rnms))){
+      out <- out[,-j, drop = F]
+      row.names(out) <- rnms
+  } else warning("row.names not set on output (duplicate elements in field)")
+  out
 } 
+
 "existsTable" <- function(con, name, ...)
 {
   UseMethod("existsTable")
@@ -346,7 +386,7 @@ function(obj)
 "existsTable.dbConnection" <- function(con, name, ...)
 {
     ## name is an SQL (not an R/S!) identifier.
-    match(name, getTables(con)[,1], nomatch = 0) > 0
+    match(name, getTables(con), nomatch = 0) > 0
 }
 "removeTable" <- function(con, name, ...)
 {
@@ -361,7 +401,7 @@ function(obj)
   else  FALSE
 }
 
-"assignTable" <- function(con, name, value, ...)
+"assignTable" <- function(con, name, value, row.names, ...)
 {
   UseMethod("assignTable")
 }
@@ -505,9 +545,9 @@ function(max.con=10, fetch.default.rec = 500, force.reload=F)
   new("MySQLManager", Id = id)
 }
 
-as.integer.dbObjectId <- function(object)
+as.integer.dbObjectId <- function(x, ...)
 {
-  object <- object$Id
+  x <- x$Id
   NextMethod("as.integer")
 }
 as.MySQLManager <- function(object)
@@ -540,7 +580,7 @@ dbConnect.default <- function(mgr, ...)
 }
 getConnections.MySQLManager <- function(mgr, ...)
 {
-   getInfo(m, what = "connectionIds")
+   getInfo(mgr, what = "connectionIds")
 }
 getManager.MySQLConnection <- getManager.MySQLResultSet <-
 function(obj, ...)
@@ -593,7 +633,7 @@ getFields.MySQLResultSet <- function(res)
   flds <- getInfo.MySQLResultSet(res, "fieldDescription")[[1]]
   flds$Sclass <- .Call("RS_DBI_SclassNames", flds$Sclass)
   flds$type <- .Call("RS_MySQL_getFieldTypeNames", flds$type)
-  data.frame(flds)
+  structure(flds, row.names = paste(seq(along=flds$type)), class="data.frame")
 }
 
 getRowsAffected.MySQLResultSet <- function(object)
@@ -608,7 +648,7 @@ hasCompleted.MySQLResultSet <- function(object)
 getException.MySQLResultSet <- function(object)
 {
   id <- as.integer(object)
-  .Call("S_MySQL_getException", id[1:2])
+  .Call("RS_MySQL_getException", id[1:2])
 }
 
 getCurrentDatabase.MySQLConnection <- function(object, ...)
@@ -624,8 +664,8 @@ getDatabases.MySQLConnection <- function(obj, ...)
 getTables.MySQLConnection <- function(object, dbname, ...)
 {
   if (missing(dbname))
-    quickSQL(object, "show tables")
-  else quickSQL(object, paste("show tables from", dbname))
+    quickSQL(object, "show tables")[,1]
+  else quickSQL(object, paste("show tables from", dbname))[,1]
 }
 
 getTableFields.MySQLResultSet <- function(object, table, dbname, ...)
@@ -650,16 +690,22 @@ getTableIndices.MySQLConnection <- function(obj, table, dbname, ...)
 }
 
 "assignTable.MySQLConnection" <-
-function(con, name, value, field.types, rownames = T, 
+function(con, name, value, field.types, row.names = T, 
   overwrite=F, append=F, ...)
 ## TODO: This function should execute its sql as a single transaction,
 ## and allow converter functions.
 ## Create table "name" (must be an SQL identifier) and populate
 ## it with the values of the data.frame "value"
+## BUG: In the unlikely event that value has a field called "row.names"
+## we could inadvertently overwrite it (here the user should set row.names=F)
+## (I'm reluctantly adding the code re: row.names -- I'm not 100% comfortable
+## using data.frames as the basic data for relations.)
 {
+  if(overwrite && append)
+    stop("overwrite and append cannot both be TRUE")
   if(!is.data.frame(value))
     value <- as.data.frame(value)
-  if(rownames)
+  if(row.names)
     value$row.names <- row.names(value)
   if(missing(field.types) || is.null(field.types)){
     ## the following mapping should be coming from some kind of table
@@ -669,8 +715,18 @@ function(con, name, value, field.types, rownames = T,
   i <- match("row.names", names(field.types), nomatch=0)
   if(i>0) ## did we add a row.names value?  If so, it's a text field.
     field.types[i] <- SQLDataType(mgr=con, field.types$row.names)
-  names(field.types) <- make.SQL.names(names(field.types))
-  if( existsTable(con, name) ){
+  names(field.types) <- make.SQL.names(names(field.types), allow.keywords=F)
+
+  ## Do we need to clone the connection (ie., if it is in use)?
+  if(length(getResultSets(con))!=0){ 
+    new.con <- dbConnect(con)              ## there's pending work, so clone
+    on.exit(close(new.con))
+  } 
+  else {
+    new.con <- con
+  }
+
+  if(existsTable(con,name)){
     if(overwrite){
       if(!removeTable(con, name)){
         warning(paste("table", name, "couldn't be overwritten"))
@@ -678,37 +734,46 @@ function(con, name, value, field.types, rownames = T,
       }
     }
     else if(!append){
-      warning(paste("table", name, "exists in database: aborting copying"))
+      warning(paste("table", name, "exists in database: aborting assignTable"))
       return(F)
     }
+  } 
+  if(!existsTable(con,name)){      ## need to re-test table for existance 
+    ## need to create a new (empty) table
+    sql1 <- paste("create table ", name, "\n(\n\t", sep="")
+    sql2 <- paste(paste(names(field.types), field.types), collapse=",\n\t")
+    sql3 <- "\n)\n"
+    sql <- paste(sql1, sql2, sql3, collapse="")
+    rs <- try(dbExecStatement(new.con, sql))
+    if(inherits(rs, ErrorClass)){
+      warning("could not create table: aborting assignTable")
+      return(F)
+    } 
+    else 
+      close(rs)
   }
-  sql1 <- paste("create table ", name, "\n(\n\t", sep="")
-  sql2 <- paste(paste(names(field.types), field.types), collapse=",\n\t")
-  sql3 <- "\n)\n"
-  sql <- paste(sql1, sql2, sql3, collapse="")
-  fn <- tempfile("rsdbi")
+
   ## TODO: here, we should query the MySQL to find out if it supports
   ## LOAD DATA thru pipes; if so, should open the pipe instead of a file.
+
+  fn <- tempfile("rsdbi")
   if(usingR())
-    write.table(value, file = fn, quote = F, sep="\t", row.names=F, col.names=F)
+    write.table(value, file = fn, quote = F, sep="\t", 
+                na = .MySQL.NA.string, row.names=F, col.names=F, eol = '\n')
   else
-    write.table(value, file = fn, quote.string = F, sep="\t", dimnames.write=F)
-  on.exit(unlink(fn))
-  if(length(getResultSets(con))!=0){
-    new.con <- dbConnect(con)
-    on.exit(close(new.con), add = TRUE)
-  } else new.con <- con
-  rs <- try(dbExecStatement(new.con, sql))
-  if(inherits(rs, "Error") || inherits(rs,"try-error")){
-    return(F)
-  } else close(rs)
-  sql4 <- paste("LOAD DATA LOCAL INFILE '", fn, 
-                "' INTO TABLE ", name, sep="")
+    write.table(value, file = fn, quote.string = F, sep="\t", 
+                na = .MySQL.NA.string, dimnames.write=F, end.of.row = '\n')
+  on.exit(unlink(fn), add = T)
+  sql4 <- paste("LOAD DATA LOCAL INFILE '", fn, "'",
+                " INTO TABLE ", name, 
+                " LINES TERMINATED BY '\n' ", sep="")
   rs <- try(dbExecStatement(new.con, sql4))
-  if(inherits(rs, "Error")){
+  if(inherits(rs, ErrorClass)){
     warning("could not load data into table")
     return(F)
-  } else close(rs)
+  } 
+  else 
+    close(rs)
   TRUE
 }
 
@@ -764,9 +829,11 @@ function(obj, ...)
 ## S4 idioms left, but few).
 ##
 
+.MySQL.NA.string <- "\\N"  ## on input, MySQL interprets \N as NULL (NA)
+
 if(usingR()){
   format.MySQLManager <- format.MySQLConnection <-
-  format.MySQLResultSet <- function(x){
+  format.MySQLResultSet <- function(x, ...){
     format.dbObjectId(x)
   }
   print.MySQLManager <- print.MySQLConnection <-
@@ -774,8 +841,8 @@ if(usingR()){
     print.dbObjectId(x, ...)
   }
   as.integer.MySQLManager <- as.integer.MySQLConnection <-
-  as.integer.MySQLResultSet <- function(object){
-     as.integer(object$Id)
+  as.integer.MySQLResultSet <- function(x, ...){
+     as.integer(x$Id)
   }
   as.MySQLManager <- function(obj){
      new("MySQLManager", Id =as(obj,"integer")[1])
@@ -805,7 +872,7 @@ function(max.con = 16, fetch.default.rec = 500, force.reload=F)
 {
   config.params <- as.integer(c(max.con, fetch.default.rec))
   force <- as.logical(force.reload)
-  .Call("RS_MySQL_init", config.params, force)
+  .Call("RS_MySQL_init", config.params, force, PACKAGE = "RMySQL")
 }
 
 "describe.MySQLManager" <-
@@ -836,14 +903,14 @@ function(obj, verbose = F, ...)
 function(mgr, ...)
 {
   mgrId <- as(mgr, "integer")
-  .Call("RS_MySQL_closeManager", mgrId)
+  .Call("RS_MySQL_closeManager", mgrId, PACKAGE = "RMySQL")
 }
 
 "getInfo.MySQLManager" <- 
 function(obj, what="", ...)
 {
   mgrId <- as(obj, "integer")[1]
-  info <- .Call("RS_MySQL_managerInfo", mgrId)  
+  info <- .Call("RS_MySQL_managerInfo", mgrId, PACKAGE = "RMySQL")  
   mgrId <- info$managerId
   ## replace mgr/connection id w. actual mgr/connection objects
   conObjs <- vector("list", length = info$"num_con")
@@ -889,7 +956,7 @@ function(mgr, dbname = "", username="",
 			       client.flag))
   groups <- as.character(groups)
   mgrId <- as(mgr, "integer")
-  .Call("RS_MySQL_newConnection", mgrId, con.params, groups)
+  .Call("RS_MySQL_newConnection", mgrId, con.params, groups, PACKAGE = "RMySQL")
 }
 
 ## functions/methods not implementable
@@ -930,7 +997,7 @@ function(obj, verbose = F, ...)
 function(con, ...)
 {
   conId <- as(con, "integer")
-  .Call("RS_MySQL_closeConnection", conId)
+  .Call("RS_MySQL_closeConnection", conId, PACKAGE = "RMySQL")
 }
 
 "getInfo.MySQLConnection" <-
@@ -939,7 +1006,7 @@ function(obj, what="", ...)
   if(!isIdCurrent(obj))
     stop(paste("expired", class(obj), deparse(substitute(obj))))
   id <- as(obj, "integer")
-  info <- .Call("RS_MySQL_connectionInfo", id)
+  info <- .Call("RS_MySQL_connectionInfo", id, PACKAGE = "RMySQL")
   if(length(info$rsId)){
     rsId <- vector("list", length = length(info$rsId))
     for(i in seq(along = info$rsId))
@@ -966,7 +1033,7 @@ function(con, statement)
 {
   conId <- as(con, "integer")
   statement <- as(statement, "character")
-  rsId <- .Call("RS_MySQL_exec", conId, statement)
+  rsId <- .Call("RS_MySQL_exec", conId, statement, PACKAGE = "RMySQL")
 #  out <- new("MySQLdbResult", Id = rsId)
 #  if(getInfo(out, what="isSelect")
 #    out <- new("MySQLResultSet", Id = rsId)
@@ -1003,6 +1070,106 @@ quickSQL.MySQLConnection <- function(con, statement)
   res
 }
 
+## Experimental dbApply (should it be seqApply?)
+dbApply <- function(rs, ...)
+{
+   UseMethod("dbApply")
+}
+
+"dbApply.MySQLResultSet" <- 
+function(rs, INDEX, FUN = stop("must specify FUN"), 
+         begin = NULL, 
+         group.begin =  NULL, 
+         new.record = NULL, 
+         end = NULL, 
+         batchSize = 100, maxBatch = 1e6, 
+         ..., simplify = T)
+## (Experimental)
+## This function is meant to handle somewhat gracefully(?) large amounts 
+## of data from the DBMS by bringing into R manageable chunks (about 
+## batchSize records at a time, but not more than maxBatch); the idea
+## is that the data from individual groups can be handled by R, but
+## not all the groups at the same time.  
+##
+## dbApply apply functions to groups of rows coming from a remote
+## database resultSet upon the following fetching events: 
+##   begin         (prior to fetching the first record)
+##   group.begin   (the record just fetched begins a new group)
+##   new_record    (a new record just fetched)
+##   group.end     (the record just fetched ends the current group)
+##   end           (the record just fetched is the very last record)
+##
+## The "begin", "begin.group", etc., specify R functions to be
+## invoked upon the corresponding events.  (For compatibility 
+## with other apply functions the arg FUN is used to specify the
+## most common case where we only specify the "group.end" event.)
+## 
+## The following describes the exact order and form of invocation for the
+## various callbacks in the underlying  C code.  All callback function 
+## (except FUN) are optional.
+##  begin()
+##    group.begin(group.name)   
+##    new.record(df.record)
+##    FUN(df.group, group.name)   (aka group.end)
+##  end()
+##
+## TODO: (1) add argument output=F/T to suppress the creation of
+##           an expensive(?) output list.
+##       (2) allow INDEX to be a list as in tapply()
+##       (3) should we implement a simplify argument, as in sapply()?
+##       (4) should report (instead of just warning) when we're forced
+##           to handle partial groups (groups larger than maxBatch).
+##       (5) extend to the case where even individual groups are too
+##           big for R (as in incrementatl quantiles).
+##       (6) Highly R-dependent, not sure yet how to port it to S-plus.
+{
+   if(hasCompleted(rs))
+      stop("result set has completed")
+   if(is.character(INDEX)){
+      flds <- tolower(as.character(getFields(rs)$name))
+      INDEX <- match(tolower(INDEX[1]), flds, 0)
+   }
+   if(INDEX<1)
+      stop(paste("INDEX field", INDEX, "not in result set"))
+
+   "null.or.fun" <- function(fun) # get fun obj, but a NULL is ok 
+   {
+      if(is.null(fun)) 
+         fun 
+      else 
+         match.fun(fun)
+   }
+   begin <- null.or.fun(begin)
+   group.begin <- null.or.fun(group.begin)
+   group.end <- null.or.fun(FUN)     ## probably this is the most important
+   end <- null.or.fun(end)
+   new.record <- null.or.fun(new.record)
+   rsId <- as(rs, "integer")
+   con <- getConnection(rs)
+   on.exit({
+      rc <- getException(con)
+      if(!is.null(rc$errorNum) && rc$errorNum!=0)
+         cat("dbApply aborted with MySQL error ", rc$errorNum,
+             " (", rc$errorMsg, ")\n", sep = "")
+
+      })
+   ## BEGIN event handler (re-entrant, only prior to reading first row)
+   if(!is.null(begin) && getRowCount(rs)==0) 
+      begin()
+   rho <- environment()
+   funs <- list(begin = begin, end = end,
+                group.begin = group.begin,
+                group.end = group.end, new.record = new.record)
+   out <- .Call("RS_MySQL_dbApply",
+	        rs = rsId,
+		INDEX = as.integer(INDEX-1),
+		funs, rho, as.integer(batchSize), as.integer(maxBatch),
+                PACKAGE = "RMySQL")
+   if(!is.null(end) && hasCompleted(rs))
+      end()
+   out
+}
+
 "fetch.MySQLResultSet" <- 
 function(res, n=0)   
 ## Fetch at most n records from the opened resultSet (n = -1 means
@@ -1020,7 +1187,7 @@ function(res, n=0)
 {    
   n <- as(n, "integer")
   rsId <- as(res, "integer")
-  rel <- .Call("RS_MySQL_fetch", rsId, nrec = n)
+  rel <- .Call("RS_MySQL_fetch", rsId, nrec = n, PACKAGE = "RMySQL")
   if(length(rel)==0 || length(rel[[1]])==0) 
     return(NULL)
   ## create running row index as of previous fetch (if any)
@@ -1041,9 +1208,9 @@ function(res, n=0)
 function(obj, what = "", ...)
 {
   if(!isIdCurrent(obj))
-    stop(paste("expired", class(obj), deparser(substitute(obj))))
+    stop(paste("expired", class(obj), deparse(substitute(obj))))
    id <- as(obj, "integer")
-   info <- .Call("RS_MySQL_resultSetInfo", id)
+   info <- .Call("RS_MySQL_resultSetInfo", id, PACKAGE = "RMySQL")
    if(length(what)==1 && what=="")
      return(info)
    info <- info[what]
@@ -1094,7 +1261,7 @@ function(obj, verbose = F, ...)
 function(con, ...)
 {
   rsId <- as(con, "integer")
-  .Call("RS_MySQL_closeResultSet", rsId)
+  .Call("RS_MySQL_closeResultSet", rsId, PACKAGE = "RMySQL")
 }
 
 .conflicts.OK <- TRUE

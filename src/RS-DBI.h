@@ -30,6 +30,8 @@ extern "C" {
 
 #include "S4R.h"
 
+pid_t getpid(); 
+
 /* We now define 4 important data structures:
  * RS_DBI_manager, RS_DBI_connection, RS_DBI_resultSet, and
  * RS_DBI_fields, corresponding to dbManager, dbConnection,
@@ -209,6 +211,7 @@ void  RS_DBI_allocOutput(s_object *output,
 			RS_DBI_fields *flds,
 			Sint num_rec,
 			Sint expand);
+void RS_DBI_makeDataFrame(s_object *data);
 
 /* TODO: We need to elevate RS_DBI_errorMessage to either
  * dbManager and/or dbConnection methods.  I still need to 

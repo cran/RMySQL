@@ -10,14 +10,11 @@ This is only needed for non-primitive data, since all RS-DBI drivers
 handle the common base types (integers, numeric, strings, etc.)
 }
 \usage{
-setDataMappings(res, flds, ...)
+setDataMappings(res, ...)
 }
 \arguments{
 \item{res}{
 a \code{dbResultSet} object as returned by \code{dbExecStatement}.
-}
-\item{flds}{
-a field description object as returned by \code{getFields}.
 }
 \item{\dots }{
 any additional arguments are passed to the implementing method.
@@ -59,11 +56,8 @@ setDataMappings(rs, flds)
 im <- fetch(rs, n = -1)
 }
 }
-\keyword{RS-DBI}
-\keyword{MySQL}
-\keyword{databases}
-\keyword{RDBMS}
-\keyword{manip}
-\keyword{}
+\keyword{interface}
+\keyword{database}
 % docclass is function
 % Converted by Sd2Rd version 1.15.2.1.
+% vim:syntax=tex

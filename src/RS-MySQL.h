@@ -25,7 +25,7 @@ extern  "C" {
 
 #include <mysql.h>
 #include <mysql_com.h>
-#include "getopt.h"             /* NOTE: this comes from msql/include */
+#include "getopt.h"             /* NOTE: this comes from mysql/include */
 #include <string.h>
 
 #include "RS-DBI.h"

@@ -384,26 +384,92 @@ RS_DBI_freeFields(RS_DBI_fields *flds)
   return;
 }
 
+/* Make a data.frame from a named list by adding row.names, and class 
+ * attribute.  Use "1", "2", .. as row.names.
+ * NOTE: Only tested  under R (not tested at all under S4 or Splus5+).
+ */
+void
+RS_DBI_makeDataFrame(s_object *data)
+{
+   S_EVALUATOR
+
+   s_object *row_names, *df_class_name; 
+#ifndef USING_R
+   s_object *S_RowNamesSymbol;       /* mimic Rinternal.h R_RowNamesSymbol */
+   s_object *S_ClassSymbol;
+#endif
+   Sint   i, n;
+   char   buf[1024];
+   
+   if(IS_LIST(data))
+      data = AS_LIST(data);
+   else {
+      char *errMsg="internal error: could not corce named-list into data.frame";
+      RS_DBI_errorMessage(errMsg, RS_DBI_ERROR);
+   }
+
+   MEM_PROTECT(data);
+   MEM_PROTECT(df_class_name = NEW_CHARACTER((Sint) 1));
+   SET_CHR_EL(df_class_name, 0, C_S_CPY("data.frame"));
+
+   /* row.names */
+   n = GET_LENGTH(LST_EL(data,0));            /* length(data[[1]]) */
+   MEM_PROTECT(row_names = NEW_CHARACTER(n));
+   for(i=0; i<n; i++){
+      (void) sprintf(buf, "%d", i+1);
+      SET_CHR_EL(row_names, i, C_S_CPY(buf));
+   }
+#ifdef USING_R
+   SET_ROWNAMES(data, row_names);
+   SET_CLASS_NAME(data, df_class_name);
+#else
+   /* untested S4/Splus code */
+   MEM_PROTECT(S_RowNamesSymbol = NEW_CHARACTER((Sint) 1));
+   SET_CHR_EL(S_RowNamesSymbol, 0, C_S_CPY("row.names"));
+
+   MEM_PROTECT(S_ClassSymbol = NEW_CHARACTER((Sint) 1));
+   SET_CHR_EL(S_ClassSymbol, 0, C_S_CPY("class"));
+   /* Note: the fun attribute() is just an educated guess as to 
+    * which function to use for setting attributes (see S.h) 
+    */
+   (void) attribute(data, S_ClassSymbol, df_class_name); 
+   MEM_UNPROTECT(2);
+#endif
+   MEM_UNPROTECT(3);
+   return;
+}
+
 void
 RS_DBI_allocOutput(s_object *output, RS_DBI_fields *flds,
 		   Sint num_rec, Sint  expand)
 {
-  s_object *names;
-  Sint   num_fields;
+  s_object *names, *s_tmp;
+  Sint   j, num_fields;
   Stype  *fld_Sclass;
-  int    j;
 
-  if(IS_LIST(output))
+  if(IS_LIST(output)){
     output = AS_LIST(output);
+  }
   else {
     char *errMsg = "internal error: could not (re)allocate output list";
     RS_DBI_errorMessage(errMsg, RS_DBI_ERROR);
   }
+
+  MEM_PROTECT(output);
+
   num_fields = flds->num_fields;
   if(expand){
-    for(j = 0; j < num_fields; j++)
-      SET_LENGTH(LST_EL(output,j), num_rec);
-    output = AS_LIST(output);
+    for(j = 0; j < num_fields; j++){
+      /* Note that in R-1.2.3 (at least) we need to protect SET_LENGTH */
+      s_tmp = LST_EL(output,j);
+      MEM_PROTECT(SET_LENGTH(s_tmp, num_rec));  
+      SET_ELEMENT(output, j, s_tmp);
+      MEM_UNPROTECT(1);
+    }
+#ifndef USING_R
+    output = AS_LIST(output);    /* this is only for S4's sake */
+#endif
+    MEM_UNPROTECT(1);
     return;
   }
 
@@ -411,23 +477,23 @@ RS_DBI_allocOutput(s_object *output, RS_DBI_fields *flds,
   for(j = 0; j < num_fields; j++){
     switch((int)fld_Sclass[j]){
     case LOGICAL_TYPE:    
-      SET_ELEMENT(output, (Sint) j, NEW_LOGICAL(num_rec));
+      SET_ELEMENT(output, j, NEW_LOGICAL(num_rec));
       break;
     case CHARACTER_TYPE:
-      SET_ELEMENT(output, (Sint) j, NEW_CHARACTER(num_rec));
+      SET_ELEMENT(output, j, NEW_CHARACTER(num_rec));
       break;
     case INTEGER_TYPE:
-      SET_ELEMENT(output, (Sint) j, NEW_INTEGER(num_rec));
+      SET_ELEMENT(output, j, NEW_INTEGER(num_rec));
       break;
     case NUMERIC_TYPE:
-      SET_ELEMENT(output, (Sint) j, NEW_NUMERIC(num_rec));
+      SET_ELEMENT(output, j, NEW_NUMERIC(num_rec));
       break;
     case LIST_TYPE:
-      SET_ELEMENT(output, (Sint) j, NEW_LIST(num_rec));
+      SET_ELEMENT(output, j, NEW_LIST(num_rec));
       break;
 #ifndef USING_R
     case RAW:  /* we use a list as a container for raw objects */
-      SET_ELEMENT(output, (Sint) j, NEW_LIST(num_rec));
+      SET_ELEMENT(output, j, NEW_LIST(num_rec));
       break;
 #endif
     default:
@@ -435,15 +501,18 @@ RS_DBI_allocOutput(s_object *output, RS_DBI_fields *flds,
     }
   }
 
-  MEM_PROTECT(names = NEW_CHARACTER( (Sint) num_fields));
-  for(j = 0; j<num_fields; j++)
-    /* CHR_EL(names,j) = C_S_CPY(fld_names[j]); */
+  MEM_PROTECT(names = NEW_CHARACTER(num_fields));
+  for(j = 0; j<num_fields; j++){
     SET_CHR_EL(names,j, C_S_CPY(flds->name[j]));
+  }
   SET_NAMES(output, names);
-  output = AS_LIST(output);
-  MEM_UNPROTECT(1);
+#ifndef USING_R
+  output = AS_LIST(output);   /* again this is required only for S4 */
+#endif
+
+  MEM_UNPROTECT(2);
   
-return;
+  return;
 }
 
 s_object * 		/* boolean */
@@ -451,7 +520,7 @@ RS_DBI_validHandle(Db_Handle *handle)
 { 
    S_EVALUATOR
    s_object  *valid;
-   int  handleType;
+   int  handleType = 0;
 
    switch( (int) GET_LENGTH(handle)){
    case MGR_HANDLE_TYPE:
@@ -611,7 +680,7 @@ s_object *
 RS_DBI_createNamedList(char **names, Stype *types, Sint *lengths, Sint  n)
 {
   S_EVALUATOR
-  s_object *output, *output_names, *obj;
+  s_object *output, *output_names, *obj = S_NULL_ENTRY;
   Sint  num_elem;
   int   j;
 
@@ -1101,31 +1170,39 @@ RS_DBI_makeSQLNames(s_object *snames)
    return snames;
 }
 #ifdef USING_R
-/*  These are used by the C macros IS_NA(p,t) and NA_SET(p,t)
- *  (the corresponding S/Splus versions are defined in S4R.h)
+/*  These 2 R-specific functions are used by the C macros IS_NA(p,t) 
+ *  and NA_SET(p,t) (in this way one simply use macros to test and set
+ *  NA's regardless whether we're using R or S.
  */
 void
-RS_na_set(char *ptr, Stype type)
+RS_na_set(void *ptr, Stype type)
 {
+  double *d;
+  Sint   *i;
+  char   *c;
   switch(type){
   case INTEGER_TYPE:
-    *ptr = NA_INTEGER;
+    i = (Sint *) ptr;
+    *i = NA_INTEGER;
     break;
   case LOGICAL_TYPE:
-    *ptr = NA_LOGICAL;
+    i = (Sint *) ptr;
+    *i = NA_LOGICAL;
     break;
   case NUMERIC_TYPE:
-    *ptr = NA_REAL;
+    d = (double *) ptr;
+    *d = NA_REAL;
     break;
   case STRING_TYPE:
-    ptr = CHR_EL(NA_STRING, 0);
+    c = (char *) ptr;
+    c = CHR_EL(NA_STRING, 0);
     break;
   }
 }
 int
 RS_is_na(void *ptr, Stype type)
 {
-   int *i, out;
+   int *i, out = -2;
    char *c;
    double *d;
 

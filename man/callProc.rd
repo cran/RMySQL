@@ -20,4 +20,6 @@ additional arguments are passed to the implementing method.
 \details{
 Not yet implemented.
 }
-\keyword{manip}
+\keyword{interface}
+\keyword{database}
+% vim: syntax=tex

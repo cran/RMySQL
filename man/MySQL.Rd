@@ -10,9 +10,6 @@ It returns an object that allows you to connect
 to one or several MySQL servers.
 }
 \usage{
-dbManager("MySQL", max.con = 10, fetch.default.rec = 500,
-           force.reload = F)
-
 MySQL(max.con = 10, fetch.default.rec = 500, force.reload = F)
 }
 \arguments{
@@ -21,17 +18,17 @@ MySQL(max.con = 10, fetch.default.rec = 500, force.reload = F)
   This can be up to 100, a limit defined at compilation time.
   Strictly speaking this limit applies to MySQL \emph{servers},
   but clients can have (at least in theory) more than this.
-}
+  }
 \item{fetch.default.rec}{
   number of records to fetch at one time from the database.
   (The \code{fetch} method uses this number as a default.)
-}
+  }
 \item{force.reload}{
   should we reload (reinitialize) the client code?
   Setting this to \code{TRUE} allows you to change
   default settings.  Notice that all connections should be closed
   before re-loading.
-}
+  }
 }
 \value{
 An object \code{MySQLManager} that extends 
@@ -62,9 +59,8 @@ Since specifying passwords on calls to
 is a very bad idea (and so is specifying passwords through
 shell variables),
 the client code parses the configuration file \file{\$HOME/.my.cnf};
-this file consists of zero or
-more sections, each starting with a line of the form 
-\code{[section-name]}, for instance
+this file consists of zero or more sections, each starting with a 
+line of the form \code{[section-name]}, for instance
 
 \$ cat \$HOME/.my.cnf\cr
 \# this is a comment\cr
@@ -85,7 +81,7 @@ host = merced\cr
 host = data\cr
 database = iptraffic\cr
 \cr
-This file should not be readeable by anybody but you. 
+This file should be readeable only by you. 
 Inside each section, MySQL parameters may be specified one per line
 (e.g., \code{user = opto}).  
 The R/S MySQL implementation always parses the \code{[client]}
@@ -178,10 +174,8 @@ MySQLManager id = (7269)
 > getTables(con)    
 }
 }
-\keyword{RS-DBI}
-\keyword{MySQL}
-\keyword{databases}
-\keyword{RDBMS}
-\keyword{manip}
+\keyword{interface}
+\keyword{database}
 % docclass is function
 % Converted by Sd2Rd version 1.15.2.1.
+% vim: syntax=tex

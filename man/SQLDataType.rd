@@ -36,8 +36,8 @@ ora <- dbManager("MySQL")
 sql.type <- SQLDataType(ora, x)
 }
 }
-\keyword{SQL}
-\keyword{data manip}
-\keyword{DBMS}
+\keyword{interface}
+\keyword{database}
 % docclass is function
 % Converted by Sd2Rd version 1.15.2.1.
+% vim: syntax=tex

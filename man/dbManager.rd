@@ -5,35 +5,35 @@
 }
 \description{
 This function creates an object that allows you to
-connect to the Relational Database Systems (RDBMS) 
+connect to the Database Systems (DBMS) 
 specified in its argument.
 }
 \usage{
-dbManager(mgr, ...)
+dbManager(obj, ...)
 }
 \arguments{
-\item{mgr}{
-a character string specifying the RDBMS, e.g., "MySQL", 
-"Oracle", "Informix". 
+\item{obj}{
+a character string specifying the DBMS, e.g., "MySQL", 
+"Oracle", "SQLite". 
 }
 \item{\dots }{
 additional parameters may be specified for the actual database engine.
-E.g., the MySQL implementation allows you to specify the maximum 
+E.g., the Oracle implementation allows you to specify the maximum 
 number of open connection and a default maximum number of records 
 to be transferred from the database.
 See the individual manager functions for details,
-e.g., \code{MySQL}, 
-\code{Oracle}.
+e.g., \code{Oracle}, \code{MySQL},
+\code{SQLite}.
 }
 }
 \value{
 An object that extends \code{dbManager} and 
 \code{dbObjectId} in a database-specific manner.
-For instance \code{dbManager("MySQL")} produces
-an object of class \code{MySQLManager} and 
-is equivalent to using \code{MySQL}.
+For instance \code{dbManager("Oracle")} produces
+an object of class \code{OraManager} and 
+is equivalent to using \code{Oracle}.
 Similarly \code{dbManager("Oracle")} produces
-an \code{OracleManager} object and its equivalent
+an \code{OraManager} object and its equivalent
 to invoking \code{Oracle}.
 
 This object is required to create connections
@@ -91,10 +91,10 @@ On meta-data:
 \code{\link{getInfo}}
 }
 \examples{\dontrun{
-# create a MySQL instance and create one connection.
-> m <- dbManager("MySQL")
+# create a Oracle instance and create one connection.
+> m <- dbManager("Oracle")
 > m
-MySQLManager id = (7269) 
+OraManager id = (7269) 
 
 # open the connection using user, passsword, etc., as
 # specified in the file \file{\$HOME/.my.cnf}
@@ -102,7 +102,7 @@ MySQLManager id = (7269)
 
 # Let's look at the status of the manager
 > describe(m, verbose = F)   
-MySQLManager id = (7269) 
+OraManager id = (7269) 
   Max  connections: 16 
   Conn. processed: 1 
   Default records per fetch: 500 
@@ -115,14 +115,14 @@ MySQLManager id = (7269)
                       WHERE w.laser_id = p.laser_id
                       SORT BY w.laser_id")
 > rs
-MySQLResultSet id = (12629,1,3)
+OraResultSet id = (12629,1,3)
 
 # we now fetch records from the restulSet into a data.frame
 > data <- fetch(rs, n = -1)   # extract all rows
 > dim(data)
 [1] 1779  18
 
-# Extract meta-data information.  What MySQL databases are there 
+# Extract meta-data information.  What Ora databases are there 
 # available on host "wyner"
 > getDatabases(m, host = "wyner")
    Database 
@@ -142,10 +142,8 @@ MySQLResultSet id = (12629,1,3)
 5          liv85
 }
 }
-\keyword{RS-DBI}
-\keyword{MySQL}
-\keyword{databases}
-\keyword{RDBMS}
-\keyword{manip}
+\keyword{interface}
+\keyword{database}
 % docclass is function
 % Converted by Sd2Rd version 1.15.2.1.
+% vim:syntax=tex

@@ -7,47 +7,51 @@
 Fetch records from a previously executed SELECT statement
 }
 \usage{
-fetch(resultSet, n, ...)
+fetch(res, n, ...)
 }
 \arguments{
+
 \item{resultSet}{
-a \code{resultSet} object.
-This object needs to be the result of a \code{SELECT}
-or \code{SELECT}-like statement, as produced
-by \code{dbExec.}
-or \code{dbExecStatement.}
-SQL statements such as \code{INSERT}, \code{DELETE},
-do not create result sets.
-}
+  a \code{resultSet} object.
+  This object needs to be the result of a \code{SELECT}
+  or \code{SELECT}-like statement, as produced
+  by \code{dbExec.}
+  or \code{dbExecStatement.}
+  SQL statements such as \code{INSERT}, \code{DELETE},
+  do not create result sets.
+  }
 \item{n}{
-maximum number of records to retrieve per fetch.
-Use \code{n = -1} to retrieve all pending records.
-Some implementations may recognize other special values
-(RS-MySQL interprets \code{n = 0} to mean "use whatever
-default was set in the call to \code{MySQL}).
-}
+  maximum number of records to retrieve per fetch.
+  Use \code{n = -1} to retrieve all pending records.
+  Some implementations may recognize other special values
+  (RS-MySQL interprets \code{n = 0} to mean "use whatever
+  default was set in the call to \code{MySQL}).
+  }
 \item{\dots }{
-any other database-engine specific arguments.
+  any other database-engine specific arguments.
+  }
+
 }
-}
+
 \value{
-a data.frame with as many rows as records  were fetched
-and as many columns as fields in the result set.
+  a data.frame with as many rows as records  were fetched
+  and as many columns as fields in the result set.
 }
 \section{Side Effects}{
-As the R/S client fetches records the remote database server
-updates its cursor accordingly.
+  As the R/S client fetches records the remote database server
+  updates its cursor accordingly.
 }
 \details{
-See the notes for the various database server implementations.
+  See the notes for the various database server implementations.
 }
 \note{
-Make sure you close the result set with \code{close(resultSet)}
-as soon as you finish retrieving the records you want.
+  Make sure you close the result set with \code{close(resultSet)}
+  as soon as you finish retrieving the records you want.
+}
 \references{
-See the Omega Project for Statistical Computing
-(\url{http://www.omegahat.org})
-for details on the R/S interface to databases.
+  See the Omega Project for Statistical Computing
+  (\url{http://www.omegahat.org})
+  for details on the R/S interface to databases.
 }
 \seealso{
 On database managers:
@@ -110,10 +114,8 @@ MySQLResultSet id = (12629,1,3)
 > data2 <- fetch(rs, n = -1)
 }
 }
-\keyword{RS-DBI}
-\keyword{MySQL}
-\keyword{databases}
-\keyword{RDBMS}
-\keyword{manip}
+\keyword{interface}
+\keyword{database}
 % docclass is function
 % Converted by Sd2Rd version 1.15.2.1.
+% vim:syntax=tex
