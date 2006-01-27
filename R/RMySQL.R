@@ -131,7 +131,7 @@ function(obj)
 
 .MySQLRCS <- "$Id: MySQL.R,v 1.10 2003/12/02 16:39:46 dj Exp $"
 .MySQLPkgName <- "RMySQL"      ## should we set thru package.description()?
-.MySQLVersion <- "0.5-3"       ##package.description(.MySQLPkgName, fields = "Version")
+.MySQLVersion <- "0.5-4"       ##package.description(.MySQLPkgName, fields = "Version")
 .MySQL.NA.string <- "\\N"      ## on input, MySQL interprets \N as NULL (NA)
 
 setOldClass("data.frame")      ## to appease setMethod's signature warnings...
@@ -159,7 +159,7 @@ setClass("MySQLDriver", representation("DBIDriver", "MySQLObject"))
 
 ## coerce (extract) any MySQLObject into a MySQLDriver
 setAs("MySQLObject", "MySQLDriver", 
-   def = function(from) new("MySQLDriver", Id = as(from, "integer")[1])
+   def = function(from) new("MySQLDriver", Id = as(from, "integer")[1:2])
 )
 
 setMethod("dbUnloadDriver", "MySQLDriver",
@@ -264,6 +264,15 @@ setMethod("dbWriteTable",
    valueClass = "logical"
 )
 
+## write table from filename (TODO: connections)
+setMethod("dbWriteTable", 
+   signature(conn="MySQLConnection", name="character", value="character"),
+   def = function(conn, name, value, ...){
+      mysqlImportFile(conn, name, value, ...)
+   },
+   valueClass = "logical"
+)
+
 setMethod("dbExistsTable", 
    signature(conn="MySQLConnection", name="character"),
    def = function(conn, name, ...){
@@ -317,10 +326,10 @@ setMethod("dbCallProc", "MySQLConnection",
 setClass("MySQLResult", representation("DBIResult", "MySQLObject"))
 
 setAs("MySQLResult", "MySQLConnection",
-   def = function(from) new("MySQLConnection", Id = as(from, "integer")[1:2])
+   def = function(from) new("MySQLConnection", Id = as(from, "integer")[1:3])
 )
 setAs("MySQLResult", "MySQLDriver",
-   def = function(from) new("MySQLDriver", Id = as(from, "integer")[1])
+   def = function(from) new("MySQLDriver", Id = as(from, "integer")[1:2])
 )
 
 setMethod("dbClearResult", "MySQLResult", 
@@ -538,7 +547,7 @@ function(obj, what="", ...)
 function(drv, dbname = "", username="",
    password="", host="",
    unix.socket = "", port = 0, client.flag = 0, 
-   groups = NULL)
+   groups = NULL, default.file = character(0))
 {
    if(!isIdCurrent(drv))
       stop("expired manager")
@@ -546,9 +555,14 @@ function(drv, dbname = "", username="",
                                 dbname, unix.socket, port, 
                                 client.flag))
    groups <- as.character(groups)
+   if(length(default.file)==1){
+      default.file <- file.path(dirname(default.file), basename(default.file))
+      if(!file.exists(default.file))
+         stop(sprintf("mysql default file %s does not exist", default.file))
+   }
    drvId <- as(drv, "integer")
    conId <- .Call("RS_MySQL_newConnection", drvId, con.params, groups, 
-               PACKAGE = .MySQLPkgName)
+               default.file, PACKAGE = .MySQLPkgName)
    new("MySQLConnection", Id = conId)
 }
 
@@ -850,7 +864,7 @@ function(res, ...)
 }
 
 "mysqlReadTable" <- 
-function(con, name, row.names = "row.names", check.names = TRUE, ...)
+function(con, name, row.names = "row_names", check.names = TRUE, ...)
 ## Use NULL, "", or 0 as row.names to prevent using any field as row.names.
 {
    out <- dbGetQuery(con, paste("SELECT * from", name))
@@ -879,6 +893,94 @@ function(con, name, row.names = "row.names", check.names = TRUE, ...)
    out
 } 
 
+"mysqlImportFile" <-
+function(con, name, value, field.types = NULL, overwrite = FALSE, 
+  append = FALSE, header, row.names, nrows = 50, sep = ",", 
+  eol="\n", skip = 0, quote = '"', ...)
+{
+  if(overwrite && append)
+    stop("overwrite and append cannot both be TRUE")
+
+  ## Do we need to clone the connection (ie., if it is in use)?
+  if(length(dbListResults(con))!=0){ 
+    new.con <- dbConnect(con)              ## there's pending work, so clone
+    on.exit(dbDisconnect(new.con))
+  } 
+  else 
+    new.con <- con
+
+  if(dbExistsTable(con,name)){
+    if(overwrite){
+      if(!dbRemoveTable(con, name)){
+        warning(paste("table", name, "couldn't be overwritten"))
+        return(FALSE)
+      }
+    }
+    else if(!append){
+      warning(paste("table", name, "exists in database: aborting dbWriteTable"))
+      return(FALSE)
+    }
+  }
+
+  ## compute full path name (have R expand ~, etc)
+  fn <- file.path(dirname(value), basename(value))
+  if(missing(header) || missing(row.names)){
+    f <- file(fn, open="r")
+    if(skip>0) 
+      readLines(f, n=skip)
+    flds <- count.fields(textConnection(readLines(f, n=2)), sep)
+    close(f)
+    nf <- length(unique(flds))
+  }
+  if(missing(header)){
+    header <- nf==2
+  }
+  if(missing(row.names)){
+    if(header)
+      row.names <- if(nf==2) TRUE else FALSE
+    else
+      row.names <- FALSE
+  }
+
+  new.table <- !dbExistsTable(con, name)
+  if(new.table){
+    ## need to init table, say, with the first nrows lines
+    d <- read.table(fn, sep=sep, header=header, skip=skip, nrows=nrows, ...)
+    sql <- 
+      dbBuildTableDefinition(new.con, name, obj=d, field.types = field.types,
+        row.names = row.names)
+    rs <- try(dbSendQuery(new.con, sql))
+    if(inherits(rs, ErrorClass)){
+      warning("could not create table: aborting sqliteImportFile")
+      return(FALSE)
+    } 
+    else 
+      dbClearResult(rs)
+  }
+  else if(!append){
+    warning(sprintf("table %s already exists -- use append=TRUE?", name))
+  }
+
+  fmt <- 
+     paste("LOAD DATA LOCAL INFILE '%s' INTO TABLE  %s ",
+           "FIELDS TERMINATED BY '%s' ",
+           if(!is.null(quote)) "OPTIONALLY ENCLOSED BY '%s' " else "",
+           "LINES TERMINATED BY '%s' ",
+           "IGNORE %d LINES ", sep="")
+  if(is.null(quote))
+     sql <- sprintf(fmt, fn, name, sep, eol, skip + as.integer(header))
+  else
+     sql <- sprintf(fmt, fn, name, sep, quote, eol, skip + as.integer(header))
+
+  rs <- try(dbSendQuery(new.con, sql))
+  if(inherits(rs, ErrorClass)){
+     warning("could not load data into table")
+     return(FALSE)
+  } 
+  dbClearResult(rs)
+  TRUE
+}
+
 "mysqlWriteTable" <-
 function(con, name, value, field.types, row.names = TRUE, 
    overwrite = FALSE, append = FALSE, ..., allow.keywords = FALSE)
@@ -886,7 +988,7 @@ function(con, name, value, field.types, row.names = TRUE,
 ## it with the values of the data.frame "value"
 ## TODO: This function should execute its sql as a single transaction,
 ##       and allow converter functions.
-## TODO: In the unlikely event that value has a field called "row.names"
+## TODO: In the unlikely event that value has a field called "row_names"
 ##       we could inadvertently overwrite it (here the user should set 
 ##       row.names=F)  I'm (very) reluctantly adding the code re: row.names,
 ##       because I'm not 100% comfortable using data.frames as the basic 
@@ -974,6 +1076,31 @@ function(con, name, value, field.types, row.names = TRUE,
    TRUE
 }
 
+"dbBuildTableDefinition" <-
+function(dbObj, name, obj, field.types = NULL, row.names = TRUE, ...)
+{
+  if(!is.data.frame(obj))
+    obj <- as.data.frame(obj)
+  if(!is.null(row.names) && row.names){
+    obj  <- cbind(row.names(obj), obj)  ## can't use row.names= here
+    names(obj)[1] <- "row.names" 
+  }
+  if(is.null(field.types)){
+    ## the following mapping should be coming from some kind of table
+    ## also, need to use converter functions (for dates, etc.)
+    field.types <- sapply(obj, dbDataType, dbObj = dbObj)
+  } 
+  i <- match("row.names", names(field.types), nomatch=0)
+  if(i>0) ## did we add a row.names value?  If so, it's a text field.
+    field.types[i] <- dbDataType(dbObj, field.types$row.names)
+  names(field.types) <- 
+    make.db.names(dbObj, names(field.types), allow.keywords = FALSE)
+
+  ## need to create a new (empty) table
+  flds <- paste(names(field.types), field.types)
+  paste("CREATE TABLE", name, "\n(", paste(flds, collapse=",\n\t"), "\n)")
+}
+
 ## the following is almost exactly from the ROracle driver 
 "safe.write" <- 
 function(value, file, batch, ...)
@@ -985,6 +1112,8 @@ function(value, file, batch, ...)
       warning("no rows in data.frame")
       return(NULL)
    }
+   digits <- options(digits = 17)
+   on.exit(options(digits))
    if(missing(batch) || is.null(batch))
       batch <- 10000
    else if(batch<=0) 

@@ -1,9 +1,14 @@
 ##
-## Note that we need to link against the libmySQL.dll **NOT** the
-## libmysqlclient.lib (as in Linux/Unix).
+## NOTES: 
 ##
-## Change the drive/directory where mysql resides, as appropriate.
-
-PKG_CPPFLAGS = -Ic:/mysql/include 
-PKG_LIBS = -Lc:/mysql/lib/opt -lmysql -liberty
-
+## (1) Change the drive/directory where mysql resides, as appropriate.
+## (2) Make sure that the libmySQL.a that configure.win creates is visible
+##     (the configure.win script copies libmySQL.a to MySQL's lib/opt dir,
+##     but I don't understand why it is necessary, is it?).
+## (3) As of MySQL 5.0.18 (at least) MySQL installs into c:\Program Files, e.g.
+##       c:\Program Files\MySQL\MySQL Server 4.1\
+##       c:\Program Files\MySQL\MySQL Server 5.0\
+##     but we need to use paths w.o spaces (as per src/gnuwin32/README.packages)
+##     I used dir /x to obtain c:/PROGRA~1/MySQL/MYSQLS~1.0   
+PKG_CPPFLAGS = -Ic:/PROGRA~1/MySQL/MYSQLS~1.0/include
+PKG_LIBS = -Lc:/PROGRA~1/MySQL/MYSQLS~1.0/lib/opt -lmysql -liberty

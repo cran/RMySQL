@@ -74,7 +74,7 @@ data <- fetch(rs, n = -1)   # extract all rows
 dim(data)
 }
 }
-\keywords{methods}
+\keyword{methods}
 \keyword{interface}
 \keyword{database}
 % vim: syntax=tex

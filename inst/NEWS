@@ -1,3 +1,33 @@
+Version 0.5-7
+
+* Added a method for dbWriteTable to write a table from a text file, e.g.,
+  dbWriteTable(con, "tablename", "filename")
+
+* Added the argument "default.file" to dbConnect's method to allow 
+  parsing options from an alternate mysql options file.  If specified
+  only this file is read, as per the MySQL C API.
+
+* Re-use RSQLite's helper function "dbBuildTableDefinition" that builds 
+  an SQL string with a simple "CREATE TABLE" definition appropriate for
+  exporting a specified data.frame.
+  
+* Fixed default in dbReadTable's method to used a table field "row_names" 
+  (if it exists) as the row.names() of the output.
+
+* Modified the configure.win to create windows binaries a bit easier.
+
+* Fixed documentation typos.
+
+Version 0.5-6
+
+* Fixed a (potential) bug in the safe.write() where it would use
+  the current options(digits), possibly losing precision on double
+  precision data.  It now uses digits=17, regardless of option("digits").
+
+* Added a simple configure.win to simplify building the package on 
+  windows; removed the inst/libs directory and now provide the MySQL 
+  windows binary library in the src/windows directory.
+
 Version 0.5-5
 
 * Fixed documentation typos.
