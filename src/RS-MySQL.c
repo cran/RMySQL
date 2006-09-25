@@ -1,5 +1,5 @@
 /* 
- * $Id: RS-MySQL.c,v 1.6 2004/04/12 18:08:10 dj Exp dj $
+ * $Id: RS-MySQL.c 163 2006-08-31 23:02:35Z sethf $
  *
  *
  * Copyright (C) 1999-2002 The Omega Project for Statistical Computing.
@@ -40,12 +40,11 @@ static char *compiled_mysql_client_version = MYSQL_SERVER_VERSION;   /* sic.*/
  * 
  * For details see
  *  On S, Appendix A in "Programming with Data" by John M. Chambers. 
- *  On R, "The .Call and .External Interfaces"  in the R manual.
+ *  On R, "The .Call and .External Interfaces"  in the "Writing R Extensions"
+ *  manual.
  *  On MySQL, 
-       The "MySQL Reference Manual (version 3.23.7 alpha,
- *         02 Dec 1999" and the O'Reilly book "MySQL & mSQL" by Yarger, 
- *         Reese, and King.
- *     Also, "MySQL" by Paul Dubois (2000) New Riders Publishing.
+       The "MySQL Reference Manual" available at http://www.mysql.com
+ *     Also, "MySQL" Third Ed. by Paul Dubois (2005) New Riders Publishing.
  *
  * TODO:
  *    1. Make sure the code is thread-safe, in particular,
@@ -155,7 +154,7 @@ RS_MySQL_cloneConnection(Con_Handle *conHandle)
   SET_CHR_EL(con_params,5,C_S_CPY(buf1));
   SET_CHR_EL(con_params,6,C_S_CPY(buf2));
   
-  MEM_UNPROTECT(2); 
+  MEM_UNPROTECT(3); 
 
   return RS_MySQL_newConnection(mgrHandle, con_params, MySQLgroups,
              s_mysql_default_file);
@@ -310,9 +309,9 @@ RS_MySQL_newConnection(Mgr_Handle *mgrHandle, s_object *con_params,
     mysql_real_connect(my_connection, host, user, passwd, dbname, 
 		       port, unix_socket, client_flags);
   if(!my_connection){
-    char buf[512];
-    sprintf(buf, "could not connect %s@%s on dbname \"%s\"\n",
-	    user, host, dbname);
+    char buf[2048];
+    sprintf(buf, "could not connect %s@%s on dbname \"%s\"\nError:%s\n",
+	    user, host, dbname, mysql_error(my_connection));
     RS_DBI_errorMessage(buf, RS_DBI_ERROR);
   }
 
@@ -514,7 +513,7 @@ RS_MySQL_createDataMappings(Res_Handle *rsHandle)
   RS_DBI_resultSet   *result; 
   RS_DBI_fields      *flds;
   int     j, num_fields, internal_type;
-  char    errMsg[128];
+  char    errMsg[2048];
 
   result = RS_DBI_getResultSet(rsHandle);
   my_result = (MYSQL_RES *) result->drvResultSet;
@@ -573,12 +572,26 @@ RS_MySQL_createDataMappings(Res_Handle *rsHandle)
       else
         flds->Sclass[j] = INTEGER_TYPE;
       break;
+#if defined(MYSQL_VERSION_ID) && MYSQL_VERSION_ID >= 50003 /* 5.0.3 */
+    case FIELD_TYPE_BIT:
+      if(flds->precision[j] <= sizeof(Sint))   /* can R int hold the bytes? */
+	flds->Sclass[j] = INTEGER_TYPE;
+      else {
+        flds->Sclass[j] = CHARACTER_TYPE;
+        (void) sprintf(errMsg, 
+	       "BIT field in column %d too long (%d bits) for an R integer (imported as character)", 
+		     j+1, flds->precision[j]);
+      }
+#endif
     case FIELD_TYPE_LONGLONG:        /* TODO: can we fit these in R/S ints? */
       if(sizeof(Sint)>=8)            /* Arg! this ain't pretty:-( */
 	flds->Sclass[j] = INTEGER_TYPE;
       else 
 	flds->Sclass[j] = NUMERIC_TYPE;
     case FIELD_TYPE_DECIMAL:
+#if defined(MYSQL_VERSION_ID) && MYSQL_VERSION_ID >= 50003 /* 5.0.3 */
+    case FIELD_TYPE_NEWDECIMAL:
+#endif
       if(flds->scale[j] > 0 || flds->precision[j] > 10)
 	flds->Sclass[j] = NUMERIC_TYPE;
       else 
@@ -615,7 +628,7 @@ RS_MySQL_createDataMappings(Res_Handle *rsHandle)
       flds->Sclass[j] = CHARACTER_TYPE;
       flds->isVarLength[j] = (Sint) 1;
       (void) sprintf(errMsg, 
-		     "unrecognized MySQL field type %d in column %d", 
+		     "unrecognized MySQL field type %d in column %d imported as character", 
 		     internal_type, j);
       RS_DBI_errorMessage(errMsg, RS_DBI_WARNING);
       break;

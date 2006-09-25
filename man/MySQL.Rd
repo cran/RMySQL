@@ -1,4 +1,4 @@
-% $Id: MySQL.Rd,v 1.1 2003/12/02 14:53:01 dj Exp dj $
+% $Id: MySQL.Rd,v 1.2 2006/02/15 18:13:05 dj Exp dj $
 \name{MySQL}
 \alias{MySQL}
 \title{
@@ -10,7 +10,7 @@ It returns an driver object that allows you to connect
 to one or several MySQL servers.
 }
 \usage{
-MySQL(max.con = 16, fetch.default.rec = 500, force.reload = F)
+MySQL(max.con = 16, fetch.default.rec = 500, force.reload = FALSE)
 }
 \arguments{
 \item{max.con }{

@@ -1,3 +1,19 @@
+Version 0.5-8
+ 
+* Added MySQL error message when failing to connect (thanks to
+  Louis Springer for the patch).
+
+* Added code to recognize the newer MySQL types BIT (mapped to
+  integers if not too many bytes, otherwise to characters) and 
+  NEWDECIMAL.
+
+* Fixed a stack inbalance when cloning a connection, e.g., 
+  con2 <- dbConnect(con).
+
+* Remove abbreviation F for FALSE in call to MySQL().
+
+* Added pakage documentation page.
+
 Version 0.5-7
 
 * Added a method for dbWriteTable to write a table from a text file, e.g.,

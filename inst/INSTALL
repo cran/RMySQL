@@ -10,10 +10,15 @@ directories (or if you want to use an alternate MySQL distribution),
 you may specify which MySQL directory(ies) to use through one of the
 following:
 
-    1. The shell variables PKG_CPPFLAGS and PKG_LIBS (using Bourne shell)
+   1. The shell variables PKG_CPPFLAGS and PKG_LIBS (using Bourne shell)
 
        export PKG_CPPFLAGS="-I<include-dir>"
-       export PKG_CPPLIBS="-L<library-dir> -lmysqlclient"
+       export PKG_LIBS="-L<library-dir> -lmysqlclient"
+
+       For instance, on some 64 systems (e.g., Linux) you may need to set
+
+       export PKG_CPPFALGS="-I/usr/include/mysql"
+       export PKG_LIBS="-L/usr/lib64/mysql -lmysqlclient"
 
 or  2. Use the RMySQL configuration shell variables
 
@@ -42,55 +47,12 @@ S/W Requirements:
    (see www.mysql.com).  For Linux/intel you may use the binary rpms 
    client+devel+shared, and make sure you also have the header files, 
    they are *NOT* included in the following
-	MySQL-client-3.23.17-1.i386.rpm
-	MySQL-shared-3.23.17-1.i386.rpm
+	MySQL-client-4.1.7-1.i386.rpm
+	MySQL-shared-4.1.7-1.i386.rpm
 
-   but they are included in the latest 3.23.33 rpm versions.
+   but they are included in the latest 4.1.7 rpm versions.
 
    The library libz.  This is a standard library on many (but not all)
    systems.  Under Red Hat, it's included in the rpm zlib-devel.
    I've been told that on debian it's in the zlib1g-dev package.
-
-Potential configuration BUG  -- getopt.h and getopt.c
-
-   If you're not using a GNU aware compiler (possibly on Sun, other 
-   Unices and even cygwin?) you may need to use one or both of the 
-   GNU files "getopt.c" and "getopt.h", which we include under the "gnu" 
-   directory. (These two files come from the MySQL 3.22.27 source
-   distribution.) This configuration bug will be fixed in the near future.
-
--------------------------------------------------------------------
-27 August 2003
-
-   Note: Possibly buggy MySQL client library crashes R during dbConnect().  
-   Known instances
-     (1) Red Hat MySQL binary RPM client library 3.23.32 has been reported 
-         to crash R; updating to 3.23.56 solved the problem.
-     (2) Debian MySQL binary client library 3.23.49 has been reported
-        to crash; updating to 3.23.56 solved the problem.
-
-   Also there's circumstantial evidence that the problem is in the
-   MySQL client library, namely, the change logs in Appendix D of the
-   MySQL manual (www.mysql.com) indicates that a "bufffer overflow
-   problem when reading startup parameters" was fixed in 3.23.50.
-
- So far tested on the following platforms:
-
-   Linux RedHat 6.0, 6.1, 6.2, 7.2, 7.3, 9.0
-     MySQL 3.23.26 and 3.23.26 (client, devel and shared libraries 
-     RPM binaries) plus full 3.22.17, 3.23.33, 3.23.56 distributions.
-     R 1.2.0, 1.2.1, 1.2.2, 1.4.1, 1.5.0, 1.5.1, 1.6.0(beta), 1.7-0,
-     1.7.1.
-
-   Linux Debian stable (2003-08-27), MySQL 4.0.13
-
-Linux SuSE 7.0
-     R 1.2.0, 1.2.1, 1.2.2
-
-   Solaris 5.6 sparc (Sun's C compiler)
-     MySQL (client) 3.22.26a R 1.2.2
-
-   Solaris 8
-     R 1.2.0, 1.2.1, 1.2.2, 1.5.1
-
 

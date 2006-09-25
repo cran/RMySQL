@@ -1,4 +1,4 @@
-% $Id: dbCommit-methods.Rd,v 1.1 2003/12/02 14:53:01 dj Exp dj $
+% $Id: dbCommit-methods.Rd,v 1.2 2006/02/15 18:13:05 dj Exp dj $
 \name{dbCommit-methods}
 \docType{methods}
 \alias{dbCommit-methods}

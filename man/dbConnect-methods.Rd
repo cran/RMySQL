@@ -1,4 +1,4 @@
-% $Id: dbConnect-methods.Rd,v 1.1 2003/12/02 14:53:01 dj Exp dj $
+% $Id: dbConnect-methods.Rd,v 1.2 2006/02/15 18:13:05 dj Exp dj $
 \name{dbConnect-methods}
 \docType{methods}
 \alias{dbDisconnect-methods}
@@ -31,8 +31,10 @@
 \item{port}{(optional) TCP/IP default port.}
 \item{client.flag}{(optional) integer setting various MySQL client flags.
 See the MySQL manual for details.}
-\item{group}{string identifying a section in the \code{\$HOME/.my.cnf}
+\item{group}{string identifying a section in the \code{default.file}
    to use for setting authentication parameters (see \code{\link{MySQL}}.)}
+\item{default.file}{filename with MySQL client options. Defaults to
+   \code{\$HOME/.my.cnf}}
 \item{\dots }{Currently unused.}
 }
 }

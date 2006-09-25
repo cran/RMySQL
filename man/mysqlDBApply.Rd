@@ -1,4 +1,4 @@
-% $Id: mysqlDBApply.Rd,v 1.2 2003/12/02 18:28:56 dj Exp dj $
+% $Id: mysqlDBApply.Rd,v 1.2 2003/12/02 18:28:56 dj Exp $
 \name{mysqlDBApply}
 \alias{mysqlDBApply}
 \title{Apply R/S-Plus functions to remote groups of DBMS rows (experimental)}

@@ -32,6 +32,7 @@ MySQLDriver-class       Class MySQLDriver
 mysqlInitDriver         Support Functions
 MySQLObject-class       Class MySQLObject
 MySQLResult-class       Class MySQLResult
+RMySQL-package          R interface to the MySQL database
 SQLKeywords-methods     Make R/S-Plus identifiers into legal SQL
                         identifiers
 summary-methods         Summarize an MySQL object

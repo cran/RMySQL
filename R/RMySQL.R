@@ -107,7 +107,7 @@ function(obj)
    .Call("RS_DBI_validHandle", obj, PACKAGE = .MySQLPkgName)
 }
 ##
-## $Id: MySQL.R,v 1.10 2003/12/02 16:39:46 dj Exp $
+## $Id: MySQL.R,v 1.11 2006/02/15 18:01:03 dj Exp dj $
 ##
 ## Copyright (C) 1999 The Omega Project for Statistical Computing.
 ##
@@ -129,9 +129,9 @@ function(obj)
 ## Constants
 ##
 
-.MySQLRCS <- "$Id: MySQL.R,v 1.10 2003/12/02 16:39:46 dj Exp $"
+.MySQLRCS <- "$Id: MySQL.R,v 1.11 2006/02/15 18:01:03 dj Exp dj $"
 .MySQLPkgName <- "RMySQL"      ## should we set thru package.description()?
-.MySQLVersion <- "0.5-4"       ##package.description(.MySQLPkgName, fields = "Version")
+.MySQLVersion <- "0.5-8"       ##package.description(.MySQLPkgName, fields = "Version")
 .MySQL.NA.string <- "\\N"      ## on input, MySQL interprets \N as NULL (NA)
 
 setOldClass("data.frame")      ## to appease setMethod's signature warnings...
@@ -146,7 +146,7 @@ setClass("MySQLObject", representation("DBIObject", "dbObjectId", "VIRTUAL"))
 ##
 
 "MySQL" <- 
-function(max.con=16, fetch.default.rec = 500, force.reload=F)
+function(max.con=16, fetch.default.rec = 500, force.reload=FALSE)
 {
    mysqlInitDriver(max.con = max.con, fetch.default.rec = fetch.default.rec,
       force.reload = force.reload)
@@ -721,7 +721,7 @@ function(res, INDEX, FUN = stop("must specify FUN"),
 ## most common case where we only specify the "group.end" event.)
 ## 
 ## The following describes the exact order and form of invocation for the
-## various callbacks in the underlying  C code.  All callback function 
+## various callbacks in the underlying  C code.  All callback functions
 ## (except FUN) are optional.
 ##  begin()
 ##    group.begin(group.name)   
@@ -732,11 +732,12 @@ function(res, INDEX, FUN = stop("must specify FUN"),
 ## TODO: (1) add argument output=F/T to suppress the creation of
 ##           an expensive(?) output list.
 ##       (2) allow INDEX to be a list as in tapply()
+##       (3) add a "counter" event, to callback every k rows
 ##       (3) should we implement a simplify argument, as in sapply()?
-##       (4) should report (instead of just warning) when we're forced
+##       (4) should it report (instead of just warning) when we're forced
 ##           to handle partial groups (groups larger than maxBatch).
 ##       (5) extend to the case where even individual groups are too
-##           big for R (as in incrementatl quantiles).
+##           big for R (as in incremental quantiles).
 ##       (6) Highly R-dependent, not sure yet how to port it to S-plus.
 {
    if(dbHasCompleted(res))
@@ -928,7 +929,9 @@ function(con, name, value, field.types = NULL, overwrite = FALSE,
     f <- file(fn, open="r")
     if(skip>0) 
       readLines(f, n=skip)
-    flds <- count.fields(textConnection(readLines(f, n=2)), sep)
+    txtcon <- textConnection(readLines(f, n=2))
+    flds <- count.fields(txtcon, sep)
+    close(txtcon)
     close(f)
     nf <- length(unique(flds))
   }

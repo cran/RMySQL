@@ -1,4 +1,4 @@
-% $Id: dbApply.Rd,v 1.1 2003/12/02 14:53:01 dj Exp dj $
+% $Id: dbApply.Rd,v 1.1 2003/12/02 14:53:01 dj Exp $
 \name{dbApply}
 \alias{dbApply}
 \title{Apply R/S-Plus functions to remote groups of DBMS rows (experimental)}
