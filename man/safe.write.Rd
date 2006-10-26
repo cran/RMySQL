@@ -1,4 +1,4 @@
-% $Id: safe.write.Rd,v 1.1 2003/12/02 14:53:01 dj Exp $
+% $Id: safe.write.Rd 135 2003-12-02 14:53:01Z dj $
 \name{safe.write}
 \alias{safe.write}
 \title{Write a data.frame avoiding exceeding memory limits}

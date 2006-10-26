@@ -1,4 +1,4 @@
-% $Id: MySQLResult-class.Rd,v 1.1 2003/12/02 14:53:01 dj Exp $
+% $Id: MySQLResult-class.Rd 135 2003-12-02 14:53:01Z dj $
 \name{MySQLResult-class}
 \docType{class}
 \alias{MySQLResult-class}

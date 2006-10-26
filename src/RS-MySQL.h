@@ -1,7 +1,7 @@
 #ifndef _RS_MYSQL_H
 #define _RS_MYSQL_H 1
 /*  
- *  $Id: RS-MySQL.h,v 1.6 2006/02/15 17:56:47 dj Exp dj $
+ *  $Id: RS-MySQL.h 157 2006-02-15 18:01:03Z dj $
  *
  * Copyright (C) 1999-2002 The Omega Project for Statistical Computing.
  *

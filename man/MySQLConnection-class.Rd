@@ -1,4 +1,4 @@
-% $Id: MySQLConnection-class.Rd,v 1.2 2006/02/15 18:13:05 dj Exp dj $
+% $Id: MySQLConnection-class.Rd 159 2006-02-15 18:13:05Z dj $
 \name{MySQLConnection-class}
 \docType{class}
 \alias{MySQLConnection-class}

@@ -1,4 +1,4 @@
-% $Id: dbSetDataMappings-methods.Rd,v 1.2 2006/02/15 18:13:05 dj Exp dj $
+% $Id: dbSetDataMappings-methods.Rd 159 2006-02-15 18:13:05Z dj $
 \name{dbSetDataMappings-methods}
 \docType{methods}
 \alias{dbSetDataMappings-methods}

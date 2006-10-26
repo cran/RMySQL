@@ -1,4 +1,4 @@
-% $Id: fetch-methods.Rd,v 1.2 2006/02/15 18:13:05 dj Exp dj $
+% $Id: fetch-methods.Rd 159 2006-02-15 18:13:05Z dj $
 \name{fetch-methods}
 \docType{methods}
 \alias{fetch-methods}

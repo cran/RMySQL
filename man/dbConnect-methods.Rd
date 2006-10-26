@@ -1,4 +1,4 @@
-% $Id: dbConnect-methods.Rd,v 1.2 2006/02/15 18:13:05 dj Exp dj $
+% $Id: dbConnect-methods.Rd 159 2006-02-15 18:13:05Z dj $
 \name{dbConnect-methods}
 \docType{methods}
 \alias{dbDisconnect-methods}

@@ -1,4 +1,4 @@
-% $Id: MySQLDriver-class.Rd,v 1.1 2003/12/02 14:53:01 dj Exp $
+% $Id: MySQLDriver-class.Rd 135 2003-12-02 14:53:01Z dj $
 \name{MySQLDriver-class}
 \docType{class}
 \alias{MySQLDriver-class}

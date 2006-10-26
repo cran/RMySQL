@@ -1,7 +1,7 @@
 #ifndef _RS_DBI_H
 #define _RS_DBI_H 1
 /*  
- *  $Id: RS-DBI.h,v 1.6 2003/11/04 15:57:14 dj Exp $
+ *  $Id: RS-DBI.h 128 2003-11-04 15:57:14Z dj $
  *
  * Copyright (C) 1999-2002 The Omega Project for Statistical Computing.
  *
