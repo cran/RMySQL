@@ -1,4 +1,4 @@
-% $Id: mysqlSupport.Rd 159 2006-02-15 18:13:05Z dj $
+% $Id: mysqlSupport.Rd 301 2007-05-26 05:14:37Z daj025@gmail.com $
 \name{mysqlSupport}
 \alias{mysqlInitDriver}            % driver-related function
 \alias{mysqlDriverInfo}
@@ -20,12 +20,33 @@
 \alias{mysqlWriteTable}            % convenience functions
 \alias{mysqlImportFile}
 \alias{mysqlDataType}
+\alias{mysqlEscapeStrings}
 \alias{.MySQLPkgName}              % constants
 \alias{.MySQLPkgVersion}
 \alias{.MySQLPkgRCS}
 \alias{.MySQL.NA.string}
 \alias{.MySQLSQLKeywords}
 \alias{.conflicts.OK}
+\alias{CLIENT_LONG_PASSWORD}     % new more secure passwords 
+\alias{CLIENT_FOUND_ROWS}        % Found instead of affected rows 
+\alias{CLIENT_LONG_FLAG}         % Get all column flags 
+\alias{CLIENT_CONNECT_WITH_DB}   % One can specify db on connect 
+\alias{CLIENT_NO_SCHEMA}         % Don't allow database.table.column 
+\alias{CLIENT_COMPRESS}          % Can use compression protocol 
+\alias{CLIENT_ODBC}              % Odbc client 
+\alias{CLIENT_LOCAL_FILES}       % Can use LOAD DATA LOCAL 
+\alias{CLIENT_IGNORE_SPACE}      % Ignore spaces before '(' 
+\alias{CLIENT_PROTOCOL_41}       % New 4.1 protocol 
+\alias{CLIENT_INTERACTIVE}       % This is an interactive client 
+\alias{CLIENT_SSL}               % Switch to SSL after handshake 
+\alias{CLIENT_IGNORE_SIGPIPE}    % IGNORE sigpipes 
+\alias{CLIENT_TRANSACTIONS}      % Client knows about transactions 
+\alias{CLIENT_RESERVED}          % Old flag for 4.1 protocol  
+\alias{CLIENT_SECURE_CONNECTION} % New 4.1 authentication 
+\alias{CLIENT_MULTI_STATEMENTS}  % Enable/disable multi-stmt support 
+\alias{CLIENT_MULTI_RESULTS}     % Enable/disable multi-results 
+
+
 %\non_function{}
 \title{Support Functions}
 \description{
@@ -64,6 +85,7 @@
    mysqlImportFile(con, name, value, field.types, overwrite=FALSE, 
       append=FALSE, header, row.names, nrows=50, sep=",", eol="\n", 
       skip = 0, quote='"', ...)
+   mysqlEscapeStrings(con, strings)
 }
 \arguments{
 \item{max.con}{
@@ -193,6 +215,7 @@
    being written.  Defaults to \code{FALSE}, forcing \code{mysqlWriteTable}
    to modify column names to make them legal MySQL identifiers.
    }
+\item{strings}{a character vector of strings to be escaped}
 \item{\dots}{
    placeholder for future use.
 }
@@ -249,6 +272,10 @@
    \code{mysqlDataType} retuns a character string with the closest
    
    \code{mysqlResultInfo} returns a list of name-value metadata pairs.
+
+   \code{mysqlEscapeStrings} returns a character vector with each string 
+   escaped for MySQL special characters (such as single and double quotes).
+   This is done using the character set used by the connection \code{con}.
 }
 \section{Constants}{
 \code{.MySQLPkgName} (currently \code{"RMySQL"}),

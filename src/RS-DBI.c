@@ -1,5 +1,5 @@
 /* 
- * $Id: RS-DBI.c 57 2002-08-24 02:13:39Z dj $ 
+ * $Id: RS-DBI.c 272 2006-12-23 02:55:58Z daj025@gmail.com $ 
  *
  *
  * Copyright (C) 1999-2002 The Omega Project for Statistical Computing

@@ -1,5 +1,5 @@
 ##
-## $Id: MySQLSupport.R 190 2006-09-25 20:39:18Z sethf $
+## $Id: MySQLSupport.R 308 2007-06-01 02:35:37Z daj025@gmail.com $
 ##
 ## Copyright (C) 1999 The Omega Project for Statistical Computing.
 ##
@@ -30,7 +30,7 @@ function(max.con=16, fetch.default.rec = 500, force.reload=FALSE)
 {
    if(fetch.default.rec<=0)
       stop("default num of records per fetch must be positive")
-   config.params <- as.integer(c(max.con, fetch.default.rec))
+   config.params <- as(c(max.con, fetch.default.rec), "integer")
    force <- as.logical(force.reload)
    drvId <- .Call("RS_MySQL_init", config.params, force, 
                   PACKAGE = .MySQLPkgName)
@@ -104,7 +104,7 @@ function(drv, dbname = "", username="",
       stop("expired manager")
    con.params <- as.character(c(username, password, host, 
                                 dbname, unix.socket, port, 
-                                client.flag))
+                                as.integer(client.flag)))
    groups <- as.character(groups)
    if(length(default.file)==1){
       default.file <- file.path(dirname(default.file), basename(default.file))
@@ -361,10 +361,7 @@ function(res, n=0, ...)
    nrec <- length(rel[[1]])
    indx <- seq(from = cnt - nrec + 1, length = nrec)
    attr(rel, "row.names") <- as.character(indx)
-   if(usingR())
-      class(rel) <- "data.frame"
-   else
-      oldClass(rel) <- "data.frame"
+   class(rel) <- "data.frame"
    rel
 }
 
@@ -505,7 +502,7 @@ function(con, name, value, field.types = NULL, overwrite = FALSE,
         row.names = row.names)
     rs <- try(dbSendQuery(new.con, sql))
     if(inherits(rs, ErrorClass)){
-      warning("could not create table: aborting sqliteImportFile")
+      warning("could not create table: aborting mysqlImportFile")
       return(FALSE)
     } 
     else 
@@ -585,16 +582,16 @@ function(con, name, value, field.types, row.names = TRUE,
    if(dbExistsTable(con,name)){
       if(overwrite){
          if(!dbRemoveTable(con, name)){
-         warning(paste("table", name, "couldn't be overwritten"))
-         return(F)
+            warning(paste("table", name, "couldn't be overwritten"))
+            return(FALSE)
          }
       }
       else if(!append){
-         warning(paste("table",name,"exists in database: aborting assignTable"))
-         return(F)
+         warning(paste("table",name,"exists in database: aborting mysqlWriteTable"))
+         return(FALSE)
       }
    } 
-   if(!dbExistsTable(con,name)){      ## need to re-test table for existance 
+   if(!dbExistsTable(con,name)){      ## need to re-test table for existence 
       ## need to create a new (empty) table
       sql1 <- paste("create table ", name, "\n(\n\t", sep="")
       sql2 <- paste(paste(names(field.types), field.types), collapse=",\n\t",
@@ -603,8 +600,8 @@ function(con, name, value, field.types, row.names = TRUE,
       sql <- paste(sql1, sql2, sql3, sep="")
       rs <- try(dbSendQuery(new.con, sql))
       if(inherits(rs, ErrorClass)){
-         warning("could not create table: aborting assignTable")
-         return(F)
+         warning("could not create table: aborting mysqlWriteTable")
+         return(FALSE)
       } 
       else 
          dbClearResult(rs)
@@ -623,7 +620,7 @@ function(con, name, value, field.types, row.names = TRUE,
    rs <- try(dbSendQuery(new.con, sql4))
    if(inherits(rs, ErrorClass)){
       warning("could not load data into table")
-      return(F)
+      return(FALSE)
    } 
    else 
       dbClearResult(rs)
@@ -675,14 +672,9 @@ function(value, file, batch, ...)
    from <- 1 
    to <- min(batch, N)
    while(from<=N){
-      if(usingR())
-         write.table(value[from:to,, drop=FALSE], file = file, append = TRUE, 
-               quote = FALSE, sep="\t", na = .MySQL.NA.string,
-               row.names=FALSE, col.names=FALSE, eol = '\n', ...)
-      else
-         write.table(value[from:to,, drop=FALSE], file = file, append = TRUE, 
-               quote.string = FALSE, sep="\t", na = .MySQL.NA.string,
-               dimnames.write=FALSE, end.of.row = '\n', ...)
+      write.table(value[from:to,, drop=FALSE], file = file, append = TRUE, 
+            quote = FALSE, sep="\t", na = .MySQL.NA.string,
+            row.names=FALSE, col.names=FALSE, eol = '\n', ...)
       from <- to+1
       to <- min(to+batch, N)
    }
@@ -713,6 +705,21 @@ function(obj, ...)
                      "text")
    }
    sql.type
+}
+
+## the following code was kindly provided ny J. T. Lindgren.
+"mysqlEscapeStrings" <-
+function(con, strings)
+{
+  ## Escapes the given strings
+  if(!isIdCurrent(con))
+     stop(paste("expired", class(con)))
+  strings <- as(strings, "character")
+  conId <- as(con, "integer");
+  out <- .Call("RS_MySQL_escapeStrings", conId, strings,
+       PACKAGE = .MySQLPkgName)
+  names(out) <- names(strings)
+  out
 }
 
 ## the following reserved words were taken from Section 6.1.7

@@ -1,11 +1,13 @@
 ## 
-## $Id: zzz.R 205 2006-10-25 19:59:20Z sethf $
+## $Id: zzz.R 305 2007-05-28 22:33:28Z daj025@gmail.com $
 ##
 
 ".conflicts.OK" <- TRUE
 
-".First.lib" <- 
+#".First.lib" <- 
+".onLoad" <- 
 function(libname, pkgname) 
 {
-   library.dynam("RMySQL", pkgname, libname)
+   #library.dynam("RMySQL", pkgname, libname)
+   require(methods)
 }

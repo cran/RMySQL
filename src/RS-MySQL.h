@@ -1,7 +1,7 @@
 #ifndef _RS_MYSQL_H
 #define _RS_MYSQL_H 1
 /*  
- *  $Id: RS-MySQL.h 157 2006-02-15 18:01:03Z dj $
+ *  $Id: RS-MySQL.h 298 2007-05-23 11:50:13Z daj025@gmail.com $
  *
  * Copyright (C) 1999-2002 The Omega Project for Statistical Computing.
  *
@@ -97,6 +97,10 @@ Res_Handle *RS_MySQL_exec(Con_Handle *conHandle, s_object *statement);
 s_object   *RS_MySQL_fetch(Res_Handle *rsHandle, s_object *max_rec);
 s_object   *RS_MySQL_closeResultSet(Res_Handle *rsHandle); 
 
+/* Multiple result set function (as of MySQL Version 4.1) */
+Res_Handle *RS_MySQL_nextResultSet(Con_Handle *conHandle);
+s_object   *RS_MySQL_moreResultSets(Con_Handle *conHandle);  /* boolean */
+
 s_object   *RS_MySQL_validHandle(Db_Handle *handle);      /* boolean */
 
 RS_DBI_fields *RS_MySQL_createDataMappings(Res_Handle *resHandle);
@@ -106,6 +110,8 @@ RS_DBI_fields *RS_MySQL_createDataMappings(Res_Handle *resHandle);
 s_object *RS_MySQL_managerInfo(Mgr_Handle *mgrHandle);
 s_object *RS_MySQL_connectionInfo(Con_Handle *conHandle);
 s_object *RS_MySQL_resultSetInfo(Res_Handle *rsHandle);
+
+s_object *RS_MySQL_escapeStrings(Con_Handle *conHandle, s_object *statement);
 
 /* the following type names are from "mysql_com.h" */
 static struct data_types RS_MySQL_dataTypes[] = {

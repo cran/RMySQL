@@ -1,5 +1,5 @@
 /* 
- * $Id: RS-MySQL.c 163 2006-08-31 23:02:35Z sethf $
+ * $Id: RS-MySQL.c 305 2007-05-28 22:33:28Z daj025@gmail.com $
  *
  *
  * Copyright (C) 1999-2002 The Omega Project for Statistical Computing.
@@ -112,6 +112,96 @@ RS_MySQL_closeManager(Mgr_Handle *mgrHandle)
     LGL_EL(status,0) = TRUE;
     MEM_UNPROTECT(1);
     return status;
+}
+
+/* Are there more results on this connection (as in multi results or
+ * SQL scripts
+ */
+
+s_object * /* boolean */
+RS_MySQL_moreResultSets(Con_Handle *conHandle)
+{
+    S_EVALUATOR
+
+    RS_DBI_connection *con;
+    MYSQL             *my_connection;
+    my_bool           tmp;
+    s_object          *status;            /* boolean */
+  
+    con = RS_DBI_getConnection(conHandle);
+    my_connection = (MYSQL *) con->drvConnection;
+
+    tmp = mysql_more_results(my_connection);
+    MEM_PROTECT(status = NEW_LOGICAL((Sint) 1));
+    if(tmp)
+       LGL_EL(status, 0) = TRUE;
+    else
+       LGL_EL(status, 0) = FALSE;
+
+    MEM_UNPROTECT(1);
+
+    return status;
+}
+
+Res_Handle *
+RS_MySQL_nextResultSet(Con_Handle *conHandle)
+{
+    S_EVALUATOR
+
+    RS_DBI_connection *con;
+    RS_DBI_resultSet  *result;
+    Res_Handle        *rsHandle;
+    MYSQL_RES         *my_result;
+    MYSQL             *my_connection;
+    Sint              rc, num_fields, is_select;
+  
+    con = RS_DBI_getConnection(conHandle);
+    my_connection = (MYSQL *) con->drvConnection;
+
+    rc = (Sint) mysql_next_result(my_connection);
+
+    if(rc<0){
+        RS_DBI_errorMessage("no more result sets", RS_DBI_ERROR);
+    }
+    else if(rc>0){
+        RS_DBI_errorMessage("error in getting next result set", RS_DBI_ERROR);
+    }
+
+    /* the following comes verbatim from RS_MySQL_exec() */
+    my_result = mysql_use_result(my_connection);
+    if(!my_result)
+        my_result = (MYSQL_RES *) NULL;
+
+    num_fields = (Sint) mysql_field_count(my_connection);
+    is_select = (Sint) TRUE;
+    if(!my_result){
+        if(num_fields>0){
+            RS_DBI_errorMessage("error in getting next result set", RS_DBI_ERROR);
+        }
+        else 
+            is_select = FALSE;
+    }
+
+    /* we now create the wrapper and copy values */
+    rsHandle = RS_DBI_allocResultSet(conHandle);
+    result = RS_DBI_getResultSet(rsHandle);
+    result->statement = RS_DBI_copyString("<UNKNOWN>");
+    result->drvResultSet = (void *) my_result;
+    result->rowCount = (Sint) 0;
+    result->isSelect = is_select;
+    if(!is_select){
+        result->rowsAffected = (Sint) mysql_affected_rows(my_connection);
+        result->completed = 1;
+    }
+    else {
+        result->rowsAffected = (Sint) -1;
+        result->completed = 0;
+    }
+    
+    if(is_select)
+      result->fields = RS_MySQL_createDataMappings(rsHandle);
+
+    return rsHandle;
 }
 
 /* open a connection with the same parameters used for in conHandle */
@@ -1619,4 +1709,57 @@ RS_MySQL_insertid(Con_Handle *conHandle)
 
     return output;
 
+}
+
+/* The single string version of this function was kindly provided by 
+ * J. T. Lindgren (any bugs are probably dj's)
+ *
+ * NOTE/BUG?: This function could potentially grab a huge amount of memory
+ *   if given (not inappropriately) very large binary objects. How should
+ *   we protect against potentially deadly requests?
+ */
+
+s_object *
+RS_MySQL_escapeStrings(Con_Handle *conHandle, s_object *strings)
+{
+    RS_DBI_connection *con;
+    MYSQL             *my_connection;
+    long len, old_len;
+    Sint i, nStrings;
+    char *str;
+    char *escapedString;
+    s_object  *output;
+
+    con = RS_DBI_getConnection(conHandle);
+    my_connection = (MYSQL *) con->drvConnection;
+
+    nStrings = GET_LENGTH(strings);
+    MEM_PROTECT(output = NEW_CHARACTER(nStrings));
+
+    old_len = (long) 1;
+    escapedString = (char *) S_alloc(old_len, (int) sizeof(char));
+    if(!escapedString){
+        RS_DBI_errorMessage(
+           "(RS_MySQL_escapeStrings) could not allocate memory",
+        RS_DBI_ERROR);
+    }
+
+    for(i=0; i<nStrings; i++){
+        str = RS_DBI_copyString(CHR_EL(strings,i));
+        len = (long) strlen(str);
+        escapedString = (char *) S_realloc(escapedString,
+               (long) 2*len+1, old_len, (int)sizeof(char));
+        if(!escapedString){
+            RS_DBI_errorMessage(
+               "(RS_MySQL_escapeStrings) could not (re)allocate memory",
+            RS_DBI_ERROR);
+        }
+
+        mysql_real_escape_string(my_connection, escapedString, str, len);
+
+        SET_CHR_EL(output, i, C_S_CPY(escapedString));
+    }
+
+    MEM_UNPROTECT(1); 
+    return output;
 }
