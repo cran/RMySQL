@@ -1,4 +1,4 @@
-% $Id: dbGetInfo-methods.Rd 159 2006-02-15 18:13:05Z dj $
+% $Id: dbGetInfo-methods.Rd 352 2008-09-08 01:43:25Z daj025@gmail.com $
 \name{dbGetInfo-methods}
 \docType{methods}
 \alias{dbGetInfo}
@@ -16,6 +16,7 @@
 \alias{dbGetRowCount,MySQLResult-method}
 \alias{dbGetRowsAffected,MySQLResult-method}
 \alias{dbColumnInfo,MySQLResult-method}
+\alias{dbColumnInfo,MySQLConnection-method}
 \alias{dbHasCompleted,MySQLResult-method}
 \title{
   Database interface meta-data

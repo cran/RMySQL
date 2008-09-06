@@ -1,5 +1,5 @@
 ##
-## $Id: MySQL.R 300 2007-05-26 05:10:23Z daj025@gmail.com $
+## $Id: MySQL.R 352 2008-09-08 01:43:25Z daj025@gmail.com $
 ##
 ## Copyright (C) 1999 The Omega Project for Statistical Computing.
 ##
@@ -21,7 +21,7 @@
 ## Constants
 ##
 
-.MySQLRCS <- "$Id: MySQL.R 300 2007-05-26 05:10:23Z daj025@gmail.com $"
+.MySQLRCS <- "$Id: MySQL.R 352 2008-09-08 01:43:25Z daj025@gmail.com $"
 .MySQLPkgName <- "RMySQL"      ## should we set thru package.description()?
 .MySQLVersion <- "0.5-12"      ##package.description(.MySQLPkgName, fields = "Version")
 .MySQL.NA.string <- "\\N"      ## on input, MySQL interprets \N as NULL (NA)
@@ -303,6 +303,18 @@ setMethod("dbColumnInfo", "MySQLResult",
    valueClass = "data.frame"
 )
 
+## NOTE: The following is experimental (as suggested by Greg Warnes)
+setMethod("dbColumnInfo", "MySQLConnection",
+   def = function(res, ...){
+      dots <- list(...) 
+      if(length(dots) == 0)
+         stop("must specify one MySQL object (table) name")
+      if(length(dots) > 1)
+         warning("dbColumnInfo: only one MySQL object name (table) may be specified", call.=FALSE)
+      dbGetQuery(res, paste("describe", dots[[1]]))
+   },
+   valueClass = "data.frame"
+)
 setMethod("dbGetRowsAffected", "MySQLResult",
    def = function(res, ...) dbGetInfo(res, "rowsAffected")[[1]],
    valueClass = "numeric"
@@ -371,7 +383,7 @@ setMethod("dbEscapeStrings",
 setMethod("dbEscapeStrings",
    sig = signature(con = "MySQLResult", strings = "character"),
    def = function(con, strings, ...) 
-       mysqlEscapeString(as(con, "MySQLConnection"), strings),
+       mysqlEscapeStrings(as(con, "MySQLConnection"), strings),
    valueClass = "character"
 )
   

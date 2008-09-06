@@ -1,5 +1,5 @@
 /* 
- * $Id: RS-DBI.c 272 2006-12-23 02:55:58Z daj025@gmail.com $ 
+ * $Id: RS-DBI.c 352 2008-09-08 01:43:25Z daj025@gmail.com $ 
  *
  *
  * Copyright (C) 1999-2002 The Omega Project for Statistical Computing
@@ -369,7 +369,12 @@ RS_DBI_allocFields(int num_fields)
 void
 RS_DBI_freeFields(RS_DBI_fields *flds)
 {
-  if(flds->name) free(flds->name);
+  int i;
+  if(flds->name) {       /* (as per Jeff Horner's patch) */
+     for(i = 0; i < flds->num_fields; i++) 
+        if(flds->name[i]) free(flds->name[i]);
+     free(flds->name);
+  }
   if(flds->type) free(flds->type);
   if(flds->length) free(flds->length);
   if(flds->precision) free(flds->precision);
@@ -1174,7 +1179,7 @@ RS_DBI_makeSQLNames(s_object *snames)
 
    nstrings = (Sint) GET_LENGTH(snames);
    for(i = 0; i<nstrings; i++){
-      name = CHR_EL(snames, i);
+      name = (char *) CHR_EL(snames, i);
       if(strlen(name)> RS_DBI_MAX_IDENTIFIER_LENGTH){
 	 (void) sprintf(errMsg,"SQL identifier %s longer than %d chars", 
 			name, RS_DBI_MAX_IDENTIFIER_LENGTH);
@@ -1225,7 +1230,7 @@ RS_na_set(void *ptr, Stype type)
     break;
   case STRING_TYPE:
     c = (char *) ptr;
-    c = CHR_EL(NA_STRING, 0);
+    c = (char *) CHR_EL(NA_STRING, 0);
     break;
   }
 }

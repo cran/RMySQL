@@ -1,4 +1,4 @@
-% $Id: dbDataType-methods.Rd 159 2006-02-15 18:13:05Z dj $
+% $Id: dbDataType-methods.Rd 352 2008-09-08 01:43:25Z daj025@gmail.com $
 \name{dbDataType-methods}
 \docType{methods}
 \alias{dbDataType-methods}
@@ -21,7 +21,6 @@
 \item{\dots }{
   any other parameters that individual methods may need.
   }
-}
 }
 \references{
   See the Database Interface definition document
