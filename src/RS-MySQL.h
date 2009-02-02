@@ -1,7 +1,7 @@
 #ifndef _RS_MYSQL_H
 #define _RS_MYSQL_H 1
 /*  
- *  $Id: RS-MySQL.h 298 2007-05-23 11:50:13Z daj025@gmail.com $
+ *  $Id: RS-MySQL.h 357 2009-01-27 20:18:58Z j.horner $
  *
  * Copyright (C) 1999-2002 The Omega Project for Statistical Computing.
  *
@@ -111,6 +111,8 @@ s_object *RS_MySQL_connectionInfo(Con_Handle *conHandle);
 s_object *RS_MySQL_resultSetInfo(Res_Handle *rsHandle);
 
 s_object *RS_MySQL_escapeStrings(Con_Handle *conHandle, s_object *statement);
+
+s_object *RS_MySQL_versionId(void);
 
 /* the following type names are from "mysql_com.h" */
 static struct data_types RS_MySQL_dataTypes[] = {

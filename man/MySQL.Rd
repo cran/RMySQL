@@ -1,4 +1,4 @@
-% $Id: MySQL.Rd 308 2007-06-01 02:35:37Z daj025@gmail.com $
+% $Id: MySQL.Rd 356 2008-12-11 17:47:31Z j.horner $
 \name{MySQL}
 \alias{MySQL}
 \title{

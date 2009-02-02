@@ -1,7 +1,7 @@
 dnl
 dnl RMySQL
 dnl 
-dnl $Id: configure.in 299 2007-05-26 05:09:56Z daj025@gmail.com $
+dnl $Id: configure.in 358 2009-02-02 18:40:39Z j.horner $
 dnl
 dnl Generate a "configure" script that will install the RMySQL package.
 dnl

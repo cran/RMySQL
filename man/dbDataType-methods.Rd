@@ -1,4 +1,4 @@
-% $Id: dbDataType-methods.Rd 352 2008-09-08 01:43:25Z daj025@gmail.com $
+% $Id: dbDataType-methods.Rd 359 2009-02-03 20:42:50Z j.horner $
 \name{dbDataType-methods}
 \docType{methods}
 \alias{dbDataType-methods}
@@ -10,10 +10,10 @@
    This method is a straight-forward implementation of the corresponding
    generic function.
 }
-\section{Methods}{\describe{
+\arguments{
 \item{dbObj}{
   any \code{MySQLObject} object, e.g., \code{MySQLDriver},
-  \code{MySQLConnection}, \code{MySQLResult}.}
+  \code{MySQLConnection}, \code{MySQLResult}.
   }
 \item{obj}{
   R/S-Plus object whose SQL type we want to determine.

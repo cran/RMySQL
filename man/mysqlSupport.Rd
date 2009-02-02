@@ -1,4 +1,4 @@
-% $Id: mysqlSupport.Rd 301 2007-05-26 05:14:37Z daj025@gmail.com $
+% $Id: mysqlSupport.Rd 359 2009-02-03 20:42:50Z j.horner $
 \name{mysqlSupport}
 \alias{mysqlInitDriver}            % driver-related function
 \alias{mysqlDriverInfo}
@@ -208,7 +208,7 @@
 \item{sep}{field separator character.}
 \item{eol}{end-of-line separator.}
 \item{skip}{number of lines to skip before reading data in the input file.}
-\item{quote}{the quote character used in the input file (defaults to \code{"}.}
+\item{quote}{the quote character used in the input file (defaults to \".}
 \item{allow.keywords}{
    logical indicating whether column names that happen to be MySQL
    keywords be used as column names in the resulting relation (table)

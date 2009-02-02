@@ -1,5 +1,5 @@
 ##
-## $Id: MySQLSupport.R 352 2008-09-08 01:43:25Z daj025@gmail.com $
+## $Id: MySQLSupport.R 358 2009-02-02 18:40:39Z j.horner $
 ##
 ## Copyright (C) 1999 The Omega Project for Statistical Computing.
 ##
@@ -740,6 +740,13 @@ function(con, strings)
        PACKAGE = .MySQLPkgName)
   names(out) <- names(strings)
   out
+}
+
+## For testing compiled against loaded mysql client library versions
+"mysqlClientLibraryVersions" <-
+function()
+{
+	.Call("RS_MySQL_clientLibraryVersions",PACKAGE=.MySQLPkgName)
 }
 
 ## the following reserved words were taken from Section 6.1.7
