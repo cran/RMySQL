@@ -1,5 +1,5 @@
 /* 
- * $Id: RS-DBI.c 352 2008-09-08 01:43:25Z daj025@gmail.com $ 
+ * $Id: RS-DBI.c 360 2009-04-07 16:41:24Z j.horner $ 
  *
  *
  * Copyright (C) 1999-2002 The Omega Project for Statistical Computing
@@ -751,10 +751,12 @@ RS_DBI_SclassNames(s_object *type)
   MEM_PROTECT(typeNames = NEW_CHARACTER(n));
   for(i = 0; i < n; i++) {
     s = RS_DBI_getTypeName(typeCodes[i], RS_dataTypeTable);
-    if(!s)
+    if(!s){
       RS_DBI_errorMessage(
             "internal error RS_DBI_SclassNames: unrecognized S type", 
             RS_DBI_ERROR);
+	  s = "";
+	}
     SET_CHR_EL(typeNames, i, C_S_CPY(s));
   }
   MEM_UNPROTECT(1);
@@ -1145,7 +1147,7 @@ RS_DBI_getTypeName(Sint t, const struct data_types table[])
     if (table[i].typeId == t)
       return table[i].typeName;
   }
-  sprintf(buf, "unknown (%ld)", (long) t);
+  sprintf(buf, "unknown type (%ld)", (long) t);
   RS_DBI_errorMessage(buf, RS_DBI_WARNING);
   return (char *) 0; /* for -Wall */
 }
