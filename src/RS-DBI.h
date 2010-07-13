@@ -1,7 +1,7 @@
 #ifndef _RS_DBI_H
 #define _RS_DBI_H 1
 /*  
- *  $Id: RS-DBI.h 451 2010-07-13 20:46:05Z j.horner $
+ *  $Id: RS-DBI.h 458 2011-06-08 20:29:45Z j.horner $
  *
  * Copyright (C) 1999-2002 The Omega Project for Statistical Computing.
  *
@@ -40,6 +40,8 @@ extern "C" {
 #else           
 #include <unistd.h>
 #endif
+
+#include <ctype.h> /* for isalpha */
 
 /* We now define 4 important data structures:
  * RS_DBI_manager, RS_DBI_connection, RS_DBI_resultSet, and
@@ -258,8 +260,6 @@ s_object *RS_DBI_copyFields(RS_DBI_fields *flds);
 void RS_na_set(void *ptr, Stype type);
 int  RS_is_na(void *ptr, Stype type);
 extern const struct data_types RS_dataTypeTable[];
-
-/* int isalpha(int c); */
 
 #ifdef __cplusplus 
 }

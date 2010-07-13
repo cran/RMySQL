@@ -1,5 +1,5 @@
 ##
-## $Id: MySQL.R 352 2008-09-08 01:43:25Z daj025@gmail.com $
+## $Id: MySQL.R 458 2011-06-08 20:29:45Z j.horner $
 ##
 ## Copyright (C) 1999 The Omega Project for Statistical Computing.
 ##
@@ -21,7 +21,7 @@
 ## Constants
 ##
 
-.MySQLRCS <- "$Id: MySQL.R 352 2008-09-08 01:43:25Z daj025@gmail.com $"
+.MySQLRCS <- "$Id: MySQL.R 458 2011-06-08 20:29:45Z j.horner $"
 .MySQLPkgName <- "RMySQL"      ## should we set thru package.description()?
 .MySQLVersion <- "0.5-12"      ##package.description(.MySQLPkgName, fields = "Version")
 .MySQL.NA.string <- "\\N"      ## on input, MySQL interprets \N as NULL (NA)
@@ -351,9 +351,36 @@ setMethod("dbDataType",
 setMethod("make.db.names", 
    signature(dbObj="MySQLObject", snames = "character"),
    def = function(dbObj, snames, keywords = .MySQLKeywords,
-     unique, allow.keywords, ...){
-      make.db.names.default(snames, keywords = .MySQLKeywords, unique = unique,
-                            allow.keywords = allow.keywords)
+       unique, allow.keywords, ...){
+       #      make.db.names.default(snames, keywords = .MySQLKeywords, unique = unique,
+       #                            allow.keywords = allow.keywords)
+       "makeUnique" <- function(x, sep = "_") {
+	   if (length(x) == 0)
+	       return(x)
+	   out <- x
+	   lc <- make.names(tolower(x), unique = FALSE)
+	   i <- duplicated(lc)
+	   lc <- make.names(lc, unique = TRUE)
+	   out[i] <- paste(out[i], substring(lc[i], first = nchar(out[i]) +
+		   1), sep = sep)
+	   out
+       }
+       fc <- substring(snames, 1, 1)
+       lc <- substring(snames, nchar(snames))
+       i <- match(fc, c("'", "\"","`"), 0) > 0 & match(lc, c("'", "\"","`"),
+	   0) > 0
+       snames[!i] <- make.names(snames[!i], unique = FALSE)
+       if (unique)
+	   snames[!i] <- makeUnique(snames[!i])
+       if (!allow.keywords) {
+	   kwi <- match(keywords, toupper(snames), nomatch = 0L)
+
+	   # We could check to see if the database we are connected to is
+	   # running in ANSI mode. That would allow double quoted strings
+	   # as database identifiers. Until then, the backtick needs to be used.
+	   snames[kwi] <- paste("`", snames[kwi], "`", sep = "")
+       }
+       gsub("\\.", "_", snames)
    },
    valueClass = "character"
 )

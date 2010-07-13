@@ -1,5 +1,5 @@
 ##
-## $Id: MySQLSupport.R 358 2009-02-02 18:40:39Z j.horner $
+## $Id: MySQLSupport.R 458 2011-06-08 20:29:45Z j.horner $
 ##
 ## Copyright (C) 1999 The Omega Project for Statistical Computing.
 ##
@@ -376,7 +376,7 @@ function(res, n=0, ...)
    cnt <- dbGetRowCount(res)
    nrec <- length(rel[[1]])
    indx <- seq(from = cnt - nrec + 1, length = nrec)
-   attr(rel, "row.names") <- as.character(indx)
+   attr(rel, "row.names") <- as.integer(indx)
    class(rel) <- "data.frame"
    rel
 }
