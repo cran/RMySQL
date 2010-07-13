@@ -1,7 +1,7 @@
 #ifndef _RS_DBI_H
 #define _RS_DBI_H 1
 /*  
- *  $Id: RS-DBI.h 352 2008-09-08 01:43:25Z daj025@gmail.com $
+ *  $Id: RS-DBI.h 451 2010-07-13 20:46:05Z j.horner $
  *
  * Copyright (C) 1999-2002 The Omega Project for Statistical Computing.
  *
@@ -31,16 +31,15 @@ extern "C" {
 
 #include "S4R.h"
 
-/* Microsoft Visual C++ uses int _getpid()  */
-#ifdef MSVC
+/* WIN32 uses int _getpid()  */
+#if defined WIN32
 #include <process.h>
-#define getpid _getpid
-#define pid_t int
+ /* #define getpid _getpid */
+#include <ctype.h>
+ /* #define pid_t int */
 #else           
 #include <unistd.h>
 #endif
-
-pid_t getpid(); 
 
 /* We now define 4 important data structures:
  * RS_DBI_manager, RS_DBI_connection, RS_DBI_resultSet, and
@@ -260,7 +259,7 @@ void RS_na_set(void *ptr, Stype type);
 int  RS_is_na(void *ptr, Stype type);
 extern const struct data_types RS_dataTypeTable[];
 
-int isalpha(int c);
+/* int isalpha(int c); */
 
 #ifdef __cplusplus 
 }

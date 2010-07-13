@@ -1,7 +1,7 @@
 #ifndef _RS_MYSQL_H
 #define _RS_MYSQL_H 1
 /*  
- *  $Id: RS-MySQL.h 357 2009-01-27 20:18:58Z j.horner $
+ *  $Id: RS-MySQL.h 451 2010-07-13 20:46:05Z j.horner $
  *
  * Copyright (C) 1999-2002 The Omega Project for Statistical Computing.
  *
@@ -24,7 +24,7 @@
 extern  "C" {
 #endif
 
-#ifdef WIN32
+#if defined WIN32
 # include <windows.h>
 # undef ERROR
 #endif

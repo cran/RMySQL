@@ -1,4 +1,4 @@
-% $Id: MySQL.Rd 356 2008-12-11 17:47:31Z j.horner $
+% $Id: MySQL.Rd 451 2010-07-13 20:46:05Z j.horner $
 \name{MySQL}
 \alias{MySQL}
 \title{
@@ -148,7 +148,6 @@ On meta-data:
 \code{\link[DBI]{dbGetStatement}}
 \code{\link[DBI]{dbHasCompleted}}
 \code{\link[DBI]{dbGetRowCount}}
-\code{\link[DBI]{dbGetAffectedRows}}
 }
 \examples{\dontrun{
 # create a MySQL instance and create one connection.

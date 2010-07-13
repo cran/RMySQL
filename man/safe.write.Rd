@@ -1,4 +1,4 @@
-% $Id: safe.write.Rd 135 2003-12-02 14:53:01Z dj $
+% $Id: safe.write.Rd 451 2010-07-13 20:46:05Z j.horner $
 \name{safe.write}
 \alias{safe.write}
 \title{Write a data.frame avoiding exceeding memory limits}
@@ -16,7 +16,7 @@ safe.write(value, file, batch, ...)
   \item{\dots}{any other arguments are passed to \code{write.table}.}
 }
 \details{
-   The function has a while loop invoking \code{\link[base]{write.table}}
+   The function has a while loop invoking \code{\link{write.table}}
    for subsets of \code{batch} rows of \code{value}.  Since this is
    a helper function for \code{\link[RMySQL]{mysqlWriteTable}}, it has 
    hardcoded other arguments to \code{write.table}.
@@ -26,7 +26,7 @@ safe.write(value, file, batch, ...)
 }
 \note{No error checking whatsoever is done.}
 
-\seealso{\code{\link[base]{write.table}}} 
+\seealso{\code{\link{write.table}}} 
 
 \examples{\dontrun{
    ctr.file <- file("dump.sqloader", "w")
