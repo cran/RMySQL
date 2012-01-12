@@ -1,5 +1,5 @@
 ##
-## $Id: dbObjectId.R 80 2002-09-10 11:50:46Z dj $
+## $Id$
 ## 
 ## Copyright (C) 1999-2002 The Omega Project for Statistical Computing.
 ##

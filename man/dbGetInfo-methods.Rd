@@ -1,4 +1,4 @@
-% $Id: dbGetInfo-methods.Rd 352 2008-09-08 01:43:25Z daj025@gmail.com $
+% $Id$
 \name{dbGetInfo-methods}
 \docType{methods}
 \alias{dbGetInfo}

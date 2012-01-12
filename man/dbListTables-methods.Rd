@@ -1,4 +1,4 @@
-% $Id: dbListTables-methods.Rd 159 2006-02-15 18:13:05Z dj $
+% $Id$
 \name{dbListTables-methods}
 \docType{methods}
 \alias{dbListTables-methods}

@@ -1,5 +1,5 @@
 ##
-## $Id: MySQL.R 458 2011-06-08 20:29:45Z j.horner $
+## $Id$
 ##
 ## Copyright (C) 1999 The Omega Project for Statistical Computing.
 ##
@@ -21,7 +21,7 @@
 ## Constants
 ##
 
-.MySQLRCS <- "$Id: MySQL.R 458 2011-06-08 20:29:45Z j.horner $"
+.MySQLRCS <- "$Id$"
 .MySQLPkgName <- "RMySQL"      ## should we set thru package.description()?
 .MySQLVersion <- "0.5-12"      ##package.description(.MySQLPkgName, fields = "Version")
 .MySQL.NA.string <- "\\N"      ## on input, MySQL interprets \N as NULL (NA)

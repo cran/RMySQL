@@ -1,4 +1,4 @@
-/* $Id: S4R.h 358 2009-02-02 18:40:39Z j.horner $
+/* $Id$
  *
  * ----
  * The name of the project is RMySQL, not RSMySQL, so at some point we

@@ -1,5 +1,5 @@
 ## 
-## $Id: S4R.R 79 2002-09-10 11:48:30Z dj $
+## $Id$
 ##
 ## R/S-Plus compatibility 
 

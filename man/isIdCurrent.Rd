@@ -1,4 +1,4 @@
-% $Id: isIdCurrent.Rd 135 2003-12-02 14:53:01Z dj $
+% $Id$
 \name{isIdCurrent}
 \alias{isIdCurrent}
 \title{

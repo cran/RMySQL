@@ -1,5 +1,5 @@
 /* 
- * $Id: RS-DBI.c 360 2009-04-07 16:41:24Z j.horner $ 
+ * $Id$ 
  *
  *
  * Copyright (C) 1999-2002 The Omega Project for Statistical Computing

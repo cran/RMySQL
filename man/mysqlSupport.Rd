@@ -1,4 +1,4 @@
-% $Id: mysqlSupport.Rd 359 2009-02-03 20:42:50Z j.horner $
+% $Id$
 \name{mysqlSupport}
 \alias{mysqlInitDriver}            % driver-related function
 \alias{mysqlDriverInfo}

@@ -1,4 +1,4 @@
-% $Id: make.db.names-methods.Rd 159 2006-02-15 18:13:05Z dj $
+% $Id$
 \name{make.db.names-methods}
 \docType{methods}
 \alias{SQLKeywords-methods}

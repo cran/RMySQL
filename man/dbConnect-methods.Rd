@@ -1,4 +1,4 @@
-% $Id: dbConnect-methods.Rd 356 2008-12-11 17:47:31Z j.horner $
+% $Id$
 \name{dbConnect-methods}
 \docType{methods}
 \alias{dbDisconnect-methods}

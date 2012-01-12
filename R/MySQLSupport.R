@@ -1,5 +1,5 @@
 ##
-## $Id: MySQLSupport.R 458 2011-06-08 20:29:45Z j.horner $
+## $Id$
 ##
 ## Copyright (C) 1999 The Omega Project for Statistical Computing.
 ##

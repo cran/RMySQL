@@ -1,4 +1,4 @@
-% $Id: dbApply.Rd 301 2007-05-26 05:14:37Z daj025@gmail.com $
+% $Id$
 \name{dbApply}
 \alias{dbApply}
 \title{Apply R functions to remote groups of DBMS rows (experimental)}
