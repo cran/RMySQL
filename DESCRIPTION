@@ -1,6 +1,6 @@
 Package: RMySQL
-Version: 0.9-0
-Date: 2012-01-12
+Version: 0.9-3
+Date: 2012-01-17
 Title: R interface to the MySQL database
 Author: David A. James and Saikat DebRoy
 Maintainer: Jeffrey Horner <jeffrey.horner@gmail.com>
@@ -13,6 +13,6 @@ License: GPL-2
 URL: http://biostat.mc.vanderbilt.edu/RMySQL,
         https://github.com/jeffreyhorner/RMySQL
 Collate: S4R.R zzz.R MySQLSupport.R dbObjectId.R MySQL.R
-Packaged: 2012-01-13 18:25:24 UTC; hornerj
+Packaged: 2012-01-17 16:38:02 UTC; hornerj
 Repository: CRAN
-Date/Publication: 2012-01-14 09:00:16
+Date/Publication: 2012-01-17 18:10:41

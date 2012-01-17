@@ -1,10 +1,10 @@
-48be61d1122dd9b6659de3ee6dffcabf *DESCRIPTION
+c72363dd2c259cb03f3c84b7d67452ab *DESCRIPTION
 8524589942ddd1223155da5f1f0b2fb6 *NAMESPACE
 0ee18ec90b33c7f05db788f8e95c580a *R/MySQL.R
 b3134bfb5d92164d899131872dbb7b46 *R/MySQLSupport.R
 048320acc0a04b16697dbf768422d9cd *R/S4R.R
 66183fa2289e68135b335137ef922f56 *R/dbObjectId.R
-af97c2345e002affae79022b1ff4ea04 *R/zzz.R
+5b151f734933cffa81cc749638d33bfd *R/zzz.R
 a7d5f50372f47d76ef94c2b82c02a80e *configure
 72c6a759f166d493bd5a4bca79dfc217 *configure.in
 6d42d4b30c8893ea8755823f65513275 *configure.win
@@ -17,7 +17,7 @@ ef4fdd92dab8525330cd819c31c993cd *inst/FindMySQLhome.R
 9dc93e1d5232c85fb49f5ca6d41c47e7 *inst/THANKS
 a48411df15dd1c02cbf1c7a7788ef8bf *inst/TODO
 6d2a3c270c1a669f48c40f4456ff92c4 *inst/WindowsPath.txt
-9b4c4d395b40e8e5f5545a737d02c43a *inst/doc/DBI.pdf
+e7843268f470a14492e4b13a8e80ddac *inst/doc/DBI.pdf
 601d5fbeba706c6f03b51d20bec2c86f *inst/newFunctionNames.txt
 c49574e6e5966577398ba92efa9f19f0 *man/MySQL.Rd
 b284df8cf83aee06d748903155e4cf22 *man/MySQLConnection-class.Rd
@@ -61,5 +61,5 @@ bff2ee466b782ac8850126c42188c007 *src/RS-DBI.h
 95424df5256dfd3550e086a6b405606e *src/RS-MySQL.h
 57c889afe8188b6dbaa63586f6cd0d29 *src/S4R.h
 04e5914a4a36d4ef4821c227dba50ee7 *src/getopt.h
-ffb2f3246d202307efbee0a393567908 *tests/tests.R
-6886e60161faf51865035c22434feebc *tests/tests.Rout.save
+b1d7080f5fb1f0ccffcc1e51c32e94d8 *tests/tests.R
+669931b682cd23a193d768ae52aeacdd *tests/tests.Rout.save

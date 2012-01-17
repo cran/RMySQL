@@ -1,8 +1,8 @@
 
-R version 2.14.1 Patched (2012-01-05 r58065)
-Copyright (C) 2012 The R Foundation for Statistical Computing
+R version 2.14.1 (2011-12-22)
+Copyright (C) 2011 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
-Platform: i386-pc-mingw32/i386 (32-bit)
+Platform: i486-pc-linux-gnu (32-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
@@ -22,24 +22,22 @@ Loading required package: DBI
 > 
 > ## 0 dbConnect()
 > user <- Sys.getenv("MYSQL_USER", unset = NA)
-> password <- Sys.getenv("MYSQL_PASSWORD", unset = NA)
+> password <- Sys.getenv("MYSQL_PASSWORD", unset = '')
 > dbname <- Sys.getenv("MYSQL_DATABASE", unset = "test")
 > 
 > drv <- dbDriver("MySQL")
-> conn <- try(if (is.na(user) && is.na(password)) {
+> 
+> conn <- try(if (is.na(user)) {
 +    # in this leg user and password should be set in my.ini or my.cnf files
 +    dbConnect(drv, dbname = dbname)
 + } else {
-+    # in this leg they were specified via environment variables
 +    dbConnect(drv, user =  user, password = password, dbname = dbname)
 + })
+> 
 > if (inherits(conn, "try-error")) {
 +   cat("unable to connect to MySQL\n")
 +   q()
 + }
-> 
-> dbListTables(conn)
-[1] "anscombe"    "h"           "iris"        "trendsource"
 > 
 > ## 1 Ensure that dbWriteTable doesn't add trailing \r
 > dbRemoveTable(conn, "myDF")         # precaution
@@ -56,23 +54,9 @@ Loading required package: DBI
 > stopifnot(identical(myDF, myDF2))
 > dbRemoveTable(conn, "myDF")
 [1] TRUE
-> dbDisconnect(conn)
-[1] TRUE
 > 
 > ## 2 Exercise fetch.default.rec and dbGetRowCount... along with 
 > ##   dbSendQuery() and fetch()
-> drv <- MySQL(fetch.default.rec=2)
-> conn <- try(if (is.na(user) && is.na(password)) {
-+    # in this leg user and password should be set in my.ini or my.cnf files
-+    dbConnect(drv, dbname = dbname)
-+ } else {
-+    # in this leg they were specified via environment variables
-+    dbConnect(drv, user =  user, password = password, dbname = dbname)
-+ })
-> if (inherits(conn, "try-error")) {
-+   cat("unable to connect to MySQL\n")
-+   q()
-+ }
 > 
 > dbRemoveTable(conn, "iris")         # precaution
 [1] TRUE
