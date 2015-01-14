@@ -85,8 +85,15 @@ if [ $(echo "$OSTYPE" | grep "darwin") ]; then
     exit 0;
   fi
   echo "Failed to install mysql-connector-c."
-  echo "Please install brew and run: brew install mysql-connector-c."
-  exit 1
+
+  # Fix for CRAN OSX 10.6
+  if [ -r /usr/local/mysql/include/mysql.h ]; then
+    echo "Found mysql /usr/local/mysql. Lets try that then."
+    echo "PKG_CPPFLAGS= -I/usr/local/mysql/include/" > src/Makevars
+    echo "PKG_LIBS= -L/usr/local/mysql/lib -lmysqlclient" >> src/Makevars
+    exit 0
+  fi
+  # Fall through on general methods
 fi
 
 # Check for presence of system libraires on Linux and friends:
@@ -94,6 +101,8 @@ if [ -r /usr/include/mysql/mysql.h ]; then
   echo "PKG_CPPFLAGS= -I/usr/include/mysql/" > src/Makevars
 elif [ -r /usr/local/include/mysql/mysql.h ]; then
   echo "PKG_CPPFLAGS= -I/usr/local/include/mysql/" > src/Makevars
+elif [ -r /usr/local/mysql/include/mysql.h ]; then
+  echo "PKG_CPPFLAGS= -I/usr/local/mysql/include/" > src/Makevars
 else
   echo "File mysql.h not found. Please install mysql development library, e.g: libmysqlclient-dev (deb) or mariadb-devel (rpm)."
   exit 1
@@ -103,6 +112,8 @@ if [ -r /usr/lib/mysql ]; then
   echo "PKG_LIBS= -L/usr/lib/mysql -lmysqlclient -lz" >> src/Makevars
 elif [ -r /usr/lib64/mysql ]; then
   echo "PKG_LIBS= -L/usr/lib64/mysql -lmysqlclient -lz" >> src/Makevars
+elif [ -r /usr/local/mysql/lib ]; then
+  echo "PKG_LIBS= -L/usr/local/mysql/lib -lmysqlclient -lz" >> src/Makevars
 else
   echo "PKG_LIBS= -lmysqlclient -lz" >> src/Makevars
 fi

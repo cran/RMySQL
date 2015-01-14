@@ -1,4 +1,4 @@
-7c063e2e2c88513fbb7f85e85e1c2e30 *DESCRIPTION
+6f60c65bcd5ade1fe5cb2b1dc132812e *DESCRIPTION
 63d3fa68a761bd2ca63bcb237fd90b94 *NAMESPACE
 770ee6371f3964979622625f3a8d2059 *R/connection.R
 913bcd6b3d753a392ca27f6ff3051c4b *R/data-type.R
@@ -9,11 +9,11 @@ f5c9b24d9d6377d3820a3b4942b4f13f *R/extension.R
 6522900008fdc03348f2e91130b06ee5 *R/is-valid.R
 35f83db05db8dfe4d07db73a6af6e15b *R/mysql.R
 3cd0b6e0de90d4a1694acb7613a30bf6 *R/result.R
-82f4d708c45caeeaed9a9107d7b154df *R/table.R
+24d6d12aca6de4e59f00c5125515264d *R/table.R
 74e46497e2ca82289da8984f108f2e42 *R/transaction.R
 c526add13bb8f11b82601d2e4ac9e2ae *R/zzz_compatibility.R
 dd17be53ea45814b39ecba4252e441bc *README.md
-3488b46e5126c0a458767521572e9b3f *configure
+07e9356b52ed5455d5c49ff89ce2dee2 *configure
 d41d8cd98f00b204e9800998ecf8427e *configure.win
 1d51e9737e24c61f5d16d60e99486225 *man/MySQLConnection-class.Rd
 6cd361bf5c674f42d4dd23035983703f *man/MySQLDriver-class.Rd
