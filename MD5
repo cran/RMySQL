@@ -1,4 +1,4 @@
-6f60c65bcd5ade1fe5cb2b1dc132812e *DESCRIPTION
+94ede0a9a43318fb07eb63b13fd54aec *DESCRIPTION
 63d3fa68a761bd2ca63bcb237fd90b94 *NAMESPACE
 770ee6371f3964979622625f3a8d2059 *R/connection.R
 913bcd6b3d753a392ca27f6ff3051c4b *R/data-type.R
@@ -13,7 +13,7 @@ f5c9b24d9d6377d3820a3b4942b4f13f *R/extension.R
 74e46497e2ca82289da8984f108f2e42 *R/transaction.R
 c526add13bb8f11b82601d2e4ac9e2ae *R/zzz_compatibility.R
 dd17be53ea45814b39ecba4252e441bc *README.md
-07e9356b52ed5455d5c49ff89ce2dee2 *configure
+d7ad8124d139134c5aa24606a132634a *configure
 d41d8cd98f00b204e9800998ecf8427e *configure.win
 1d51e9737e24c61f5d16d60e99486225 *man/MySQLConnection-class.Rd
 6cd361bf5c674f42d4dd23035983703f *man/MySQLDriver-class.Rd
@@ -39,7 +39,7 @@ c99cb1bc2c03f5ab41dd6010cbda7689 *man/mysqlBuildTableDefinition.Rd
 7d078de7781c75498a8ab7ad012b6fbc *man/query.Rd
 5f5fa8e5f32acf98f459372c9bef3460 *man/result-meta.Rd
 272f27bcdb0f91bfb262ccb05af7a7e7 *man/transactions.Rd
-55a5b381914701238bfeab5f9dad612e *src/Makevars.win
+a9ad8e8f1972a4441dbd2aa02f603d78 *src/Makevars.win
 bf372bb6fd9c8c982b80930de820ceee *src/RMySQL-init.c
 19ac3939181119e6297f10a30b60640c *src/RS-MySQL.h
 a18895fa75ff410d06efbd05f18bc90c *src/S4R.h
@@ -57,4 +57,4 @@ c76812fc254cf4707d37b8dd9545bf18 *tests/testthat/test-dbWriteTable.R
 8c216377a643bc5acf5fca8ca2e969a5 *tests/testthat/test-queries.R
 ecafcfde2c5bcd1e8618a11856647046 *tests/testthat/test-tables.R
 3e33b8dc81dc5e2c59808987ea907dad *tools/mysql-connector-c.rb
-443162ba16371fb2424a9df9070dab1d *tools/winlibs.R
+f44c085a8013cb8e8d2c87c225a52afb *tools/winlibs.R
