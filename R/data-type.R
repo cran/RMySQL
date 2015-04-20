@@ -1,6 +1,3 @@
-#' @include driver.R connection.R
-NULL
-
 #' Determine the SQL Data Type of an S object
 #'
 #' This method is a straight-forward implementation of the corresponding
