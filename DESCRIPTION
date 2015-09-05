@@ -1,5 +1,5 @@
 Package: RMySQL
-Version: 0.10.5
+Version: 0.10.6
 Title: Database Interface and 'MySQL' Driver for R
 Description: Implements 'DBI' Interface to 'MySQL' and 'MariaDB' Databases.
 Authors@R: c(person("Jeroen", "Ooms", email = "jeroen.ooms@stat.ucla.edu", role = c("aut", "cre")),
@@ -22,7 +22,7 @@ Collate: 'mysql.R' 'driver.R' 'connection.R' 'data-type.R' 'default.R'
         'escaping.R' 'result.R' 'extension.R' 'is-valid.R' 'table.R'
         'transaction.R'
 Suggests: testthat
-Packaged: 2015-08-25 12:01:11 UTC; jeroen
+Packaged: 2015-09-05 11:41:54 UTC; jeroen
 Author: Jeroen Ooms [aut, cre],
   David James [aut],
   Saikat DebRoy [aut],
@@ -31,4 +31,4 @@ Author: Jeroen Ooms [aut, cre],
   RStudio [cph]
 Maintainer: Jeroen Ooms <jeroen.ooms@stat.ucla.edu>
 Repository: CRAN
-Date/Publication: 2015-08-25 16:06:48
+Date/Publication: 2015-09-05 15:35:14
