@@ -1,5 +1,5 @@
 Package: RMySQL
-Version: 0.10.6
+Version: 0.10.7
 Title: Database Interface and 'MySQL' Driver for R
 Description: Implements 'DBI' Interface to 'MySQL' and 'MariaDB' Databases.
 Authors@R: c(person("Jeroen", "Ooms", email = "jeroen.ooms@stat.ucla.edu", role = c("aut", "cre")),
@@ -14,15 +14,15 @@ License: GPL-2
 URL: https://github.com/rstats-db/rmysql,
         https://downloads.mariadb.org/connector-c/
 BugReports: https://github.com/rstats-db/rmysql/issues
-SystemRequirements: libmariadb-client-dev / libmysqlclient-dev (deb),
-        mariadb-devel (rpm), mariadb or mysql-connector-c (brew),
-        mysql56_dev (csw)
+SystemRequirements: libmariadb-client-dev | libmariadb-client-lgpl-dev
+        | libmysqlclient-dev (deb), mariadb-devel (rpm), mariadb |
+        mysql-connector-c (brew), mysql56_dev (csw)
 NeedsCompilation: yes
 Collate: 'mysql.R' 'driver.R' 'connection.R' 'data-type.R' 'default.R'
         'escaping.R' 'result.R' 'extension.R' 'is-valid.R' 'table.R'
         'transaction.R'
 Suggests: testthat
-Packaged: 2015-09-05 11:41:54 UTC; jeroen
+Packaged: 2015-10-27 13:35:11 UTC; jeroen
 Author: Jeroen Ooms [aut, cre],
   David James [aut],
   Saikat DebRoy [aut],
@@ -31,4 +31,4 @@ Author: Jeroen Ooms [aut, cre],
   RStudio [cph]
 Maintainer: Jeroen Ooms <jeroen.ooms@stat.ucla.edu>
 Repository: CRAN
-Date/Publication: 2015-09-05 15:35:14
+Date/Publication: 2015-10-27 16:25:56
