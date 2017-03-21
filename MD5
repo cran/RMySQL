@@ -1,6 +1,6 @@
-5b17488db8fe61292c92f9dc6fc03bf5 *DESCRIPTION
+3e93dc3453d600a92102d6ac12dc3147 *DESCRIPTION
 0d10a135b168ce98bc1b65b473a44b5a *NAMESPACE
-98cc48f7b89e43ad8aad8dc69707dd02 *NEWS.md
+788bb0912c2c2708298854fe5ca1deaa *NEWS.md
 770ee6371f3964979622625f3a8d2059 *R/connection.R
 466baffd5b7c6a4ed0be94d7330a56a4 *R/data-type.R
 f77975c929581d80f07b5b1181cd9568 *R/default.R
@@ -12,8 +12,8 @@ f5c9b24d9d6377d3820a3b4942b4f13f *R/extension.R
 81d02d5a0c0c6f10d1a0e6ae1a075e0f *R/result.R
 504a03ba3c6cf6bf84aa98d9afe5057d *R/table.R
 74e46497e2ca82289da8984f108f2e42 *R/transaction.R
-15a6b820c725d9f0178dc7cf2617434c *README.md
-27c18be06dbdff0c2a36e4b84fb54cd2 *configure
+22dee8373b5d678926e2ae1d05ec5091 *README.md
+c708054958dccf3f3d2b85bce4e47ea1 *configure
 d41d8cd98f00b204e9800998ecf8427e *configure.win
 d770c0d1ea935eacc7fada736c779079 *man/MySQLConnection-class.Rd
 a9d3a13c6df22f3c4a859d8a1ed62837 *man/MySQLDriver-class.Rd
@@ -40,8 +40,8 @@ e4457b662672847fa005e177a9ed4351 *man/dbWriteTable.Rd
 97818bab1d072b3bb9b6a8233952f6a5 *man/result-meta.Rd
 1d6e542ea2d20a5318470a99c8d12740 *man/transactions.Rd
 111e1efb50ff675feb507ea42a24b300 *src/Makevars.in
-5b68957d7099a553477985722caee8a2 *src/Makevars.win
-bf372bb6fd9c8c982b80930de820ceee *src/RMySQL-init.c
+46ef57f8cf3565f18cf205523de111cf *src/Makevars.win
+0c16d992df778d6c9c6db0f2364b9481 *src/RMySQL-init.c
 19ac3939181119e6297f10a30b60640c *src/RS-MySQL.h
 06fd4f0feb553ebd78ab3ccf1cede699 *src/S4R.h
 09412ead445afbc44672fb52e5a33e6d *src/connection.c
@@ -53,9 +53,9 @@ c740cad960e5ae28dc071200a0db74fd *src/exception.c
 fbc00fcfb9624e3b7e0840f915598d07 *src/result.c
 7c84e431878f80318401de60449e008f *src/utils.c
 1ac630d06a0a5f7c98ac113f301f7477 *tests/testthat.R
-a068d5330949c7f13f695ca5f62e1364 *tests/testthat/dat-n.txt
-c76812fc254cf4707d37b8dd9545bf18 *tests/testthat/test-dbWriteTable.R
+a068d5330949c7f13f695ca5f62e1364 *tests/testthat/dat-n.bin
+cac23acd19d0eb40542556735cad49ae *tests/testthat/test-dbWriteTable.R
 8c216377a643bc5acf5fca8ca2e969a5 *tests/testthat/test-queries.R
-ecafcfde2c5bcd1e8618a11856647046 *tests/testthat/test-tables.R
+13d5f7a6836a61d22028f28fe8a21f0e *tests/testthat/test-tables.R
 c850c529a3e89cc7cfd0ae54656ca9f5 *tools/mysql-connector-c.rb
-56a540cfe97fc7cf865d982b9a679401 *tools/winlibs.R
+7ad7e76dcfb3830a32aa5c58f7e07a3b *tools/winlibs.R
