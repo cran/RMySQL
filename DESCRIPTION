@@ -1,9 +1,10 @@
 Package: RMySQL
-Version: 0.10.11
+Version: 0.10.12
 Title: Database Interface and 'MySQL' Driver for R
-Description: A 'DBI' interface to 'MySQL' / 'MariaDB'. The CRAN version of this package
-    contains an old branch based on legacy code from S-PLUS, which being phased out. A
-    modern rewrite based on 'Rcpp' can be obtained from the 'Github' repository.
+Description: A 'DBI' interface to 'MySQL' / 'MariaDB'. The 'RMySQL' package contains an 
+    old implementation based on legacy code from S-PLUS which being phased out. A modern
+    'MySQL' client based on 'Rcpp' is available from the 'RMariaDB' package on 'Github':
+    <https://github.com/rstats-db/RMariaDB>.
 Authors@R: c(person("Jeroen", "Ooms", email = "jeroen@berkeley.edu", role = c("aut", "cre")),
     person("David", "James", role = "aut"),
     person("Saikat", "DebRoy", role = "aut"),
@@ -24,7 +25,7 @@ Collate: 'mysql.R' 'driver.R' 'connection.R' 'data-type.R' 'default.R'
         'escaping.R' 'result.R' 'extension.R' 'is-valid.R' 'table.R'
         'transaction.R'
 Suggests: testthat
-Packaged: 2017-03-29 09:56:34 UTC; jeroen
+Packaged: 2017-07-05 16:24:26 UTC; jeroen
 Author: Jeroen Ooms [aut, cre],
   David James [aut],
   Saikat DebRoy [aut],
@@ -33,4 +34,4 @@ Author: Jeroen Ooms [aut, cre],
   RStudio [cph]
 Maintainer: Jeroen Ooms <jeroen@berkeley.edu>
 Repository: CRAN
-Date/Publication: 2017-03-29 10:15:02 UTC
+Date/Publication: 2017-07-06 10:50:03 UTC
