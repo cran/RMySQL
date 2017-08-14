@@ -1,3 +1,8 @@
+# Version 0.10.13
+
+ * Add cleanup script (requested by CRAN)
+ * Fix PROTECT() bugs from rchk
+
 # Version 0.10.12
 
  * Windows: update libmariadbclient to v2.3.3 (fixes a timeout bug)
