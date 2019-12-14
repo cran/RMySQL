@@ -1,6 +1,6 @@
-45a55f2f1fc0ea82b614c43c7f29a61e *DESCRIPTION
+3c730cd59ce11c6f0cf55a4d652c6f67 *DESCRIPTION
 0d10a135b168ce98bc1b65b473a44b5a *NAMESPACE
-d42d6d5d2b79d43fb18e2bb9ef8e9ba6 *NEWS.md
+2ac858efcacdda085649803df947a9b0 *NEWS.md
 770ee6371f3964979622625f3a8d2059 *R/connection.R
 466baffd5b7c6a4ed0be94d7330a56a4 *R/data-type.R
 f77975c929581d80f07b5b1181cd9568 *R/default.R
@@ -13,7 +13,7 @@ f5c9b24d9d6377d3820a3b4942b4f13f *R/extension.R
 504a03ba3c6cf6bf84aa98d9afe5057d *R/table.R
 74e46497e2ca82289da8984f108f2e42 *R/transaction.R
 6071edd604dbeb75308cfbedc7790398 *cleanup
-e97ece5ce2e927d42f7f94a9b9b2e295 *configure
+fb1e1865d2fd6da0f428e9b7f50724fd *configure
 d41d8cd98f00b204e9800998ecf8427e *configure.win
 d770c0d1ea935eacc7fada736c779079 *man/MySQLConnection-class.Rd
 a9d3a13c6df22f3c4a859d8a1ed62837 *man/MySQLDriver-class.Rd
