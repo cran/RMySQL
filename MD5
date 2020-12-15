@@ -1,6 +1,6 @@
-cc0edded3afea6e43945adff72c57881 *DESCRIPTION
+4518e733d1c812aea6705288729343b3 *DESCRIPTION
 9896ccc9c7b3ae7ddf6a87fd6291d629 *NAMESPACE
-febce61877afc7b4f89eaf4a06214863 *NEWS.md
+834107b8112b512bffd8739f0fad0e32 *NEWS.md
 770ee6371f3964979622625f3a8d2059 *R/connection.R
 774aa880209ec8ef84354125fa657574 *R/data-type.R
 f77975c929581d80f07b5b1181cd9568 *R/default.R
@@ -13,7 +13,7 @@ f77975c929581d80f07b5b1181cd9568 *R/default.R
 504a03ba3c6cf6bf84aa98d9afe5057d *R/table.R
 74e46497e2ca82289da8984f108f2e42 *R/transaction.R
 bc7baead3b6080f04dc81efd2fe1ff39 *cleanup
-0b2ee2db43d0a6a997c498db807955d4 *configure
+d20688d58430bc47fb5d175525f5d7f7 *configure
 d41d8cd98f00b204e9800998ecf8427e *configure.win
 4a6bbeeaae56c5b968e8dbde2c3eff3d *man/MySQLConnection-class.Rd
 2fdfff757aaaa2d166b301f07505bebb *man/MySQLDriver-class.Rd
@@ -40,7 +40,7 @@ c83e75b4e1e122f9a00ef3dc572e34b1 *man/query.Rd
 a89de2d298da31726f5053e1ae04b2b0 *man/result-meta.Rd
 19959d304852e8b6936a9700ea69e941 *man/transactions.Rd
 907343d8176df8e5611a85761a3e91f1 *src/Makevars.in
-033847b34d0e5bcba4e740b63bcd0179 *src/Makevars.win
+9b2e765b129a9dc7eac058edc20ab90d *src/Makevars.win
 0c16d992df778d6c9c6db0f2364b9481 *src/RMySQL-init.c
 8dd284558de4e33539ff24c1ef2c3910 *src/RS-MySQL.h
 b419b66a86b8c70b6e02e28e29711c23 *src/S4R.h
@@ -54,6 +54,7 @@ c740cad960e5ae28dc071200a0db74fd *src/exception.c
 88ea4cb442f522fc8b9a93bdc96b29f7 *src/utils.c
 1ac630d06a0a5f7c98ac113f301f7477 *tests/testthat.R
 a068d5330949c7f13f695ca5f62e1364 *tests/testthat/dat-n.bin
+3c09a21af4a8590c9469191e114ec167 *tests/testthat/test-dbQuoteString.R
 cac23acd19d0eb40542556735cad49ae *tests/testthat/test-dbWriteTable.R
 8c216377a643bc5acf5fca8ca2e969a5 *tests/testthat/test-queries.R
 13d5f7a6836a61d22028f28fe8a21f0e *tests/testthat/test-tables.R
