@@ -1,5 +1,5 @@
 Package: RMySQL
-Version: 0.10.21
+Version: 0.10.22
 Title: Database Interface and 'MySQL' Driver for R
 Description: Legacy 'DBI' interface to 'MySQL' / 'MariaDB' based on old code
     ported from S-PLUS. A modern 'MySQL' client based on 'Rcpp' is available 
@@ -25,7 +25,7 @@ Collate: 'mysql.R' 'driver.R' 'connection.R' 'data-type.R' 'default.R'
         'transaction.R'
 Suggests: RMariaDB, testthat, curl
 RoxygenNote: 7.0.2
-Packaged: 2020-12-15 20:33:46 UTC; jeroen
+Packaged: 2021-06-22 15:38:40 UTC; jeroen
 Author: Jeroen Ooms [aut, cre] (<https://orcid.org/0000-0002-4035-0289>),
   David James [aut],
   Saikat DebRoy [aut],
@@ -34,4 +34,4 @@ Author: Jeroen Ooms [aut, cre] (<https://orcid.org/0000-0002-4035-0289>),
   RStudio [cph]
 Maintainer: Jeroen Ooms <jeroen@berkeley.edu>
 Repository: CRAN
-Date/Publication: 2020-12-15 21:50:08 UTC
+Date/Publication: 2021-06-22 16:30:02 UTC
