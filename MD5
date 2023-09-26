@@ -1,6 +1,6 @@
-c2ffbbaf9d007b96c8267921ab24c739 *DESCRIPTION
+3cc276650a2b111f10ea7813ecb6be14 *DESCRIPTION
 9896ccc9c7b3ae7ddf6a87fd6291d629 *NAMESPACE
-637b5583fbe772bfce7cbbf54c2e65a8 *NEWS.md
+7438dd7858d727de0a4abfdbba72de3d *NEWS.md
 770ee6371f3964979622625f3a8d2059 *R/connection.R
 774aa880209ec8ef84354125fa657574 *R/data-type.R
 f77975c929581d80f07b5b1181cd9568 *R/default.R
@@ -40,8 +40,7 @@ c83e75b4e1e122f9a00ef3dc572e34b1 *man/query.Rd
 a89de2d298da31726f5053e1ae04b2b0 *man/result-meta.Rd
 19959d304852e8b6936a9700ea69e941 *man/transactions.Rd
 907343d8176df8e5611a85761a3e91f1 *src/Makevars.in
-8c6051ce39d5dbf7488d3addead4c456 *src/Makevars.ucrt
-52b1172d45ecaf24adf8213aefafa4d3 *src/Makevars.win
+1b6a7a950c38790853611e94abac7ceb *src/Makevars.win
 0c16d992df778d6c9c6db0f2364b9481 *src/RMySQL-init.c
 567b67b317923e4d9b12bd4146119043 *src/RS-MySQL.h
 b419b66a86b8c70b6e02e28e29711c23 *src/S4R.h
@@ -59,4 +58,4 @@ a068d5330949c7f13f695ca5f62e1364 *tests/testthat/dat-n.bin
 cac23acd19d0eb40542556735cad49ae *tests/testthat/test-dbWriteTable.R
 8c216377a643bc5acf5fca8ca2e969a5 *tests/testthat/test-queries.R
 13d5f7a6836a61d22028f28fe8a21f0e *tests/testthat/test-tables.R
-97b53926fd67a4b1659ab2b3e3bfa5dd *tools/winlibs.R
+3ff87e58aff280211b5a1cac5961ee0a *tools/winlibs.R
