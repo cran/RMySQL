@@ -1,6 +1,6 @@
-d913a59744412b1748f0cf6e1061cdde *DESCRIPTION
+4127307386a04542c31f1c7e542d4e23 *DESCRIPTION
 9896ccc9c7b3ae7ddf6a87fd6291d629 *NAMESPACE
-5a8a304f8d1c21500212bf46eb94f2ec *NEWS.md
+044cd12e5bfb9192858743a913f4f247 *NEWS.md
 770ee6371f3964979622625f3a8d2059 *R/connection.R
 774aa880209ec8ef84354125fa657574 *R/data-type.R
 f77975c929581d80f07b5b1181cd9568 *R/default.R
@@ -11,7 +11,7 @@ f77975c929581d80f07b5b1181cd9568 *R/default.R
 35f83db05db8dfe4d07db73a6af6e15b *R/mysql.R
 09f394712d90166719d4ac976b151044 *R/result.R
 504a03ba3c6cf6bf84aa98d9afe5057d *R/table.R
-74e46497e2ca82289da8984f108f2e42 *R/transaction.R
+bb9bd59374a86fb9ef886fdbaff60efd *R/transaction.R
 bc7baead3b6080f04dc81efd2fe1ff39 *cleanup
 16e48d31b0d78e0c27caece84f1d42b2 *configure
 d41d8cd98f00b204e9800998ecf8427e *configure.win
@@ -38,7 +38,7 @@ e14a787c4590cc5877ad2f45bacce7ce *man/make.db.names-MySQLConnection-character-me
 2194c91722a487674cc342a00ac75371 *man/mysqlHasDefault.Rd
 476cc4a1f9df5a4313f8db760bb0ee7a *man/query.Rd
 a89de2d298da31726f5053e1ae04b2b0 *man/result-meta.Rd
-19959d304852e8b6936a9700ea69e941 *man/transactions.Rd
+dfc293edf9a287cbd316b7377debd5d0 *man/transactions.Rd
 907343d8176df8e5611a85761a3e91f1 *src/Makevars.in
 1b6a7a950c38790853611e94abac7ceb *src/Makevars.win
 0c16d992df778d6c9c6db0f2364b9481 *src/RMySQL-init.c
