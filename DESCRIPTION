@@ -1,10 +1,10 @@
 Package: RMySQL
-Version: 0.10.28
+Version: 0.10.29
 Title: Database Interface and 'MySQL' Driver for R
 Description: Legacy 'DBI' interface to 'MySQL' / 'MariaDB' based on old code
     ported from S-PLUS. A modern 'MySQL' client written in 'C++' is available
     from the 'RMariaDB' package.
-Authors@R: c(person("Jeroen", "Ooms", email = "jeroen@berkeley.edu", 
+Authors@R: c(person("Jeroen", "Ooms", email = "jeroenooms@gmail.com", 
       role = c("aut", "cre"), comment = c(ORCID = "0000-0002-4035-0289")),
     person("David", "James", role = "aut"),
     person("Saikat", "DebRoy", role = "aut"),
@@ -14,7 +14,7 @@ Authors@R: c(person("Jeroen", "Ooms", email = "jeroen@berkeley.edu",
 Depends: R (>= 2.8.0), DBI (>= 0.4)
 Imports: methods
 License: GPL-2
-URL: https://r-dbi.r-universe.dev/RMySQL,
+URL: https://r-dbi.r-universe.dev/RMySQL
         https://downloads.mariadb.org/connector-c/
 BugReports: https://github.com/r-dbi/rmysql/issues
 SystemRequirements: libmariadb-client-dev | libmariadb-client-lgpl-dev
@@ -26,13 +26,13 @@ Collate: 'mysql.R' 'driver.R' 'connection.R' 'data-type.R' 'default.R'
         'transaction.R'
 Suggests: testthat, curl
 RoxygenNote: 7.3.2.9000
-Packaged: 2024-08-21 20:41:50 UTC; jeroen
+Packaged: 2024-10-03 14:13:11 UTC; jeroen
 Author: Jeroen Ooms [aut, cre] (<https://orcid.org/0000-0002-4035-0289>),
   David James [aut],
   Saikat DebRoy [aut],
   Hadley Wickham [aut],
   Jeffrey Horner [aut],
   RStudio [cph]
-Maintainer: Jeroen Ooms <jeroen@berkeley.edu>
+Maintainer: Jeroen Ooms <jeroenooms@gmail.com>
 Repository: CRAN
-Date/Publication: 2024-08-22 08:00:01 UTC
+Date/Publication: 2024-10-04 11:20:05 UTC
