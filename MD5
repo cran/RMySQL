@@ -1,6 +1,6 @@
-740e4528bf64fb508debe6ffcf4d2884 *DESCRIPTION
+8c2899a9fc60a4336e74116ea8411d01 *DESCRIPTION
 9896ccc9c7b3ae7ddf6a87fd6291d629 *NAMESPACE
-044cd12e5bfb9192858743a913f4f247 *NEWS.md
+5e19d2180ce2af376d51bf98f5a164c0 *NEWS.md
 770ee6371f3964979622625f3a8d2059 *R/connection.R
 774aa880209ec8ef84354125fa657574 *R/data-type.R
 f77975c929581d80f07b5b1181cd9568 *R/default.R
@@ -40,7 +40,7 @@ e14a787c4590cc5877ad2f45bacce7ce *man/make.db.names-MySQLConnection-character-me
 a89de2d298da31726f5053e1ae04b2b0 *man/result-meta.Rd
 dfc293edf9a287cbd316b7377debd5d0 *man/transactions.Rd
 907343d8176df8e5611a85761a3e91f1 *src/Makevars.in
-1b6a7a950c38790853611e94abac7ceb *src/Makevars.win
+5c31ee64e05993d68566f4cfc88cab1f *src/Makevars.win
 0c16d992df778d6c9c6db0f2364b9481 *src/RMySQL-init.c
 567b67b317923e4d9b12bd4146119043 *src/RS-MySQL.h
 b419b66a86b8c70b6e02e28e29711c23 *src/S4R.h
@@ -51,7 +51,7 @@ c740cad960e5ae28dc071200a0db74fd *src/exception.c
 04b87fae5a133bec62e874a5dd1545f2 *src/fields.c
 04e5914a4a36d4ef4821c227dba50ee7 *src/getopt.h
 1b87bfb1059b2cf5a666e3afb586ec16 *src/result.c
-3c72f597600a6785fde11fbe78366673 *src/utils.c
+4e940f72c5b22c0c029686f5a58644e7 *src/utils.c
 1ac630d06a0a5f7c98ac113f301f7477 *tests/testthat.R
 a068d5330949c7f13f695ca5f62e1364 *tests/testthat/dat-n.bin
 3c09a21af4a8590c9469191e114ec167 *tests/testthat/test-dbQuoteString.R
